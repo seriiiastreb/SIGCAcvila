@@ -140,49 +140,49 @@ public partial class _Default : System.Web.UI.Page
                 decimal euroRate = Crypt.Utils.MyDecimalParce(cursEUROTextBox.Text.Trim());
                 decimal usdRate = Crypt.Utils.MyDecimalParce(cursUSDTextBox.Text.Trim());
 
-                if (!Utils.ModuleCredits().UpdateCurrencyRate(date, (int)Constants.CurrencyList.EURO, euroRate))
-                { Utils.InfoText(this, "Eroare de salvare!", "Rata de schimb pentru EURO nu a fost salvata."); }
+                //if (!Utils.ModuleCredits().UpdateCurrencyRate(date, (int)Constants.CurrencyList.EURO, euroRate))
+                //{ Utils.InfoText(this, "Eroare de salvare!", "Rata de schimb pentru EURO nu a fost salvata."); }
 
-                if (!Utils.ModuleCredits().UpdateCurrencyRate(date, (int)Constants.CurrencyList.USD, usdRate))
-                { Utils.InfoText(this, "Eroare de salvare!", "Rata de schimb pentru EURO nu a fost salvata."); }
+                //if (!Utils.ModuleCredits().UpdateCurrencyRate(date, (int)Constants.CurrencyList.USD, usdRate))
+                //{ Utils.InfoText(this, "Eroare de salvare!", "Rata de schimb pentru EURO nu a fost salvata."); }
             }
         }
         catch (Exception ex)
         {
-            Utils.InfoText(this, "Atentie! Eroare in sistem!", ex.Message);
+            Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Error on Page.", ex.Message);
         }
     }
 
-    protected void login_Ok_Button_Click(object sender, EventArgs e)
-    {
-        try
-        {
-            string username = userNameTextBox.Text.Trim();
-            string password = passwordTextBox.Text;
+    //protected void login_Ok_Button_Click(object sender, EventArgs e)
+    //{
+    //    try
+    //    {
+    //        string username = userNameTextBox.Text.Trim();
+    //        string password = passwordTextBox.Text;
 
-            Security.User mUserObject = Security.User.Login(username, password);
+    //        Security.User mUserObject = Security.User.Login(username, password);
             
-            if (mUserObject != null && mUserObject.UserID != 0)
-            {            
-                Session["UserObject"] = mUserObject;
-                Session["ModuleSecurity"] = new Security.Module();
-                Session["ModuleMain"] = new Security.MainModule();             
+    //        if (mUserObject != null && mUserObject.UserID != 0)
+    //        {            
+    //            Session["UserObject"] = mUserObject;
+    //            Session["ModuleSecurity"] = new Security.Module();
+    //            Session["ModuleMain"] = new Security.MainModule();             
 
-                Response.Redirect(appPath + "/Default.aspx", false);  
-            }
-            else
-            {
-                Utils.InfoText(this, "USERNAME sau PAROLA nu este corecta", "In Baza de date nu s-a gasit astfel de USERNAME, sau dumneavoastra ati gresit parola. Va rog verificati corectitudinea datelor introduse!");
-            }
+    //            Response.Redirect(appPath + "/Default.aspx", false);  
+    //        }
+    //        else
+    //        {
+    //            Utils.InfoText(this, "USERNAME sau PAROLA nu este corecta", "In Baza de date nu s-a gasit astfel de USERNAME, sau dumneavoastra ati gresit parola. Va rog verificati corectitudinea datelor introduse!");
+    //        }
 
-            Session["MenuObject"] = GenerateNavigationMenu();
-            Utils.GetMaster(this).ShowMainMenu();
-        }
-        catch (Exception ex)
-        {
-            Utils.InfoText(this, "Atentie! Eroare in sistem!", ex.Message);
-        }
-    }
+    //        Session["MenuObject"] = GenerateNavigationMenu();
+    //        Utils.GetMaster(this).ShowMainMenu();
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Utils.InfoText(this, "Atentie! Eroare in sistem!", ex.Message);
+    //    }
+    //}
 
     public string GenerateNavigationMenu()
     {

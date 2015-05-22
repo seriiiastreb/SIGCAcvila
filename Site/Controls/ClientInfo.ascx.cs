@@ -16,20 +16,20 @@ public partial class Controls_ClientInfo : System.Web.UI.UserControl
     {
         clientDateOfBirthCalendarExtender.Format = Constants.ISODateBackwardDotsFormat;
 
-        if (!IsPostBack)
-        {
-            DataTable countryList = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.CountryList);
-            Utils.FillSelector(rAddressClientCountryDDL, countryList, "Name", "Code");
-            try
-            {
-                rAddressClientCountryDDL.SelectedValue = Constants.DefaultCountry.ToString();
-                rAddressClientCountryDDL.Enabled = false;
+        //if (!IsPostBack)
+        //{
+        //    DataTable countryList = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.CountryList);
+        //    Utils.FillSelector(rAddressClientCountryDDL, countryList, "Name", "Code");
+        //    try
+        //    {
+        //        rAddressClientCountryDDL.SelectedValue = Constants.DefaultCountry.ToString();
+        //        rAddressClientCountryDDL.Enabled = false;
 
-                FillRealRaionDDDL();
-            }
-            catch
-            { }           
-        }
+        //        FillRealRaionDDDL();
+        //    }
+        //    catch
+        //    { }           
+        //}
     }
 
     protected void FillRealRaionDDDL()
@@ -49,70 +49,70 @@ public partial class Controls_ClientInfo : System.Web.UI.UserControl
         infoBoxTitleLabel.Text = string.Empty;
 
         //personalPhotoOnlyFileLink.Value = string.Empty;
-        clientNumeTextBox.Text = string.Empty;
-        clientPrenumeTextBox.Text = string.Empty;
-        clientDateOfBirthTextBox.Text = string.Empty;
-        clientPlaseOfBirthTextBox.Text = string.Empty;
-        addNewClientTelefonFixTextBox.Text = string.Empty;
-        addNewClientTelefonMobilTextBox.Text = string.Empty;
-        addNewClientTelefonMobil2TextBox.Text = string.Empty;
-        addNewClientEmailTextBox.Text = string.Empty;
+        //clientNumeTextBox.Text = string.Empty;
+        //clientPrenumeTextBox.Text = string.Empty;
+        //clientDateOfBirthTextBox.Text = string.Empty;
+        //clientPlaseOfBirthTextBox.Text = string.Empty;
+        //addNewClientTelefonFixTextBox.Text = string.Empty;
+        //addNewClientTelefonMobilTextBox.Text = string.Empty;
+        //addNewClientTelefonMobil2TextBox.Text = string.Empty;
+        //addNewClientEmailTextBox.Text = string.Empty;
 
-        ////// personal address
-        rAddressClientLocalitateaTextBox.Text = string.Empty;
-        rAddressAddresaStradaTextBox.Text = string.Empty;
+        //////// personal address
+        //rAddressClientLocalitateaTextBox.Text = string.Empty;
+        //rAddressAddresaStradaTextBox.Text = string.Empty;
 
-        try
-        {
-            rAddressClientCountryDDL.SelectedValue = Constants.DefaultCountry.ToString();
-            FillRealRaionDDDL();
-        }
-        catch { }
+        //try
+        //{
+        //    rAddressClientCountryDDL.SelectedValue = Constants.DefaultCountry.ToString();
+        //    FillRealRaionDDDL();
+        //}
+        //catch { }
 
-        rAddressClientRaionDDL.SelectedIndex = -1;
-        rAddressUrbanRuralDDL.SelectedIndex = 0;
+        //rAddressClientRaionDDL.SelectedIndex = -1;
+        //rAddressUrbanRuralDDL.SelectedIndex = 0;
     }
 
     public void Show()
     {
-        string appPath = Utils.GetApplicationPath(Request);
-        ClearPersonalDataForms();
+    //    string appPath = Utils.GetApplicationPath(Request);
+    //    ClearPersonalDataForms();
         
-        if (mClientID != 0)
-        {
-            Credits.DataObjects.Client clientObject = Utils.ModuleCredits().GetCleintObjectByID(mClientID);
+    //    if (mClientID != 0)
+    //    {
+    //        Credits.DataObjects.Client clientObject = Utils.ModuleCredits().GetCleintObjectByID(mClientID);
 
-            if (clientObject != null)
-            {
-                infoBoxTitleLabel.Text = "Informatia operativa pentru contragent";
+    //        if (clientObject != null)
+    //        {
+    //            infoBoxTitleLabel.Text = "Informatia operativa pentru contragent";
 
-                ////  general info                
-                clientImage.ImageUrl = Utils.ModuleCredits().RootModuleFolder + "/" + clientObject.ImageURL;
-                clientNumeTextBox.Text = clientObject.FirstName;
-                clientPrenumeTextBox.Text = clientObject.LastName;
-                clientDateOfBirthTextBox.Text = clientObject.BirthDate.ToString(Constants.ISODateBackwardDotsFormat);
-                clientPlaseOfBirthTextBox.Text = clientObject.PlaceOfBirth;
-                addNewClientTelefonFixTextBox.Text = clientObject.TelefonFix;
-                addNewClientTelefonMobilTextBox.Text = clientObject.TelefonMobil;
-                addNewClientTelefonMobil2TextBox.Text = clientObject.TelefonMobil2;
-                addNewClientEmailTextBox.Text = clientObject.Email;
+    //            ////  general info                
+    //            clientImage.ImageUrl = Utils.ModuleCredits().RootModuleFolder + "/" + clientObject.ImageURL;
+    //            clientNumeTextBox.Text = clientObject.FirstName;
+    //            clientPrenumeTextBox.Text = clientObject.LastName;
+    //            clientDateOfBirthTextBox.Text = clientObject.BirthDate.ToString(Constants.ISODateBackwardDotsFormat);
+    //            clientPlaseOfBirthTextBox.Text = clientObject.PlaceOfBirth;
+    //            addNewClientTelefonFixTextBox.Text = clientObject.TelefonFix;
+    //            addNewClientTelefonMobilTextBox.Text = clientObject.TelefonMobil;
+    //            addNewClientTelefonMobil2TextBox.Text = clientObject.TelefonMobil2;
+    //            addNewClientEmailTextBox.Text = clientObject.Email;
 
-                //////   address form
-                rAddressClientLocalitateaTextBox.Text = clientObject.Raddress_Localitatea;
-                rAddressAddresaStradaTextBox.Text = clientObject.Raddress_StradaAdresa;
+    //            //////   address form
+    //            rAddressClientLocalitateaTextBox.Text = clientObject.Raddress_Localitatea;
+    //            rAddressAddresaStradaTextBox.Text = clientObject.Raddress_StradaAdresa;
               
-                try { rAddressUrbanRuralDDL.SelectedValue = clientObject.Raddress_UrbanRural; }
-                catch { }
+    //            try { rAddressUrbanRuralDDL.SelectedValue = clientObject.Raddress_UrbanRural; }
+    //            catch { }
 
-                try { rAddressClientCountryDDL.SelectedValue = clientObject.Raddress_Country != 0 ? clientObject.Raddress_Country.ToString() : Constants.DefaultCountry.ToString(); }
-                catch { }
-                FillRealRaionDDDL();
+    //            try { rAddressClientCountryDDL.SelectedValue = clientObject.Raddress_Country != 0 ? clientObject.Raddress_Country.ToString() : Constants.DefaultCountry.ToString(); }
+    //            catch { }
+    //            FillRealRaionDDDL();
 
-                try { rAddressClientRaionDDL.SelectedValue = clientObject.Raddress_Raion.ToString(); }
-                catch { }               
-            }
-        }
+    //            try { rAddressClientRaionDDL.SelectedValue = clientObject.Raddress_Raion.ToString(); }
+    //            catch { }               
+    //        }
+    //    }
         
-        this.programmaticModalPopup.Show();
+    //    this.programmaticModalPopup.Show();
     }
 }

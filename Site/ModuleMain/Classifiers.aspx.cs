@@ -52,7 +52,7 @@ public partial class Classifiers : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Utils.InfoText(this, "Atentie! Eroare in sistem!", ex.Message);
+            Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Error on Page.", ex.Message);
         }
     }
 
@@ -97,7 +97,7 @@ public partial class Classifiers : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Utils.InfoText(this, "Atentie! Eroare in sistem!", ex.Message);
+            Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Error on Page.", ex.Message);
         }
     }
 
@@ -221,7 +221,7 @@ public partial class Classifiers : System.Web.UI.Page
             }
             catch (Exception ex)
             {
-                Utils.InfoText(this, "Eroare in System!", ex.Message.ToString());
+                Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Error on Page.", ex.Message);
             }
         }
         else
@@ -264,7 +264,7 @@ public partial class Classifiers : System.Web.UI.Page
                 }
             }
             catch (Exception ex)
-            { Utils.InfoText(this, "Eroare in System!", ex.Message.ToString()); }
+            { Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Error on Page.", ex.Message); }
         }
         else
         {
@@ -291,11 +291,11 @@ public partial class Classifiers : System.Web.UI.Page
                 }
                 else
                 {
-                    Utils.InfoText(this, "Atentie", " Stergerea Tipului de calsificator nu a fost efectuata. Verificati conectiunea internetului ");
+                    Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Warning, "Atentie", " Stergerea Tipului de calsificator nu a fost efectuata.");
                 }
             }
             catch (Exception ex)
-            { Utils.InfoText(this, "Eroare in System!", ex.Message.ToString()); }
+            { Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Error on Page.", ex.Message); }
         }
         else
         {
@@ -362,7 +362,7 @@ public partial class Classifiers : System.Web.UI.Page
             }
             catch (Exception ex)
             {
-                Utils.InfoText(this, "Eroare in System!", ex.Message.ToString());
+                Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Error on Page.", ex.Message);
             }        
         }
         else
@@ -390,7 +390,7 @@ public partial class Classifiers : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Utils.InfoText(this, "Eroare in System!", ex.Message.ToString());
+            Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Error on Page.", ex.Message);
         }
     }
 
@@ -420,7 +420,7 @@ public partial class Classifiers : System.Web.UI.Page
             }
             catch (Exception ex)
             {
-                Utils.InfoText(this, "Eroare in System!", ex.Message.ToString());
+                Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Error on Page.", ex.Message);
             }        
         }
         else
@@ -459,7 +459,7 @@ public partial class Classifiers : System.Web.UI.Page
             }
             catch (Exception ex)
             {
-                Utils.InfoText(this, "Eroare in System!", ex.Message.ToString());
+                Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Error on Page.", ex.Message);
             }        
         }
         else

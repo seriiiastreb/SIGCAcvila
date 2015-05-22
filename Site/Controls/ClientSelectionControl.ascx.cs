@@ -70,45 +70,45 @@ public partial class ClientSelectionControl : System.Web.UI.UserControl
         }
         set 
         {
-            selectedClientIDInCSCHiddenField.Value = value.ToString();
-            DataTable clientInfo = Utils.ModuleCredits().GetClientByID(value);
+            //selectedClientIDInCSCHiddenField.Value = value.ToString();
+            //DataTable clientInfo = Utils.ModuleCredits().GetClientByID(value);
 
-            if (clientInfo != null && clientInfo.Rows.Count == 1)
-            {
-                selectedClientFirstNameHiddenField.Value = clientInfo.Rows[0]["FirstName"].ToString();
-                SelectedClientLastNameHiddenField.Value = clientInfo.Rows[0]["LastName"].ToString();
-                SelectedClientIDNOHiddenField.Value = clientInfo.Rows[0]["personalID"].ToString();
-                SelectedClientBirthDateHiddenField.Value = clientInfo.Rows[0]["DateOfBirth"] != System.DBNull.Value ? ((DateTime)clientInfo.Rows[0]["DateOfBirth"]).ToString(Constants.ISODateBackwardDotsFormat) : string.Empty;
-            }
+            //if (clientInfo != null && clientInfo.Rows.Count == 1)
+            //{
+            //    selectedClientFirstNameHiddenField.Value = clientInfo.Rows[0]["FirstName"].ToString();
+            //    SelectedClientLastNameHiddenField.Value = clientInfo.Rows[0]["LastName"].ToString();
+            //    SelectedClientIDNOHiddenField.Value = clientInfo.Rows[0]["personalID"].ToString();
+            //    SelectedClientBirthDateHiddenField.Value = clientInfo.Rows[0]["DateOfBirth"] != System.DBNull.Value ? ((DateTime)clientInfo.Rows[0]["DateOfBirth"]).ToString(Constants.ISODateBackwardDotsFormat) : string.Empty;
+            //}
         }
     }
 
-    public void BindDataSource()
-    {
-        clientCategoriesTreeView.Nodes[0].ChildNodes.Clear();
+    //public void BindDataSource()
+    //{
+    //    clientCategoriesTreeView.Nodes[0].ChildNodes.Clear();
 
-        DataTable categoriesDT = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.ClientCategories);
+    //    DataTable categoriesDT = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.ClientCategories);
         
-        if(categoriesDT != null && categoriesDT.Rows.Count > 0)
-        {
-            for(int i=0; i< categoriesDT.Rows.Count; i++)
-            {
-                if ((int)categoriesDT.Rows[i]["Code"] != 0)
-                {
-                    TreeNode rotNode = clientCategoriesTreeView.Nodes[0];
+    //    if(categoriesDT != null && categoriesDT.Rows.Count > 0)
+    //    {
+    //        for(int i=0; i< categoriesDT.Rows.Count; i++)
+    //        {
+    //            if ((int)categoriesDT.Rows[i]["Code"] != 0)
+    //            {
+    //                TreeNode rotNode = clientCategoriesTreeView.Nodes[0];
 
-                    TreeNode newNode = new TreeNode();
-                    newNode.Text = categoriesDT.Rows[i]["Name"].ToString();
-                    newNode.Value = categoriesDT.Rows[i]["Code"].ToString();
+    //                TreeNode newNode = new TreeNode();
+    //                newNode.Text = categoriesDT.Rows[i]["Name"].ToString();
+    //                newNode.Value = categoriesDT.Rows[i]["Code"].ToString();
 
-                    rotNode.ChildNodes.Add(newNode);
-                }
-            }
-        }
+    //                rotNode.ChildNodes.Add(newNode);
+    //            }
+    //        }
+    //    }
 
-        clientCategoriesTreeView.Nodes[0].Selected = true;
-        FillClientsGridView();
-    }
+    //    clientCategoriesTreeView.Nodes[0].Selected = true;
+    //    FillClientsGridView();
+    //}
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -192,17 +192,17 @@ public partial class ClientSelectionControl : System.Web.UI.UserControl
         clientiGridView.DataSource = null;
         clientiGridView.DataBind();
 
-        Credits.Module moduleCredits = Utils.ModuleCredits();
+        //Credits.Module moduleCredits = Utils.ModuleCredits();
 
-        if (moduleCredits != null)
-        {
-            int category = 0;
-            int.TryParse(clientCategoriesTreeView.SelectedValue, out category);
+        //if (moduleCredits != null)
+        //{
+        //    int category = 0;
+        //    int.TryParse(clientCategoriesTreeView.SelectedValue, out category);
 
-            DataTable clientsDT = moduleCredits.GetClientlist(category);
-            clientiGridView.DataSource = clientsDT;
-            clientiGridView.DataBind();
-        }
+        //    DataTable clientsDT = moduleCredits.GetClientlist(category);
+        //    clientiGridView.DataSource = clientsDT;
+        //    clientiGridView.DataBind();
+        //}
     }   
 
     protected void clientiGridView_RowDataBound(object sender, System.Web.UI.WebControls.GridViewRowEventArgs e)

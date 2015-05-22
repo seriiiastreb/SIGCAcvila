@@ -161,7 +161,7 @@
 
 
     <asp:Panel ID="clientWorkPanel" Visible="false" runat="server">
-        <ajax:TabContainer ID="detailsClientTabContainer"  runat="server" cssclass="ajax__myTab"  Width="100%" ActiveTabIndex="0">  
+        <ajax:TabContainer ID="detailsClientTabContainer"  runat="server" cssclass="ajax__myTab"  Width="100%" ActiveTabIndex="5">  
             <ajax:TabPanel ID="generalInfoTabPanel" runat="server">                
                 <HeaderTemplate>&nbsp; Generalizari&nbsp; </HeaderTemplate>                	
                 <ContentTemplate>
@@ -206,10 +206,6 @@
                                 <td><asp:Label ID="genInfoActiveSavingsLabel" runat="server"></asp:Label></td>
                             </tr>
                         </table>
-
-
-
-                                                
                                                          
                     </div>
                     <div style="width:80%;float:left;">
@@ -221,7 +217,9 @@
                         <asp:Button runat="server" id="addNewCreditButton" Text="+ Credit" style="width:150px;" OnClick="addNewCreditButton_Click" />
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <asp:Button runat="server" Text="Personal Folder" Width="150px" ID="clientPersonalFolderButton" OnClick="clientPersonalFolderButton_Click"></asp:Button>
-                        &nbsp;<br /><asp:GridView ID="loansGridView" runat="server"                            
+                        &nbsp;<br />
+                        
+                        <asp:GridView ID="loansGridView" runat="server"                            
                             AutoGenerateColumns="False" 
                             CssClass="mGrid"
                             AllowPaging="True"         
@@ -397,341 +395,13 @@
                 </ContentTemplate>                
             </ajax:TabPanel>
 
-            <ajax:TabPanel ID="bankInfoTabPanel" runat="server">
-                <HeaderTemplate>  Banca  </HeaderTemplate>	
-                <ContentTemplate>  
-                    <div class="TreeLeftColumn groupDataPanel" >
-                        <fieldset>
-                            <legend>DATELE BANCARE</legend>                                
-                            <dl> 
-                                <dt class="part">Banca Selectata: </dt>
-                                <dd class="part"><asp:DropDownList ID="clientBankDDL" runat="server" AutoPostBack="true" OnSelectedIndexChanged="clientBankDDL_SelectedIndexChanged" ></asp:DropDownList></dd>
-                                                                        
-                                <dt class="inpart">IBAN: </dt>
-                                <dd class="inpart"><asp:TextBox ID="clientBankIBANTextBox" runat="server" ReadOnly="True" CssClass="microElement"/></dd>
+      
 
-                                <dt class="part">Contul bancar: </dt>
-                                <dd class="part"><asp:TextBox ID="clientBankContBancarTextBox" runat="server" CssClass="microElement"/></dd>
-                            </dl>                             
-                        </fieldset>
-                    </div>    
-                    <br />
-                    <div class="centerBox" style="width:255px">
-                            <asp:Button ID="Button3"  runat="server" Text="Save Personal Data" onclick="clientPersonalDataSaveButton_Click" Width="150px"  />
-                            <asp:Button ID="Button4" runat="server" Text="Cancel"  onclick="clientPersonalDataCancelButton_Click" Width="100px"  />
-                    </div>                
-                </ContentTemplate>
-            </ajax:TabPanel>
-
-            <ajax:TabPanel ID="AddressInfoTabPanel" runat="server">
-                <HeaderTemplate>&nbsp;Adrese&nbsp;</HeaderTemplate>	
-                <ContentTemplate>  
-                         <div class="TreeCenterColumn">
-                                <asp:Panel ID="adresaPanel" runat="server" GroupingText="ADRESA" CssClass="groupDataPanel">                               
-                                    <asp:Label ID="Label9" runat="server" Text="Viza de resedinta"></asp:Label>
-                                    <dl>         
-                                        <dt class="part">Tara: </dt>
-                                        <dd class="part"><asp:DropDownList ID="vizaClientAddressCountryDDL" runat="server"  AutoPostBack="True"  onselectedindexchanged="vizaClientCountryDDL_SelectedIndexChanged" CssClass="microDDL"/></dd>
-
-                                        <dt class="inpart">Raionul: </dt>
-                                        <dd class="inpart"> <asp:DropDownList ID="vizaClientAddressClientRaionDDL" runat="server" CssClass="microDDL"/></dd>
-
-                                        <dt class="part">Urban / Rural : </dt>
-                                        <dd class="part"> <asp:DropDownList ID="vizaUrbanRuralDDL" runat="server" CssClass="microDDL">
-                                                <asp:ListItem Text="**"/>
-                                                <asp:ListItem Text="Rural"  Value="Rural"/>
-                                                <asp:ListItem Text="Urban"  Value="Urban"/>
-                                            </asp:DropDownList>
-                                        </dd>
-
-                                        <dt class="inpart">Localitatea:  </dt>
-                                        <dd class="inpart"><asp:TextBox ID="vizaClientAddressLocalitateaTextBox" runat="server" CssClass="microElement"/></dd>
-
-                                        <dt class="part">Adresa/Strada:  </dt>
-                                        <dd class="part"><asp:TextBox ID="vizaClientAddressAdresaTextBox" runat="server" CssClass="microElement"/></dd>
-                                    </dl>
-
-                                    <br /><br />
-                                        Adresa reala de locuinta
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <asp:Button ID="copyInfoFromVizaAddress" runat="server" OnClick="copyInfoFromVizaAddress_Click" Text="Copie de la viza de resedinta" />
-                                    <dl>
-                                        <dt class="part">Tara:</dt>
-                                        <dd class="part"><asp:DropDownList ID="rAddressClientCountryDDL" runat="server"  AutoPostBack="True"  onselectedindexchanged="rAddressClientCountryDDL_SelectedIndexChanged" CssClass="microDDL"/></dd>
-
-                                        <dt class="inpart">Raionul: </dt>
-                                        <dd class="inpart"><asp:DropDownList ID="rAddressClientRaionDDL" runat="server" CssClass="microDDL"/></dd>
-
-                                        <dt class="part">Urban / Rural : </dt>
-                                        <dd class="part"> <asp:DropDownList ID="rAddressUrbanRuralDDL" runat="server" CssClass="microDDL">
-                                                <asp:ListItem Text="**"/>
-                                                <asp:ListItem Text="Rural"  Value="Rural"/>
-                                                <asp:ListItem Text="Urban"  Value="Urban"/>
-                                            </asp:DropDownList>
-                                        </dd>
-
-                                        <dt class="inpart">Localitatea: </dt>
-                                        <dd class="inpart"><asp:TextBox ID="rAddressClientLocalitateaTextBox" runat="server" CssClass="microElement"/></dd>
-
-                                        <dt class="part">Adresa/Strada: </dt>
-                                        <dd class="part"><asp:TextBox ID="rAddressAddresaStradaTextBox" runat="server" CssClass="microElement"/></dd>
-                                    </dl>        
-                                    
-                                    <br />
-                                    <div class="centerBox" style="width:255px">
-                                            <asp:Button ID="Button5"  runat="server" Text="Save Personal Data" onclick="clientPersonalDataSaveButton_Click" Width="150px"  />
-                                            <asp:Button ID="Button6" runat="server" Text="Cancel"  onclick="clientPersonalDataCancelButton_Click" Width="100px"  />
-                                    </div>        
-                                </asp:Panel>
-                            </div>
-                </ContentTemplate>
-            </ajax:TabPanel>
-
-            <ajax:TabPanel ID="BussnessInformationTabPanel" runat="server">
-                <HeaderTemplate>&nbsp;Descriere Afacere&nbsp;</HeaderTemplate>				    
-                    <ContentTemplate>
+           
   
-                        <div class="leftColumn" style="padding:4px 4px 4px 4px; background-color: white; width:48%; ">
-                            <dl> 
-                                <dt class="part" style="width:200px;">Domeniu Economic: </dt>
-                                <dd class="part"><asp:DropDownList ID="clientBusinessSectorAfacereDDL" runat="server" CssClass="microDDL" /></dd>
-
-                                <dt class="impart" style="width:200px;">Tip Afacere: </dt>
-                                <dd class="impart"><asp:TextBox ID="tipAfacereTextBox" runat="server"  CssClass="microElement"/></dd>
-
-                                <dt class="part" style="height:50px; width:200px;">Descriere afacere: </dt>
-                                <dd class="part" style="height:50px;"><asp:textbox runat="server" ID="clientBusinessDexcriereActivitateTextbox" TextMode="MultiLine" CssClass="microElement" Height="100%"/></dd>
-
-                                <dt class="impart" style="width:200px;">Ani de experienta in domeniu: </dt>
-                                <dd class="impart"><asp:TextBox ID="clientBusinessAniExperientaInDomeniuTextBox" runat="server"  CssClass="microElement"/></dd>
-
-                                <dt class="part" style="width:200px;">Ani de experienta in afaceri: </dt>
-                                <dd class="part"><asp:TextBox ID="clientBusinessAniExperientaInAfaceriTextBox" runat="server"  CssClass="microElement"/></dd>
-
-                                <dt class="impart" style="width:200px;">Data inceperii afacerii: </dt>
-                                <dd class="impart">
-                                    <asp:TextBox ID="bussinesStartDateTextBox" runat="server"  CssClass="microElement"/>
-                                    <ajax:CalendarExtender ID="bussinesStartDateCalendarExtender" runat="server"  TargetControlID="bussinesStartDateTextBox" />
-                                </dd>
-
-                                <dt class="part" style="width:200px;">Forma de activitate a afacerii: </dt>
-                                <dd class="part"><asp:DropDownList ID="clientBusinessFormaInregisrAfaceriiDDL" runat="server" CssClass="microDDL" /></dd>
-                            </dl>                                       
-                        </div>        
-                             
-                        <div class="rightColumn" style="padding:4px 4px 4px 4px; background-color: white; width:48%;">     
-                            <dl> 
-                                <dt class="part" style="width:200px;">Suprafata teren agricol: </dt>
-                                <dd class="part"><asp:TextBox ID="clientBussinesSuprafataTerenAgricolTextBox" runat="server"  CssClass="microElement"></asp:TextBox></dd>
-
-                                <dt class="impart" style="width:200px;">Cladiri Comerciale: </dt>
-                                <dd class="impart"><asp:TextBox ID="clientBussinesCladiriComTextBox" runat="server"  CssClass="microElement"/></dd>
-                                
-                                <dt class="part" style="width:200px;">Animale: </dt>
-                                <dd class="part"><asp:TextBox ID="clientBussinesAnimaleTextBox" runat="server"  CssClass="microElement"></asp:TextBox></dd>
-
-                                <dt class="impart" style="width:200px;">Vehicole Comerciale: </dt>
-                                <dd class="impart"><asp:TextBox ID="clientBussinesvehicoleComercialeTextBox" runat="server"  CssClass="microElement"/></dd>
-
-                                <dt class="part" style="width:200px;">Nr. angajati:</dt>
-                                <dd class="part"><asp:TextBox ID="clientBussinesNrAngajatiTextBox" runat="server"  CssClass="microElement"></asp:TextBox></dd>
-
-                                <dt class="impart" style="width:200px;">Datorii:</dt>
-                                <dd class="impart"><asp:TextBox ID="clientBussinesDatoriiTextBox" runat="server"  CssClass="microElement"></asp:TextBox></dd>
-                            </dl>                                   
-                        </div>
-
-                            <div class="clear"></div>
-
-                            <div class="centerBox" style="width:220px">
-                                <asp:Button ID="clientBusinessSaveButton"  runat="server" Text="Save" Width="100px" onclick="clientBusinessSaveButton_Click"   />
-                                <asp:Button ID="clientBusinessCancelButton" runat="server" Text="Cancel" Width="100px"  onclick="clientBusinessCancelButton_Click"  />
-                            </div>
-                    </ContentTemplate>			    
-                </ajax:TabPanel>   
-
-            <ajax:TabPanel ID="personalTrainingsTabPanel" runat="server">
-                        <HeaderTemplate>&nbsp;Instruire&nbsp;</HeaderTemplate>  
-                            <ContentTemplate>
-                           
-                                    <div class="leftColumn">
-                                        <asp:GridView ID="personalTrainigsGridView" runat="server"                            
-                                            AutoGenerateColumns="False" 
-                                            CssClass="mGrid"
-                                            AllowPaging="True"         
-                                            PageSize="3"
-                                            OnRowDeleting="personalTrainigsGridView_Deleting"
-                                            onpageindexchanging="personalTrainigsGridView_PageIndexChanging" 
-                                            onselectedindexchanging="personalTrainigsGridView_SelectedIndexChanging" 
-                                            onrowdatabound="personalTrainigsGridView_RowDataBound">
-                                            <AlternatingRowStyle CssClass="alt" />
-                                            <Columns>
-                                                <asp:BoundField DataField="trainingID" HeaderText="trainingID"  HeaderStyle-CssClass="HiddenColumn" ItemStyle-CssClass="HiddenColumn" HtmlEncode="False" />                                
-
-                                                <asp:BoundField DataField="TrainingName" HeaderText="Denumirea Instruirii" HtmlEncode="true" />
-
-                                                <asp:TemplateField HeaderText="Training Date">
-                                                    <ItemTemplate>
-                                                        <asp:Label ID="trainingDateLabel" runat="server" Text='<%# ((Eval("trainingDate") != null && Eval("trainingDate") is DateTime) ?  ((DateTime)Eval("trainingDate")).ToString(Constants.ISODateBackwardDotsFormat) : "") %>'></asp:Label>
-                                                    </ItemTemplate>
-                                                </asp:TemplateField>    
-                                        
-                                                <asp:BoundField DataField="tipulInstruirii" HeaderText="Tipul Instruirii" HtmlEncode="true" />
-                                        
-                                                <asp:BoundField DataField="trainingScop" HeaderText="trainingScop" HtmlEncode="true" HeaderStyle-CssClass="HiddenColumn" ItemStyle-CssClass="HiddenColumn" />
-                                                <asp:BoundField DataField="DescrirereaInstruirii" HeaderText="DescrirereaInstruirii" HtmlEncode="true" HeaderStyle-CssClass="HiddenColumn" ItemStyle-CssClass="HiddenColumn" />
-
-                                                <asp:TemplateField HeaderText="Delete">
-                                                    <ItemTemplate>
-                                                            <asp:Button ID="deleteButton" runat="server" CommandName="Delete" Text="Delete" OnClientClick="return confirm('Sunteti sigur?');" />
-                                                    </ItemTemplate>
-                                                </asp:TemplateField>                                                               
-                                            </Columns>
-                                            <PagerStyle CssClass="pgr" />
-                                            <SelectedRowStyle BackColor="#CCCCFF" />
-                                        </asp:GridView>
-                                    </div>
-
-                                    <div class="rightColumn"  style="text-align:center"> 
-                                        <asp:Label runat="server" ID="infoLabel" Text="DETALII CURS DE INSTRUIRE" 
-                                            Font-Bold="True" Font-Italic="False" Font-Size="Large" ></asp:Label>    
-                                        <table>
-                                            <tr>
-                                                <td class="infoTableLeft"><asp:Label runat="server" ID="Label1" Text="Data:" /></td>
-                                                <td class="infoTableRigth"><asp:Label runat="server" ID="dataLabel" Text="" /></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="infoTableLeft"><asp:Label runat="server" ID="Label2" Text="Operator:" /></td>
-                                                <td class="infoTableRigth"><asp:Label runat="server" ID="operatorLabel" Text="" /></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="infoTableLeft"><asp:Label runat="server" ID="Label3" Text="Tip instruire:" /></td>
-                                                <td class="infoTableRigth"><asp:Label runat="server" ID="tipInstruireLabel" Text="" /></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="infoTableLeft"><asp:Label runat="server" ID="Label4" Text="Denumirea:" /></td>
-                                                <td class="infoTableRigth"><asp:Label runat="server" ID="denumireaLabel" Text="" /></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="infoTableLeft"><asp:Label runat="server" ID="Label5" Text="Scop:" /></td>
-                                                <td class="infoTableRigth"><asp:Label runat="server" ID="scopLabel" Text="" /></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="infoTableLeft"><asp:Label runat="server" ID="Label6" Text="Descriere:" /></td>
-                                                <td class="infoTableRigth"><asp:Label runat="server" ID="descriereLabel" Text="" /></td>
-                                            </tr>
-                                        </table>    
-                                    </div>
-                                    <div class="clear"></div>
-                                    <div class="centerBox">                            
-                                        <asp:Button ID="addPersonalTrainiButton" runat="server" Text="Add new Training" onclick="addPersonalTrainiButton_Click" />
-                               
-                                        <asp:Panel ID="addPersonalTrainingPanel" runat="server" Visible="false">
-                                            <asp:DropDownList ID="addPersonalTrainingListDDL" runat="server" Width="400px"> </asp:DropDownList>
-                                            <asp:Button ID="addPersonalTrainingSaveButton" runat="server" Text="Save" onclick="addPersonalTrainingSaveButton_Click" />
-                                        </asp:Panel>  
-                                    </div>
-                            </ContentTemplate>
-                    </ajax:TabPanel>
-
-            <ajax:TabPanel ID="consultingTabPanel" runat="server">
-                        <HeaderTemplate> Consultari / Evaluari </HeaderTemplate> 				    
-                        <ContentTemplate>                      
-                            <div style="float:left; width:30%;" >
-                                <asp:Panel ID="Panel2" runat="server" GroupingText="Editarea unei Evaluari/Consultari" CssClass="groupDataPanel">
-                                        <dl> 
-                                        <dt class="part" style="width:170px;">Data: </dt>
-                                        <dd class="part">
-                                            <asp:TextBox ID="editDataTextBox" runat="server" CssClass="microElement"></asp:TextBox>
-                                            <ajax:CalendarExtender ID="editDataCalendarExtender" runat="server"  TargetControlID="editDataTextBox" Enabled="True"/>
-                                        </dd>
-
-                                        <dt class="impart" style="width:170px;">Operator: </dt>
-                                        <dd class="impart"><asp:DropDownList ID="consultEvalOperDDL" runat="server" CssClass="microDDL" /> </dd>
-
-                                        <dt class="part" style="width:170px;">Tip consultare/evaluare: </dt>
-                                        <dd class="part"><asp:DropDownList ID="tipConsultEvalDDL" runat="server"  CssClass="microDDL"/>  </dd>
-
-                                        <dt class="impart" style="width:170px; height:50px;">Scopul: </dt>
-                                        <dd class="impart" style="height:70px;"><asp:TextBox ID="editConsultDescriptionTextBox" runat="server" Height="70px"  Width="100%" TextMode="MultiLine" CssClass="microElement"></asp:TextBox></dd>
-
-                                    </dl>
-                                </asp:Panel>
-
-                                <asp:Panel ID="Panel3" runat="server" GroupingText="Parametrii de evaluare" CssClass="groupDataPanel">
-                                    <dl> 
-                                        <dt class="part" style="width:170px;">Starea afaracerii: </dt>
-                                        <dd class="part"> <asp:DropDownList ID="consultEvalBussnesStateDDL" runat="server" CssClass="microDDL" />  </dd>
-
-                                        <dt class="impart" style="width:170px;">Nr. de angajati: </dt>
-                                        <dd class="impart"><asp:TextBox ID="editNrEmplTextBox" runat="server" CssClass="microElement"></asp:TextBox></dd>
-
-                                        <dt class="part" style="width:170px;">Venit mediu lunar:</dt>
-                                        <dd class="part"> <asp:TextBox ID="editAverajeMonthlyIncomeTextBox" runat="server" CssClass="microElement"></asp:TextBox>  </dd>
-
-                                        <dt class="impart" style="width:170px; height:50px;">Scurta descriere a situatiei la zi (eventual cauza falimentului): </dt>
-                                        <dd class="impart" style="height:70px;"><asp:TextBox ID="editShortDescriptionStateTextBox" runat="server" Height="70px"  Width="100%" TextMode="MultiLine" CssClass="microElement"></asp:TextBox></dd>
-
-                                    </dl>
-                                </asp:Panel>
-                            </div>
-                            <div style="float:right; width:70%;">
-                                <asp:Button ID="addNewConsultEvalButton" runat="server" Text="Adaugarea unei noi Consultari / Evaluari" onclick="addNewConsultEvalButton_Click" />
-                                <asp:GridView ID="consultEvalGridView" runat="server"                            
-                                    AutoGenerateColumns="False" 
-                                    CssClass="mGrid"
-                                    AllowPaging="True"         
-                                    onselectedindexchanged="consultEvalGridView_SelectedIndexChanged" 
-                                    onrowdatabound="consultEvalGridView_RowDataBound" 
-                                    onrowdeleting="consultEvalGridView_RowDeleting">
-                                    <AlternatingRowStyle CssClass="alt" />
-                                    <Columns>     
-                                        <asp:BoundField DataField="clevid" HeaderText="clevid" HtmlEncode="False" >                       
-                                            <HeaderStyle CssClass="HiddenColumn" />
-                                            <ItemStyle CssClass="HiddenColumn" />
-                                        </asp:BoundField>
-                                        <asp:TemplateField HeaderText="Data">
-                                            <ItemTemplate>
-                                                <asp:Label ID="consultDataLabel" runat="server" Text='<%# ((Eval("data") != null && Eval("data") is DateTime) ?  ((DateTime)Eval("data")).ToString(Constants.ISODateBackwardDotsFormat) : "") %>'></asp:Label>
-                                            </ItemTemplate>
-                                        </asp:TemplateField>    
-
-                                        <asp:BoundField DataField="Operator Full Name" HeaderText="Operator"  HtmlEncode="False" />                                
-                                        <asp:BoundField DataField="TipConsultEval_string" HeaderText="Tip Consultare" HtmlEncode="False" />                                        
-                                        <asp:BoundField DataField="BusinessState_string" HeaderText="Starea Afacerii" HtmlEncode="False" />   
-                                        <asp:BoundField DataField="fotocount" HeaderText="Fotografii anexate" HtmlEncode="False" />  
-                                        <asp:TemplateField HeaderText="Delete">
-                                            <ItemTemplate>
-                                                    <asp:Button ID="deleteButton" runat="server" CommandName="Delete" Text="Delete" OnClientClick="return confirm('Sunteti sigur ca vreti sa stergeti?');" />
-                                            </ItemTemplate>
-                                        </asp:TemplateField>                                                           
-                                    </Columns>
-                                    <PagerStyle CssClass="pgr" />
-                                    <SelectedRowStyle BackColor="#CCCCFF" />
-                                </asp:GridView>
-
-                                <br />
-
-                                <asp:FileUpload ID="editConsultFileUpload" AllowMultiple="True" runat="server"  />   
-                                <asp:Button ID="editFileUploadButton" runat="server" Text="Upload" onclick="editFileUploadButton_Click" />
-                                    <br />                            
-                                <div id="editConsultPfotoContainer" runat="server"> </div>
-                            </div>
-                   
-                            <div class="clear"></div>
-
-                            <div class="centerBox" style="width:150px">
-                                <asp:Button ID="editConsultSaveButton"  runat="server" Text="Save" onclick="editConsultSaveButton_Click"   />
-                                <asp:Button ID="editConsultCancelButton" runat="server" Text="Cancel"  onclick="editConsultCancelButton_Click"  />
-                            </div>  
-                        </ContentTemplate> 		        
-                    </ajax:TabPanel>
-
         </ajax:TabContainer>          
 
-         <fb:FileBrowser ID="personalFileBrowser" runat="server" />   
-         <csd:ClientSelectionControl ID="husbandClientSelectionControl" runat="server" TitleWindow="Lista Contragentilor Inregistrati" ParameterX="200" ParameterY="200" OnOnClientSelected="husbandClientSelectionControl_OnClientSelected" />
-  
+     
     </asp:Panel>
 
 </asp:Content>
