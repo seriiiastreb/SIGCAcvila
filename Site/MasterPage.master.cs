@@ -7,6 +7,24 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
     public string navMainMenu = string.Empty;
     string mCurrentModule = string.Empty;
 
+    void IMasterItems.ShowMessage(int messageType, string messageTitle, string message)
+    {
+        InfoWindow infoBox = (InfoWindow)container.FindControl("InfoBox");
+        if (infoBox == null)
+        {
+            infoBox = (InfoWindow)LoadControl("~/Controls/InfoWindow.ascx");
+        }
+
+        infoBox.ID = "InfoBox";
+        infoBox.MessageType = messageType;
+        infoBox.WindowTitle = messageTitle;
+        infoBox.Message = message;
+
+        container.Controls.Add(infoBox);
+        infoBox.Show();
+    }
+
+
     bool IMasterItems.IsEmptyNavLinks
     {
         get
