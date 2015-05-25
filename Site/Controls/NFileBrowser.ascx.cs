@@ -67,13 +67,13 @@ public partial class Controls_NFileBrowser : System.Web.UI.UserControl
 
     protected void uploadButtonButton_Click(object sender, EventArgs e)
     {
-        if (FileUpload1.HasFiles)
-        {
-            foreach (HttpPostedFile uploadedFile in FileUpload1.PostedFiles)
-            {
-                uploadedFile.SaveAs(Server.MapPath(FileManager.RootDirectories[0] + "/" + uploadedFile.FileName)); 
-            }
-        }
+        //if (FileUpload1.HasFiles)
+        //{
+        //    foreach (HttpPostedFile uploadedFile in FileUpload1.PostedFiles)
+        //    {
+        //        uploadedFile.SaveAs(Server.MapPath(FileManager.RootDirectories[0] + "/" + uploadedFile.FileName)); 
+        //    }
+        //}
 
         modalPopup.Show();
     }
