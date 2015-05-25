@@ -646,33 +646,13 @@ public partial class Clients : System.Web.UI.Page
         eliberatDeTextBox.Text = string.Empty;
         dataEliberariiTextBox.Text = string.Empty;
         dataExpirariiTextBox.Text = string.Empty;
-        husbandDescriptionTextbox.Text = string.Empty;
-        personalDataClientCildrensTextBox.Text = string.Empty;
-        nrPersoaneInIntretinereTextbox.Text = string.Empty;
-        personalDataClientVenitLunarInceputTextBox.Text = string.Empty;
-        slujireaInBisericaTextBox.Text = string.Empty;
-        pastorLiderTextBox.Text = string.Empty;
-        telefonPastorTextBox.Text = string.Empty;
-
-        try { clientChurchDDL.SelectedIndex = 0; }
-        catch { }
-
-        try { situatiaMaterialaDDL.SelectedIndex = 0; }
-        catch { }
+       
 
         try { clientGenderDDL.SelectedIndex = 0; }
         catch { }
 
         try { clientCivilStatusDDL.SelectedIndex = 0; }
         catch { }
-
-        try { clientEducationLevelDDL.SelectedIndex = 0; }
-        catch { }
-
-        try { clientSocialStatusDDL.SelectedIndex = 0; }
-        catch { }
-
-
     }
 
     //private void FillPersonalInformationTab(Credits.DataObjects.Client clientObject)
@@ -947,5 +927,8 @@ public partial class Clients : System.Web.UI.Page
 
     #endregion Personal Data Region
 
+    protected void newClientFotoUploadButton_Click(object sender, EventArgs e)
+    {
+    }
 
 }

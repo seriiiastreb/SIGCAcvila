@@ -161,7 +161,8 @@
 
 
     <asp:Panel ID="clientWorkPanel" Visible="false" runat="server">
-        <ajax:TabContainer ID="detailsClientTabContainer"  runat="server" cssclass="ajax__myTab"  Width="100%" ActiveTabIndex="5">  
+        <ajax:TabContainer ID="detailsClientTabContainer"  runat="server" 
+            cssclass="ajax__myTab"  Width="100%" ActiveTabIndex="1">  
             <ajax:TabPanel ID="generalInfoTabPanel" runat="server">                
                 <HeaderTemplate>&nbsp; Generalizari&nbsp; </HeaderTemplate>                	
                 <ContentTemplate>
@@ -334,56 +335,6 @@
                             <dt id="civilStatusDt" runat="server" class="part" style="width:30%;">Starea Civila: </dt>
                             <dd id="civilStatusDD" runat="server" class="part"><asp:DropDownList ID="clientCivilStatusDDL" runat="server" CssClass="microDDL" /></dd>
 
-                            <dt class="inpart" style="width:30%;"> 
-                                <asp:Label ID="husbendLabel" runat="server" Text="Sotia/Sotul:"></asp:Label> 
-                                <asp:HiddenField ID="husbandIDHiddenField" runat="server" />  
-                            </dt>
-                            <dd class="inpart">
-                                <div style="float:left; width:85%">
-                                    <asp:TextBox ID="husbandDescriptionTextbox" runat="server" CssClass="microElement" />
-                                </div>
-                                <div style="float:left; width:15%; text-align: right;"><asp:Button ID="husbendShowButton" runat="server" Height="18px" OnClick="husbendShowButton_Click" style=" padding:0px; margin:0px;" Text="+" Width="18px" /></div>                                                                        
-                            </dd>
-
-                            <dt id="childrenDt" runat="server" class="part" style="width:30%;">Copii: </dt>
-                            <dd id="childrenDD" runat="server" class="part"><asp:TextBox ID="personalDataClientCildrensTextBox" runat="server" CssClass="microElement" /></dd>
-
-
-                            <dt class="inpart" style="width:30%;">Nr.Pers intretinere:</dt>
-                            <dd class="inpart"><asp:TextBox ID="nrPersoaneInIntretinereTextbox" runat="server" CssClass="microElement" /></dd>
-
-
-                            <dt class="part" style="width:30%;">Studii:</dt>
-                            <dd class="part"><asp:DropDownList ID="clientEducationLevelDDL" runat="server" CssClass="microDDL" /></dd>
-
-
-                            <dt class="inpart" style="width:30%;">Ocupatia curenta:</dt>
-                            <dd class="inpart"><asp:DropDownList ID="clientSocialStatusDDL" runat="server" CssClass="microDDL" /></dd>
-
-
-                            <dt class="part" style="width:30%;">Venit familiei lunar: </dt>
-                            <dd class="part"><asp:TextBox ID="personalDataClientVenitLunarInceputTextBox" runat="server" CssClass="microElement" /></dd>
-
-
-                            <dt class="inpart" style="width:30%;">Situatia materiala: </dt>
-                            <dd class="inpart"><asp:DropDownList ID="situatiaMaterialaDDL" runat="server" CssClass="microDDL" /></dd>
-
-
-                            <dt class="part" style="width:30%;">Biserica: </dt>
-                            <dd class="part"><asp:DropDownList ID="clientChurchDDL" runat="server" CssClass="microDDL" /></dd>
-
-
-                            <dt class="inpart" style="width:30%;">Slujirea in biserica: </dt>
-                            <dd class="inpart"><asp:TextBox ID="slujireaInBisericaTextBox" runat="server" CssClass="microElement" /></dd>
-
-
-                            <dt class="part" style="width:30%;">Pastor / Lider: </dt>
-                            <dd class="part"><asp:TextBox ID="pastorLiderTextBox" runat="server" CssClass="microElement" /></dd>
-
-
-                            <dt class="inpart" style="width:30%;"> Telefon pastor: </dt>
-                            <dd class="inpart"><asp:TextBox ID="telefonPastorTextBox" runat="server" CssClass="microElement" /></dd>
-
                         </dl>
                     </asp:Panel>    
                     </div>     
@@ -393,6 +344,13 @@
                         <asp:Button ID="clientPersonalDataCancelButton" runat="server" Text="Cancel"  onclick="clientPersonalDataCancelButton_Click" Width="100px"  />
                     </div>
                 </ContentTemplate>                
+            </ajax:TabPanel>
+
+      
+
+           
+  
+            <ajax:TabPanel ID="TabPanel1" runat="server" HeaderText="TabPanel1">
             </ajax:TabPanel>
 
       
