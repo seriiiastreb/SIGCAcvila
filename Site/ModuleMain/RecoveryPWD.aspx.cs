@@ -38,7 +38,7 @@ public partial class RecoveryPWD : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            Utils.InfoText(this, "Atentie! Eroare in sistem!", ex.Message);
+            Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Error on Page.", ex.Message); 
         }
     }
 
@@ -61,7 +61,7 @@ public partial class RecoveryPWD : System.Web.UI.Page
         catch (Exception ex)
         {
             args.IsValid = false;
-            Utils.InfoText(this, "Atentie! Eroare in sistem!", ex.Message);
+            Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Error on Page.", ex.Message); 
         }
     }
     
@@ -97,7 +97,8 @@ public partial class RecoveryPWD : System.Web.UI.Page
             }
             else
             {
-                Utils.InfoText(this, "Atentie!", "Parola nu a fost schimbata! In momentul dat nu este posibil de a schimba parola. Incercati mai tirziu!");
+
+               // Utils.InfoText(this, "Atentie!", "Parola nu a fost schimbata! In momentul dat nu este posibil de a schimba parola. Incercati mai tirziu!");
             }
         }   
     }

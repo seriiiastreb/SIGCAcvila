@@ -216,7 +216,7 @@ public partial class Classifiers : System.Web.UI.Page
                 }
                 else
                 {
-                    Utils.InfoText(this, "Atentie", " { " + denumirea + " } - nu a fost salvat. Verificati conectiunea cu internet ");
+                    Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Attention!", " { " + denumirea + " } - was not saved. Try Again Later");
                 }
             }
             catch (Exception ex)
@@ -260,7 +260,7 @@ public partial class Classifiers : System.Web.UI.Page
                 }
                 else
                 {
-                    Utils.InfoText(this, "Atentie", " { " + denumirea + " } - nu a fost salvat. Verificati conectiunea internetului ");
+                    Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Attention!", " { " + denumirea + " } - was not saved. Try Again Later");
                 }
             }
             catch (Exception ex)
@@ -357,7 +357,7 @@ public partial class Classifiers : System.Web.UI.Page
                 }
                 else
                 {
-                    Utils.InfoText(this, "Atentie", " { " + denumirea + " } - nu a fost salvat. Verificati conectiunea internetului ");
+                    Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Attention!", " { " + denumirea + " } - was not saved. Try Again Later");
                 }
             }
             catch (Exception ex)
@@ -415,7 +415,7 @@ public partial class Classifiers : System.Web.UI.Page
                 }
                 else
                 {
-                    Utils.InfoText(this, "Atentie", " { " + denumirea + " } - nu a fost salvat. Verificati conectiunea internetului ");
+                    Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Attention!", " { " + denumirea + " } - was not saved. Try Again Later");
                 }
             }
             catch (Exception ex)
@@ -454,7 +454,7 @@ public partial class Classifiers : System.Web.UI.Page
                 }
                 else
                 {
-                    Utils.InfoText(this, "Atentie", " Clasificatorul nu a fost sters. Verificati conectiunea internetului ");
+                    Utils.GetMaster(this).ShowMessage(Constants.InfoBoxMessageType.Error, "Attention!", " The classifier was not deleted. Try Again Later");
                 }
             }
             catch (Exception ex)

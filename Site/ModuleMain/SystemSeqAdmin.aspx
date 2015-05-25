@@ -11,8 +11,7 @@
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <asp:Button ID="usersListButton" runat="server"  Width="200px" Text="Users List" onclick="usersListButton_Click" CausesValidation="false"/>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <asp:Button ID="loansFinishedButton" runat="server" Text="Update all finished point for All loan" CausesValidation="false" OnClick="loansFinishedButton_Click"/>
-
+    
     <asp:UpdatePanel ID="groupPermissionsConfigPanel" runat="server" Visible="false">
         <ContentTemplate>
             <div class="module">

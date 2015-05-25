@@ -154,7 +154,6 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
         {
             try
             {
-                Credits.Module.Register();
                 Security.MainModule.Register();
 
                 FillModulesComboBox();
@@ -657,7 +656,7 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
 
     protected void FillUsersGridView()
     {
-        DataTable usersDT = Utils.ModuleSecurity().UsersList();
+        DataTable usersDT = Utils.ModuleSecurity().GetUsersList();
         usersGridView.DataSource = usersDT;
         usersGridView.DataBind();
     }
@@ -897,11 +896,6 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
         userDetails_Password_RequiredFieldValidator.Enabled = userDetails_ResetPasswordCheckBox.Checked;
     }
 
-    #endregion Users Region
+    #endregion Users Region   
    
-    protected void loansFinishedButton_Click(object sender, EventArgs e)
-    {
-        bool result = Utils.ModuleCredits().UpdateAllFinishedTranche();
-        //todo: de facut progress panel.
-    }
 }
