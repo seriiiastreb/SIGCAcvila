@@ -309,12 +309,6 @@ public partial class Classifiers : System.Web.UI.Page
         ShowClassifierTypesPanels(classifierTypesPanel.ID);
     }
 
-    protected void classifierTypesGridView_PageIndexChanging(object sender, System.Web.UI.WebControls.GridViewPageEventArgs e)
-    {
-        classifierTypesGridView.PageIndex = e.NewPageIndex;
-        ShowClassifierTypesPanels(classifierTypesPanel.ID);
-    }
-
     #endregion Classifier Types
     
     #region Classifiers

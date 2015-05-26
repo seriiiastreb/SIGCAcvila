@@ -39,7 +39,17 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
         {
             mCurrentModule = currentModuleId;
 
-            string moduleDescription = Utils.ModuleSecurity().GetModuleDescriptionById(mCurrentModule);
+            string moduleDescription = string.Empty;
+
+            switch (mCurrentModule)
+            {
+                case Security.MainModule.ID:
+                case Security.Module.ID:
+                    mCurrentModule = Utils.ModuleSecurity().GetModuleDescriptionById(mCurrentModule);
+                    break;
+
+            }
+
             string pageDescription = !string.IsNullOrEmpty(moduleDescription) ? moduleDescription : "Self-service platform";
 
             this.Page.Title = pageName + (!string.IsNullOrEmpty(pageDescription) && !string.IsNullOrEmpty(pageName) ? " - " : string.Empty) + pageDescription;
