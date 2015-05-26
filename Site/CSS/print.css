@@ -1,9 +1,0 @@
-﻿#header, #footer {
-    display: none;
-}
-
-#wrapper {
-    display: block;
-    visibility: visible;
-    border: 2px solid #ccc;
-}
