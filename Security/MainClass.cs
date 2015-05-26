@@ -8,8 +8,8 @@ namespace Security
 {
     public class MainModule
     {
-        public static readonly string ID = "Main Module";
-        public static readonly string Description = "Basic data operation (Main Module)";
+        public const string ID = "Main Module";
+        public const string Description = "Basic data operation (Main Module)";
         public static readonly string DBConnectionsStringKey = "mainDBConnectionString";
         private static readonly string TempDirectoryKey = "TempDirectory";
         public static DataBridge DataBridge = new DataBridge(ConfigManager.GetDbConnectionString(Module.DBConnectionsStringKey), ConfigManager.GetProviderName(Module.DBConnectionsStringKey));
