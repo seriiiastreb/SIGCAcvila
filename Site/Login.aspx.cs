@@ -128,14 +128,15 @@ public partial class Login : System.Web.UI.Page
     {
         string appPath = Utils.GetApplicationPath(Request);
 
-        bool allowBasicAdministration = Utils.PermissionAllowed(Security.MainModule.ID, Security.Domains.BasicProgramAdministration.Name, Constants.Classifiers.Permissions_View);
-        bool allowUserManagement = Utils.PermissionAllowed(Security.Module.ID, Security.Domains.Administration.Name, Constants.Classifiers.Permissions_View);
-
-
         Session[Utils.SessionKey_UserObject] = userObject;
 
-        if(allowUserManagement) Session[Utils.SessionKey_ModuleSecurity] = new Security.Module();
-        if(allowBasicAdministration) Session[Utils.SessionKey_ModuleMain] = new Security.MainModule();
+        bool allowBasicAdministration = Utils.PermissionAllowed(Security.MainModule.ID, Security.Domains.BasicProgramAdministration.Name, Constants.Classifiers.Permissions_View);
+        bool allowUserManagement = Utils.PermissionAllowed(Security.Module.ID, Security.Domains.Administration.Name, Constants.Classifiers.Permissions_View);
+        bool allowCustomersModule = Utils.PermissionAllowed(Client.Module.ID, Security.Domains.Administration.Name, Constants.Classifiers.Permissions_View);
+
+        if (allowUserManagement) Session[Utils.SessionKey_ModuleSecurity] = new Security.Module();
+        if (allowBasicAdministration) Session[Utils.SessionKey_ModuleMain] = new Security.MainModule();
+        if (allowCustomersModule) Session[Utils.SessionKey_ModuleCustomers] = new Client.Module();
 
         ////  Generate ModulesLiks
         string modulesLiks = string.Empty;
@@ -143,9 +144,8 @@ public partial class Login : System.Web.UI.Page
         modulesLiks += " <a href=\"" + appPath + "/Default.aspx\">  <img id=\"Img1\" width=\"24\" height=\"24\" alt=\"Start page\" title=\"Start page\" src=\"" + appPath + "/Images/home.png\" style=\" cursor:pointer; \"> </a> ";
         
         if (allowBasicAdministration) modulesLiks += " <a href=\"" + appPath + "/ModuleMain/Classifiers.aspx\">  <img id=\"Img2\" width=\"24\" height=\"24\" alt=\"Basic Program administration\" title=\"Basic Program administration\" src=\"" + appPath + "/Images/admin.png\" style=\" cursor:pointer; \"> </a> ";
-
-
-
+        if (allowCustomersModule) modulesLiks += " <a href=\"" + appPath + "/ModuleCustomers/Customers.aspx\">  <img id=\"Img3\" width=\"24\" height=\"24\" alt=\"Customers page\" title=\"Customers page\" src=\"" + appPath + "/Images/man.png\" style=\" cursor:pointer; \"> </a> ";
+        
         Session[Utils.SessionKey_HeadModuleSlector] = modulesLiks;
 
 
@@ -167,16 +167,27 @@ public partial class Login : System.Web.UI.Page
 
         ////  Generate Menus for each module
 
+        #region Main AND SECURITY MODULE
+
         string mainModuleMenuLinks = string.Empty;
 
        
         if (allowBasicAdministration) mainModuleMenuLinks  += "<li>  <a href=\"" + appPath + "/ModuleMain/Classifiers.aspx\">Classifiers Management</a> </li> ";
-
-
         if (allowUserManagement) mainModuleMenuLinks += "<li>  <a href=\"" + appPath + "/ModuleMain/SystemSeqAdmin.aspx\">User Management</a> </li> ";
 
         Session[Utils.SessionKey_ModuleMainNavigateMenu] = mainModuleMenuLinks;
 
+        #endregion Main AND SECURITY MODULE
+
+
+        #region Customers MODULE         
+        string customersModuleMenuLinks = string.Empty;
+
+        if (allowCustomersModule) customersModuleMenuLinks += "<li>  <a href=\"" + appPath + "/ModuleCustomers/Customer.aspx\">Customers</a> </li> ";
+
+        Session[Utils.SessionKey_ModuleCustomers] = customersModuleMenuLinks;
+
+        #endregion Customers MODULE                 
 
     }
 

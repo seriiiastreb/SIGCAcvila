@@ -1,190 +1,160 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Classifiers.aspx.cs" Inherits="Classifiers" EnableEventValidation="false" %>
+<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajax" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" Runat="Server">
-    <script type="text/javascript" src="../scripts/jquery-1.8.0.min.js"></script>
-    <script type="text/javascript" src="../scripts/jquery.dataTables.js"></script>
+<%--    <script type="text/javascript" src="../scripts/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript" src="../scripts/jquery.dataTables.js"></script>--%>
 
-    <script type="text/javascript" language="javascript">    
+    <script type="text/javascript" language="javascript">
 
-        $(document).ready(function () {
-            $('#<%=classifierTypesGridView.ClientID%>').dataTable();
-            $('#<%=classifiersPanelGridView.ClientID%>').dataTable();
+        $(function () {
+            $.contextMenu({
+                selector: '.context-menu-classifierTypes',
+                trigger: 'none',
+                callback: function (key, options) {
+                    doPost("classifierTypesGridViewClik", key);
+                },
+                items: {
+                    "add": { name: "Add", icon: "add", className: 'resetMarginLeft' },
+                    "edit": { name: "Edit", icon: "edit", className: 'resetMarginLeft' },                   
+                    "delete": { name: "Delete", icon: "delete", className: 'resetMarginLeft' }
+                }
+            });
         });
 
+
+        $(function () {
+            $("[id*=<%= classifierTypesGridView.ClientID %>] td").mousedown(function (e) {
+
+                var selectedRowIndex = $(this).parent().index();
+                var hiddField = document.getElementById('<%= selectedClassifierTypeIDIndexHD.ClientID %>');
+                hiddField.value = selectedRowIndex;
+
+                var gridID = '<%= classifierTypesGridView.ClientID %>';
+                ResetGridSelection(gridID);
+
+                $(this).closest("tr").removeClass('odd');
+                $(this).closest("tr").toggleClass("selectedRow");
+
+                //1: left, 2: middle, 3: right
+
+                switch (e.which) {
+                    case 1:
+                        doPost("classifierTypesGridViewClik", "select");
+                        break;
+                    case 3:
+                        $(".context-menu-classifierTypes").contextMenu({ x: e.pageX, y: e.pageY });
+                        break;
+                }
+            });
+        });
+
+     
     </script>
 
 </asp:Content>
 
 <asp:Content ID="ClassifiersContnet" ContentPlaceHolderID="MainPlaceHolder" Runat="Server">
 
-<asp:Panel ID="classifiersGeneraPanel" runat="server" Visible="false">
-    <div class="grid_8 box context-menu-one" id="classifierTypesRegionDIV" style=" min-height:300px;">
-        <h2>List Of Classifiers Types</h2>
-            <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional">
-                    <ContentTemplate>
-                        <asp:Button ID="refreshClassifirsTypesButton" runat="server" Text="Refresh" Width="100px"  onclick="refreshClassifirsTypesButton_Click">  </asp:Button>
-                                   
-                        <asp:Panel ID="classifierTypesPanel" runat="server" Visible="False">
-                            <asp:Button ID="newClassifierTypeButton" runat="server" Text="Adauga un nou Tip Clasificator" Width="230px"  onclick="newClassifierTypeButton_Click"> </asp:Button>
-                            <hr />
-                            <asp:GridView ID="classifierTypesGridView" runat="server" 
-                                    AutoGenerateColumns="False"
-                                    CssClass="mGrid"
-                                    PagerStyle-CssClass="pgr"
-                                    AlternatingRowStyle-CssClass="odd"
-                                    AllowPaging="false" 
-                                    onrowediting="classifierTypesGridView_RowEditing" 
-                                    onrowdeleting="classifierTypesGridView_RowDeleting" 
-                                    onselectedindexchanged="classifierTypesGridView_SelectedIndexChanged" 
-                                    onrowdatabound="classifierTypesGridView_RowDataBound"  >
-                                <Columns>
-                                    <asp:BoundField DataField="Type ID"  HeaderText="Type ID"  HeaderStyle-CssClass="HiddenColumn" ItemStyle-CssClass="HiddenColumn" HtmlEncode="False" />
-                                    <asp:BoundField DataField="Name"          HeaderText="Name"             HtmlEncode="False" />
-                                    <asp:ButtonField ButtonType="Button" CommandName="Edit" Text="Edit" />
-                                    <asp:TemplateField HeaderText="Delete">
-                                        <ItemTemplate>
-                                                <asp:Button ID="deleteButton" runat="server" CommandName="Delete" Text="Delete" OnClientClick="return confirm('Sure you want to delete?');" />
-                                        </ItemTemplate>
-                                    </asp:TemplateField>                                
-                                </Columns>
-                            </asp:GridView>
-                        </asp:Panel>
 
-                        <asp:Panel ID="addNewClassifierTypePanel" runat="server" Visible="False" >
-                            <div class="module">
-                                <div class="moduleHeader">Noul tip de clasificator</div>   
-                                <div class="module_content">   
-                                    <p>                         
-                                        <label> Denumire: </label>
-                                        <asp:TextBox ID="addNewClassifierTypeTextBox" runat="server"></asp:TextBox>
-                                    </p>
-                                    <asp:Button ID="addNewClassifierTypeSaveButton"  runat="server" Text="Save" onclick="addNewClassifierTypeSaveButton_Click"   />
-                                    <asp:Button ID="addNewClassifierTypeCancelButton" runat="server" Text="Cancel"  onclick="addNewClassifierTypeCancelButton_Click"  />    
-                                </div>                        
-                            </div>
-                        </asp:Panel>
+    <div class="grid_4 box context-menu-classifierTypes" id="classifierTypesRegionDIV" style=" min-height:300px;">
+        <h2>List Of Classifiers Types   <asp:ImageButton ID="refreshClassifirsTypesButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Show/Refresh" ImageUrl="../images/refresh.png"  runat="server" OnClick="refreshClassifirsTypesButton_Click" AlternateText="Show/Refresh list" /></h2>
+                                                 
+            <asp:Panel ID="classifierTypesPanel" runat="server">
+                <asp:HiddenField ID="selectedClassifierTypeIDHiddenField" runat="server"></asp:HiddenField>
+                <asp:HiddenField ID="selectedClassifierTypeIDIndexHD" runat="server"></asp:HiddenField>
+                <asp:GridView ID="classifierTypesGridView" runat="server" 
+                        AutoGenerateColumns="False"
+                        AlternatingRowStyle-CssClass="odd"
+                        AllowPaging="false" 
+                        onrowdatabound="classifierTypesGridView_RowDataBound"  >
+                    <Columns>
+                        <asp:BoundField DataField="Type ID"  HeaderText="Type ID"  HeaderStyle-CssClass="hidden" ItemStyle-CssClass="hidden" HtmlEncode="False" />
+                        <asp:BoundField DataField="Name"          HeaderText="Name"             HtmlEncode="False" />                                                    
+                    </Columns>
+                </asp:GridView>
+            </asp:Panel>
 
-                        <asp:Panel ID="editClassifierTypePanel" runat="server" Visible="False">
-                            <div class="module">  
-                                <div class="moduleHeader">Editare tip clasificator</div>
-                                <div class="module_content">
-                                    <p class="HiddenColumn">
-                                        <label> ID: </label>
-                                        <asp:Label ID="typeIDLabel" runat="server" Text="Classifier type ID: "  ></asp:Label>
-                                    </p>                               
-                                
-                                    <p>
-                                        <label> Denumire: </label>
-                                        <asp:TextBox ID="editClassifierTypeDenumireaTextBox" runat="server" ></asp:TextBox>
-                                    </p>  
-                                    
-                                    <asp:Button ID="editClassifierTypeSaveButton" runat="server" Text="Save" onclick="editClassifierTypeSaveButton_Click"  />
-                                    <asp:Button ID="editClassifierTypeCancelButton" runat="server" Text="Cancel" onclick="editClassifierTypeCancelButton_Click"  />                                 
-                                </div>
-                                                         
-                            </div>
-                        </asp:Panel>
-                    
-                    </ContentTemplate>
-                    <Triggers>
-                        <asp:AsyncPostBackTrigger ControlID="classifierTypesGridView" EventName="PageIndexChanging" />
-                        <asp:AsyncPostBackTrigger ControlID="classifierTypesGridView" EventName="RowEditing" />
-                    </Triggers>
-                </asp:UpdatePanel>
+
+            <asp:HyperLink ID="clTypeHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
+
+            <ajax:ModalPopupExtender ID="clTypePopupExtender" runat="server"     
+                TargetControlID="clTypeHyperLink"
+                PopupControlID = "classifierTypePanel" 
+                PopupDragHandleControlID="legendClType"
+                CancelControlID="classifierTypeCancelButton"
+                DropShadow="true" >
+            </ajax:ModalPopupExtender>   
+                        
+
+            <asp:Panel ID="classifierTypePanel" runat="server" class="block" Width="500px" Height="200px" style="display:none;" >
+       			<fieldset class="login">
+						<legend runat="server" id="legendClType">Classifier Type</legend>
+						<p>
+							<label>Classifier Type Name: </label>
+                            <asp:HiddenField ID="classiferTypeAction" runat="server" />                            
+							<asp:TextBox ID="classifierTypeTextBox" runat="server"></asp:TextBox>
+						</p>
+						<asp:Button ID="classifierTypeSaveButton"  class="confirm button" runat="server" Text="Save" onclick="classifierTypeSaveButton_Click"   />
+                        <asp:Button ID="classifierTypeCancelButton"  class="confirm button" runat="server" Text="Cancel"  />  
+					</fieldset>
+            </asp:Panel>
     </div>
+
+
 
     <div class="grid_8 box context-menu-one" id="classifiersRegionDIV" style=" min-height:300px;">
-        <h2>List Of Classifiers</h2>
-        <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional">
-            <ContentTemplate>
-                <asp:Label ID="label" runat="server" Text="Tipul curent selectat: "></asp:Label>
-                <asp:Label ID="curentClassifierTypeSelectedLabel" runat="server" Font-Bold="True" Font-Italic="True" Font-Size="Large"></asp:Label>   
+        <h2>List Of Classifiers &nbsp;&nbsp; <asp:ImageButton ID="classifiersRefreshButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Show/Refresh" ImageUrl="../images/refresh.png"  runat="server" OnClick="classifiersRefreshButton_Click" AlternateText="Show/Refresh list" /></h2>
 
-                    <asp:Panel ID="classifiersPanel" runat="server" Visible="False">
-                        <asp:Button ID="classifiersNewClassifierButton" runat="server" Text="Adauga Noul Classificator" Width="230px" onclick="classifiersPanelNewClassifierButton_Click"/>
-                        <br />
-                        <hr />
-                        <asp:HiddenField ID="selectedClassifierTypeIDHiddenField" runat="server" />
-                        <asp:GridView ID="classifiersPanelGridView" runat="server" 
-                            EnableModelValidation="True" 
-                            AutoGenerateColumns="False" 
-                            CssClass="mGrid"
-                            PagerStyle-CssClass="pgr"
-                            AlternatingRowStyle-CssClass="alt"
-                            AllowPaging="True"         
-                            PageSize="10" onrowediting="classifiersPanelGridView_RowEditing" 
-                            onpageindexchanging="classifiersPanelGridView_PageIndexChanging" 
-                            onrowdeleting="classifiersPanelGridView_RowDeleting"  >
-                            <Columns>
-                                <asp:BoundField DataField="Type ID"     HeaderText="Type ID"          HtmlEncode="False"  HeaderStyle-CssClass="HiddenColumn" ItemStyle-CssClass = "HiddenColumn"  />
-                                <asp:BoundField DataField="Code"        HeaderText="Code"             HtmlEncode="False"  HeaderStyle-CssClass="HiddenColumn" ItemStyle-CssClass = "HiddenColumn" />
-                                <asp:BoundField DataField="Name"        HeaderText="Name"             HtmlEncode="False" />
-                                <asp:BoundField DataField="GroupCode"   HeaderText="Group Code"       HtmlEncode="False" />
-                                <asp:ButtonField ButtonType="Button" CommandName="Edit" Text="Edit" />
-                                <asp:TemplateField HeaderText="Delete">
-                                    <ItemTemplate>
-                                            <asp:Button ID="deleteButton" runat="server" CommandName="Delete" Text="Delete" OnClientClick="return confirm('Sunteti sigur ca vreti sa stergeti?');" />
-                                    </ItemTemplate>
-                                </asp:TemplateField>  
-                            </Columns>
-                        </asp:GridView>
-                    </asp:Panel>
+        <asp:Label ID="label" runat="server" Text="Selected Classifier Type: "></asp:Label>
+        <asp:Label ID="curentClassifierTypeSelectedLabel" runat="server" Font-Bold="True" Font-Italic="True" Font-Size="Large"></asp:Label>   
+        <asp:HiddenField runat="server" ID="currentClassifierSelectedHiddenFiled" />
+        <asp:Panel ID="classifiersPanel" runat="server" >
+            <asp:GridView ID="classifiersGridView" runat="server" 
+                AutoGenerateColumns="False"
+                AlternatingRowStyle-CssClass="odd"
+                AllowPaging="false" 
+                onrowdatabound="classifiersGridView_RowDataBound"   >
+                <Columns>
+                    <asp:BoundField DataField="Type ID"     HeaderText="Type ID"          HtmlEncode="False"  HeaderStyle-CssClass="hidden" ItemStyle-CssClass = "hidden"  />
+                    <asp:BoundField DataField="Code"        HeaderText="Code"             HtmlEncode="False"  HeaderStyle-CssClass="hidden" ItemStyle-CssClass = "hidden" />
+                    <asp:BoundField DataField="Name"        HeaderText="Name"             HtmlEncode="False" />
+                    <asp:BoundField DataField="GroupCode"   HeaderText="Group Code"       HtmlEncode="False" />                               
+                </Columns>
+            </asp:GridView>
+        </asp:Panel>
 
-                    <asp:Panel ID="addNewClassifierPanel" runat="server" Visible="False">
-                        <div class="module">
-                            <div class="moduleHeader">Adauga clasificator nou</div>
-                            <div class="module_content">
-                                <p>
-                                    <label> Descrirerea: </label>
-                                    <asp:TextBox ID="addNewClassifierNameTextBox" runat="server"></asp:TextBox>
-                                </p> 
-                                
-                                <p> 
-                                    <label> Group Code: </label>
-                                    <asp:TextBox ID="addNewClassifierGroupCodeTextBox" runat="server"></asp:TextBox>
-                                    <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" ControlToValidate="addNewClassifierGroupCodeTextBox" ErrorMessage="Please Enter Only Numbers" ValidationExpression="^\d+$" ValidationGroup="number"></asp:RegularExpressionValidator>                                 
-                                </p>
-                                <asp:Button ID="addNewClassifierSaveButton" runat="server" Text="Save" onclick="addNewClassifierSaveButton_Click"  />
-                                <asp:Button ID="addNewClassifierCancelButton" runat="server" Text="Cancel" onclick="addNewClassifierCancelButton_Click" /> 
-                            </div>                                  
-                        </div>
-                    </asp:Panel>
 
-                    <asp:Panel ID="editClassifierPanel" runat="server" Visible="False">
-                        <div class="module">
-                            <div class="moduleHeader">Editare clasificator</div>
-                            <div class="module_content">                                       
-                                <p class="HiddenColumn">
-                                    <label> Codul clasificatorului: </label>
-                                    <asp:Label ID="editClassifierCodeLabel" runat="server" Text="Classifier type ID: " ></asp:Label>
-                                </p>
-                                
-                                <p>
-                                    <label>  Descrirerea: </label>
-                                    <asp:TextBox ID="editClassifierNameTextBox" runat="server" ></asp:TextBox>
-                                </p>
-                                
-                                <p>
-                                    <label> Group Code: </label>
-                                    <asp:TextBox ID="editClassifierGroupCodeTextBox" runat="server" ></asp:TextBox>
-                                    <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" ControlToValidate="editClassifierGroupCodeTextBox" ErrorMessage="Please Enter Only Numbers" ValidationExpression="^\d+$" ValidationGroup="number"></asp:RegularExpressionValidator>  
-                                </p>   
-                                                                    
-                                <asp:Button ID="editClassifierSaveButton" runat="server" Text="Save" onclick="editClassifierSaveButton_Click"  />
-                                <asp:Button ID="editClassifierCancelButton" runat="server" Text="Cancel" onclick="editClassifierCancelButton_Click"  />     
-                            </div>                              
-                        </div>
-                    </asp:Panel>
-            </ContentTemplate>
-            <Triggers>
-                <asp:AsyncPostBackTrigger ControlID="classifierTypesGridView" EventName="SelectedIndexChanged" />
-            </Triggers>
-        </asp:UpdatePanel> 
+        <asp:HyperLink ID="classifiersHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
+
+        <ajax:ModalPopupExtender ID="classifersPopupExtender" runat="server"     
+            TargetControlID="classifiersHyperLink"
+            PopupControlID = "classifersPanel" 
+            PopupDragHandleControlID="legendClassifiers"
+            CancelControlID="classifiersCancelButton"
+            DropShadow="true" >
+        </ajax:ModalPopupExtender>   
+                        
+
+        <asp:Panel ID="classifersPanel" runat="server" class="block" Width="500px" Height="200px" style="display:none;" >
+       		<fieldset class="login">
+					<legend runat="server" id="legendClassifiers">Classifier:</legend>
+					<p>
+						<label>Classifier Name: </label>
+                        <asp:HiddenField ID="classifiersActionHiddenField" runat="server" />                            
+                        <asp:TextBox ID="classifierNameTextBox" runat="server"></asp:TextBox>
+					</p>
+                    <p>
+                        <label> Group Code: </label>
+                        <asp:TextBox ID="classifierGroupCodeTextBox" runat="server"></asp:TextBox>
+                        <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" ControlToValidate="classifierGroupCodeTextBox" ErrorMessage="Please Enter Only Numbers" ValidationExpression="^\d+$" ValidationGroup="number"></asp:RegularExpressionValidator>                                 
+                    </p>
+
+					<asp:Button ID="classifiersSaveButton"  class="confirm button" runat="server" Text="Save" onclick="classifiersSaveButton_Click" ValidationGroup="number"  />
+                    <asp:Button ID="classifiersCancelButton"  class="confirm button" runat="server" Text="Cancel" />  
+				</fieldset>
+        </asp:Panel>
     </div>
-
-    <div class="clear"></div> 
-</asp:Panel>
-
 </asp:Content>
 
 

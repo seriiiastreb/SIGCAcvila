@@ -251,7 +251,7 @@ namespace Security
             return result;
         }
 
-        public bool UpdateClassifier(int classifierCode, string clTypeDescription, int groupCode)
+        public bool UpdateClassifier(int classifierCode, string classifierName, int groupCode)
         {
             bool result = false;
             try
@@ -259,7 +259,7 @@ namespace Security
                 string nonQuery = @"Update Classifiers Set Name = @clTypeDescription , groupCode = " + (groupCode == 0 ? "NULL" : groupCode.ToString()) + "  WHERE Code = " + classifierCode;
 
                 Hashtable parameters = new Hashtable();
-                parameters.Add("@clTypeDescription", clTypeDescription);
+                parameters.Add("@clTypeDescription", classifierName);
 
                 result = Security.MainModule.DataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = Security.MainModule.DataBridge.LastError;                

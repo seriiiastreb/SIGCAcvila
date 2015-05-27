@@ -54,21 +54,9 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
 
             this.Page.Title = pageName + (!string.IsNullOrEmpty(pageDescription) && !string.IsNullOrEmpty(pageName) ? " - " : string.Empty) + pageDescription;
 
-            MakeAllMenu(isAutentificatedUser);
-        }
-        else
-        {
-            MakeAllMenu(isAutentificatedUser);
-            FormsAuthentication.RedirectToLoginPage(Utils.GetQueryString(this.Page.Request, this.Page));
-            Response.End();
-        }
 
-    }
+            #region Create Menu
 
-    private void MakeAllMenu(bool autentificatedUser)
-    {
-        if (autentificatedUser)
-        {
             //// CREATE MODULE SELECTORS
             navMainMenuDIV.InnerHtml = Session[Utils.SessionKey_HeadModuleSlector] != null ? (string)Session[Utils.SessionKey_HeadModuleSlector] : string.Empty;
 
@@ -77,7 +65,7 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
             {
                 case Security.MainModule.ID:
                 case Security.Module.ID:
-                    currentNavigateMenu.InnerHtml = Session[Utils.SessionKey_ModuleMainNavigateMenu] != null ? (string)Session[Utils.SessionKey_ModuleMainNavigateMenu] : string.Empty; 
+                    currentNavigateMenu.InnerHtml = Session[Utils.SessionKey_ModuleMainNavigateMenu] != null ? (string)Session[Utils.SessionKey_ModuleMainNavigateMenu] : string.Empty;
                     break;
 
                 default:
@@ -95,14 +83,19 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
 
 
             emailBoxButton.Visible = true;
+
+            #endregion Create Menu
         }
         else
         {
+
+            #region CLEAR ALL MENIU
+
             //// CREATE MODULE SELECTORS
             navMainMenuDIV.InnerHtml = string.Empty;
 
             //// CREATE GENERAL MENU FOR MODULE
-            currentNavigateMenu.InnerHtml = string.Empty;        
+            currentNavigateMenu.InnerHtml = string.Empty;
 
 
             //// LoginLOgout ButtonLink    
@@ -110,8 +103,17 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
             LogInLogOutLinkButton.NavigateUrl = "~/Login.aspx?action=login";
 
             emailBoxButton.Visible = false;
+
+            #endregion CLEAR ALL MENIU
+
+
+            FormsAuthentication.RedirectToLoginPage(Utils.GetQueryString(this.Page.Request, this.Page));
+            Response.End();
         }
+
     }
+
+   
 
 
 }
