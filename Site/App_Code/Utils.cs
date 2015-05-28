@@ -507,7 +507,7 @@ public class Utils
             }
         }
         catch(Exception ex)
-        { msLogger.Info("Security exception. User:" + Utils.UserObject().FirstName + " " + Utils.UserObject().LastName + " with ID:" + Utils.UserObject().UserID + " try acces {" + moduleName + "}, domain {" + domainName + "} but does not have access here. Excetion Message:" + ex.Message); }
+        { Logger.WriteWarning("Security exception. User:" + Utils.UserObject().FirstName + " " + Utils.UserObject().LastName + " with ID:" + Utils.UserObject().UserID + " try acces {" + moduleName + "}, domain {" + domainName + "} but does not have access here. Excetion Message:" + ex.Message); }
 
         return result;
     }

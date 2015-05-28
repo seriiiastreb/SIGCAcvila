@@ -74,26 +74,26 @@ public partial class Login : System.Web.UI.Page
             {
                 if (Authenticate(username, password))
                 {
-                    msLogger.Info("Login success. " + username + " from " + userIP);
+                    Logger.WriteInfo("Login success. " + username + " from " + userIP);
                     //Session[Constants.GlobalSessionKey_CurrentLanguage] = languageDropDownList.SelectedValue;
                     FormsAuthentication.RedirectFromLoginPage(username, false);
                 }
                 else
                 {
                     Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Error on page.", "Login failed. Incorrect user name or password.");
-                    msLogger.Info("Login failed. " + username + " from " + userIP);
+                    Logger.WriteInfo("Login failed. " + username + " from " + userIP);
                 }
             }
             else
             {
                 Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Error on page.", "Sorry. This site is closed for maintenance. Please check back soon.");
-                msLogger.Warn("Login attempt while site closed for maintenance." + username + " from " + userIP);
+                Logger.WriteWarning("Login attempt while site closed for maintenance." + username + " from " + userIP);
             }
         }
         catch (Exception ex)
         {
             Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Error on page.", ex.Message);
-            msLogger.Fatal(ex.Message + userIP);
+            Logger.WriteError(ex.Message + userIP);
         }
     }
 
@@ -111,7 +111,7 @@ public partial class Login : System.Web.UI.Page
         Security.User userObject = Security.User.Login(login, password);
         if (userObject == null) throw new Exception("Null user object received");
 
-        msLogger.Info("Login attempt.  " + userObject.UserLogin + " - UserObject created. Creating modules...");
+        Logger.WriteInfo("Login attempt.  " + userObject.UserLogin + " - UserObject created. Creating modules...");
         
         CreateModulesByRole(userObject);
 
