@@ -14,10 +14,6 @@ using System.Collections.Specialized;
 
 public class Utils
 {
-    #region Logger Setup
-    protected static readonly log4net.ILog msLogger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-    #endregion Logger Setup
-
     public const string SessionKey_UserObject = "UserObject";
     public const string SessionKey_ModuleSecurity = "ModuleSecurity";
     public const string SessionKey_ModuleMain = "ModuleMain";

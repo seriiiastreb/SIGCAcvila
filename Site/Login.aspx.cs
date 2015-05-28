@@ -5,10 +5,6 @@ using System.Web.Security;
 
 public partial class Login : System.Web.UI.Page
 {
-    #region Logger Setup
-    protected static readonly log4net.ILog msLogger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-    #endregion Logger Setup
-
     protected void Page_Load(object sender, EventArgs e)
     {
         Utils.RedirectIfSslRequired(Request, Response);
