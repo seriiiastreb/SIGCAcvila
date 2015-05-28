@@ -5,7 +5,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data;
 
-public partial class SystemSeqAdmin : System.Web.UI.Page
+public partial class Customers : System.Web.UI.Page
 {
     private readonly string mCurrentModule = Security.Module.ID;
     private readonly string mPageName = "System Sequrity Administration";
@@ -327,4 +327,5 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
     }
 
     #endregion Domains 
+
 }

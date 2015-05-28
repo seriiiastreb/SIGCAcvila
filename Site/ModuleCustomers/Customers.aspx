@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="SystemSeqAdmin.aspx.cs" Inherits="SystemSeqAdmin" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Customers.aspx.cs" Inherits="Customers" %>
 <%@ Register TagPrefix="ajax" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit"%>
 
 
@@ -68,13 +68,13 @@
 			<h5>Users and Grousp</h5>
 			<ul class="menu">
 				<li>
-                    <asp:LinkButton ID="usersListLinkButton" runat="server" Text="Users" CausesValidation="false" onclick="usersListLinkButton_Click"></asp:LinkButton>
+                    <asp:LinkButton ID="usersListLinkButton" runat="server" Text="Users" onclick="usersListLinkButton_Click"></asp:LinkButton>
 				</li>
 				<li>
-                    <asp:LinkButton ID="groupsListLinkButton" runat="server" Text="Groups" CausesValidation="false" onclick="groupsListLinkButton_Click"></asp:LinkButton>
+                    <asp:LinkButton ID="groupsListLinkButton" runat="server" Text="Groups" onclick="groupsListLinkButton_Click"></asp:LinkButton>
 				</li>
 				<li>
-					<asp:LinkButton ID="domainsListLinkButton" runat="server" Text="Domains" CausesValidation="false" onclick="domainsListLinkButton_Click"></asp:LinkButton>
+					<asp:LinkButton ID="domainsListLinkButton" runat="server" Text="Domains" onclick="domainsListLinkButton_Click"></asp:LinkButton>
 				</li>
 			</ul>
         </div>

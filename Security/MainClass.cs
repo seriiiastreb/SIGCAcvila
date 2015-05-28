@@ -182,13 +182,11 @@ namespace Security
                     result = Security.MainModule.DataBridge.ExecuteNonQuery(nonQuery); // PG compliant
                     mLastError = Security.MainModule.DataBridge.LastError;
 
-                    if (result)
-                    {
-                        nonQuery = @"Delete From ClassifierType WHERE TypeID = " + classifierTypeID;
+                   
+                    nonQuery = @"Delete From ClassifierType WHERE TypeID = " + classifierTypeID;
 
-                        result = Security.MainModule.DataBridge.ExecuteNonQuery(nonQuery); // PG compliant
-                        mLastError = Security.MainModule.DataBridge.LastError;
-                    }
+                    result = Security.MainModule.DataBridge.ExecuteNonQuery(nonQuery); // PG compliant
+                    mLastError = Security.MainModule.DataBridge.LastError;                    
                 }
             }
             catch (Exception exception)

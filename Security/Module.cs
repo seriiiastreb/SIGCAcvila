@@ -401,47 +401,24 @@ namespace Security
             return result;
         }
 
-        public bool NewUser(string Nume, string Prenume, string login, string password, string email, int passwordstatusID, int recordstatusID)
+        public bool NewUser(string Nume, string Prenume, string login, string email, int recordstatusID)
         {
             bool result = false;
 
             try
-            {                
-                string encryptPassword = Crypt.Module.ComputeHash(password);
-
-                string nonQuery = @"INSERT INTO Users (Nume,              Prenume,           login,             password,                email,          passwordstatus,            recordstatus)"
-                                        + " VALUES ( @Nume, @Prenume, @login, @encryptPassword, @email, @passwordstatusID, @recordstatusID)";
+            {             
+                string nonQuery = @"INSERT INTO Users (Nume, Prenume, login,    email,  recordstatus)"
+                                        + " VALUES ( @Nume, @Prenume, @login,  @email, @recordstatusID)";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@Nume", Nume);
                 parameters.Add("@Prenume", Prenume);
                 parameters.Add("@login", login);
-                parameters.Add("@encryptPassword", encryptPassword);
                 parameters.Add("@email", email);
-                parameters.Add("@passwordstatusID", passwordstatusID);
                 parameters.Add("@recordstatusID", recordstatusID);
 
                 result = Module.DataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = Module.DataBridge.LastError;
-                //int userID = 0;
-                //if (newUserID != null)
-                //{
-                //    userID = (int)newUserID;
-                //}
-
-                //if (userID != 0)
-                //{
-                //    for (int i = 0; i < groupList.Count; i++)
-                //    {
-                //        string groupID = groupList[i];
-                //        if (!groupID.Equals(string.Empty))
-                //        {
-                //            string inserQuery = "INSERT INTO st_users_roles(user_id, role_id) VALUES (" + userID + ",'" + groupID + "')";
-                //            bool insertResult = Module.DataBridge.ExecuteNonQuery(inserQuery); // PG compliant
-                //            mLastError += Module.DataBridge.LastError;
-                //        }
-                //    }
-                //}                
             }
             catch (Exception ex)
             {
@@ -451,22 +428,17 @@ namespace Security
             return result;
         }
         
-        public bool UpdateUser(int userID, string Nume, string Prenume, string login, string email, int passwordstatusID, int recordstatusID)//, bool updatePassword)
+        public bool UpdateUser(int userID, string Nume, string Prenume, string login, string email, int recordstatusID)
         {
             bool result = false;
 
             try
             {
-                //string encryptPassword = Crypt.Module.ComputeHash(password);
-
                 string nonQuery = @"Update Users Set "
                         + " Nume = @Nume  "
                         + " , Prenume = @Prenume  "
                         + " , login = @login  "
-                        //+ (updatePassword ? " , password = @encryptPassword  " : string.Empty)
                         + " , email = @email  "
-                        //+ " , role_id = @groupID "
-                        + " , passwordstatus = @passwordstatusID "
                         + " , recordstatus = @recordstatusID "
 
                         + " WHERE userID = " + userID;
@@ -475,32 +447,11 @@ namespace Security
                 parameters.Add("@Nume", Nume);
                 parameters.Add("@Prenume", Prenume);
                 parameters.Add("@login", login);
-                //parameters.Add("@encryptPassword", encryptPassword);
                 parameters.Add("@email", email);
-                parameters.Add("@passwordstatusID", passwordstatusID);
                 parameters.Add("@recordstatusID", recordstatusID);
 
-
                 result = Module.DataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
-                mLastError += Module.DataBridge.LastError;
-
-                //if (result)
-                //{
-                //    string deleteQuery = "DELETE FROM st_users_roles WHERE user_id = " + userID;
-                //    bool deleteresult = Module.DataBridge.ExecuteNonQuery(deleteQuery); // PG compliant
-                //    mLastError += Module.DataBridge.LastError;
-
-                //    for (int i = 0; i < groupList.Count; i++)
-                //    {
-                //        string groupID = groupList[i];
-                //        if (!groupID.Equals(string.Empty))
-                //        {
-                //            string inserQuery = "INSERT INTO st_users_roles(user_id, role_id) VALUES (" + userID + ",'" + groupID + "')";
-                //            bool insertResult = Module.DataBridge.ExecuteNonQuery(inserQuery); // PG compliant
-                //            mLastError += Module.DataBridge.LastError;
-                //        }
-                //    }
-                //}
+                mLastError += Module.DataBridge.LastError;            
             }
             catch (Exception ex)
             {
