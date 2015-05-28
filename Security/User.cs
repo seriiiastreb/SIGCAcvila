@@ -179,7 +179,7 @@ namespace Security
             bool result = false;
 
             if (!ModuleAllowed(module))
-                throw new Exception("Module access not allowed");
+                throw new Exception(module + " access not allowed");
 
             if (!mIsSysadmin)
             {

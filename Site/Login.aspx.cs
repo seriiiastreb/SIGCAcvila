@@ -170,12 +170,11 @@ public partial class Login : System.Web.UI.Page
         #region Main AND SECURITY MODULE
 
         string mainModuleMenuLinks = string.Empty;
-
        
         if (allowBasicAdministration) mainModuleMenuLinks  += "<li>  <a href=\"" + appPath + "/ModuleMain/Classifiers.aspx\">Classifiers Management</a> </li> ";
         if (allowUserManagement) mainModuleMenuLinks += "<li>  <a href=\"" + appPath + "/ModuleMain/SystemSeqAdmin.aspx\">User Management</a> </li> ";
 
-        Session[Utils.SessionKey_ModuleMainNavigateMenu] = mainModuleMenuLinks;
+        Session[Utils.SessionKey_ModuleMainMenu] = mainModuleMenuLinks;
 
         #endregion Main AND SECURITY MODULE
 
@@ -185,7 +184,7 @@ public partial class Login : System.Web.UI.Page
 
         if (allowCustomersModule) customersModuleMenuLinks += "<li>  <a href=\"" + appPath + "/ModuleCustomers/Customer.aspx\">Customers</a> </li> ";
 
-        Session[Utils.SessionKey_ModuleCustomers] = customersModuleMenuLinks;
+        Session[Utils.SessionKey_ModuleCustomersMenu] = customersModuleMenuLinks;
 
         #endregion Customers MODULE                 
 

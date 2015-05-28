@@ -45,7 +45,7 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
             {
                 case Security.MainModule.ID:
                 case Security.Module.ID:
-                    mCurrentModule = Utils.ModuleSecurity().GetModuleDescriptionById(mCurrentModule);
+                    moduleDescription = Utils.ModuleSecurity().GetModuleDescriptionById(mCurrentModule);
                     break;
 
             }
@@ -65,7 +65,11 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
             {
                 case Security.MainModule.ID:
                 case Security.Module.ID:
-                    currentNavigateMenu.InnerHtml = Session[Utils.SessionKey_ModuleMainNavigateMenu] != null ? (string)Session[Utils.SessionKey_ModuleMainNavigateMenu] : string.Empty;
+                    currentNavigateMenu.InnerHtml = Session[Utils.SessionKey_ModuleMainMenu] != null ? (string)Session[Utils.SessionKey_ModuleMainMenu] : string.Empty;
+                    break;
+
+                case Client.Module.ID:
+                    currentNavigateMenu.InnerHtml = Session[Utils.SessionKey_ModuleCustomersMenu] != null ? (string)Session[Utils.SessionKey_ModuleCustomersMenu] : string.Empty;
                     break;
 
                 default:

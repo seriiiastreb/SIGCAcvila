@@ -11,7 +11,15 @@
                 selector: '.context-menu-users',
                 trigger: 'none',
                 callback: function (key, options) {
-                    doPost("usersGridClik", key);
+                    if (key == "delete") {
+                        if (confirm("Are you sure you want to delete?")) {
+                            doPost("usersGridClik", key);
+                        }
+                    }
+                    else {
+                        doPost("usersGridClik", key);
+                    }
+                   
                 },
                 items: {
                     "add": { name: "Add", icon: "add", className: 'resetMarginLeft' },
@@ -43,12 +51,16 @@
             });
         });
 
+        $(function () {
+            $("#<%= usersListPanel.ClientID %>").mousedown(function (e) {
+                if (e.which == 3) {
+                    $(".context-menu-users").contextMenu({ x: e.pageX, y: e.pageY });
+                }
+            }); 
+        });   
 
-        $("#<%= usersListPanel.ClientID %>").mousedown(function (e) {
-            if (e.which == 3) {
-                $(".context-menu-users").contextMenu({ x: e.pageX, y: e.pageY });
-            }
-        }); 
+
+
 
 
      
@@ -117,7 +129,7 @@
                 DropShadow="true" >
             </ajax:ModalPopupExtender>   
 
-            <asp:Panel runat="server" ID="usersPanel" CssClass="grid_5 box" style="display:none; width: auto">
+            <asp:Panel runat="server" ID="usersPanel" CssClass="grid_5 box" style="display: none; width: auto; border:1px solid #000;">
                 <h2 style="cursor:move;" runat="server" id="usersHeader">New User</h2>
                 <fieldset>			        
 			        <p>
@@ -200,10 +212,11 @@
                 DropShadow="true" >
             </ajax:ModalPopupExtender>   
 
-             <asp:Panel runat="server" ID="resetPassPanel" CssClass="grid_5 box" style="display:none; width: auto">
-                <fieldset>
-			        <legend style="cursor:move;" runat="server" id="resetPassLegend">Reset Password</legend>			
+             <asp:Panel runat="server" ID="resetPassPanel" CssClass="grid_5 box" style=" display: none; width: auto; border:1px solid #000;">
+                <h2 style="cursor:move;" runat="server" id="resetPassLegend">Reset Password</h2>
+                <fieldset>			        			
                     <p>
+                        <asp:HiddenField ID="resetPasswordSelectedClientID" runat="server" />
 				        <label>Password: </label>
                         <asp:TextBox ID="resetPassTextBox" runat="server" TextMode="Password"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="resetPassRequereValiator" runat="server" EnableClientScript="true" Display="None" ControlToValidate="resetPassTextBox" ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
@@ -234,8 +247,7 @@
 			        </p>       
 
                     <asp:Button ID="resetPassOkButton" CssClass="register-button" runat="server" Text="Save" Width="100px" onclick="resetPassOkButton_Click"  />
-                    <asp:Button ID="resetPassCancelButton" runat="server" Text="Cancel" Width="100px" CausesValidation="false" />                   
-              
+                    <asp:Button ID="resetPassCancelButton" runat="server" Text="Cancel" Width="100px" CausesValidation="false" />  
 		        </fieldset>    
             </asp:Panel>
 

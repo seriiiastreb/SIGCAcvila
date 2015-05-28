@@ -14,13 +14,17 @@ using System.Collections.Specialized;
 
 public class Utils
 {
+    #region Logger Setup
+    protected static readonly log4net.ILog msLogger = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    #endregion Logger Setup
+
     public const string SessionKey_UserObject = "UserObject";
     public const string SessionKey_ModuleSecurity = "ModuleSecurity";
     public const string SessionKey_ModuleMain = "ModuleMain";
+    public const string SessionKey_ModuleMainMenu = "ModuleSecurityNavigateMenu";
     public const string SessionKey_ModuleCustomers = "ModuleCustomers";
+    public const string SessionKey_ModuleCustomersMenu = "ModuleCustomersMenu";
     public const string SessionKey_HeadModuleSlector = "HeadModuleSlector";
-    public const string SessionKey_ModuleMainNavigateMenu = "ModuleSecurityNavigateMenu";
-
 
 	public Utils()
 	{
@@ -498,11 +502,16 @@ public class Utils
     {
         bool result = false;
 
-        Security.User user = Utils.UserObject();
-        if (user != null)
+        try
         {
-            result = user.PermissionAllowed(moduleName, domainName, (int)permission);
+            Security.User user = Utils.UserObject();
+            if (user != null)
+            {
+                result = user.PermissionAllowed(moduleName, domainName, (int)permission);
+            }
         }
+        catch(Exception ex)
+        { msLogger.Info("Security exception. User:" + Utils.UserObject().FirstName + " " + Utils.UserObject().LastName + " with ID:" + Utils.UserObject().UserID + " try acces {" + moduleName + "}, domain {" + domainName + "} but does not have access here. Excetion Message:" + ex.Message); }
 
         return result;
     }

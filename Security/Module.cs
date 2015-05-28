@@ -407,8 +407,8 @@ namespace Security
 
             try
             {             
-                string nonQuery = @"INSERT INTO Users (Nume, Prenume, login,    email,  recordstatus)"
-                                        + " VALUES ( @Nume, @Prenume, @login,  @email, @recordstatusID)";
+                string nonQuery = @"INSERT INTO Users (Nume, Prenume, login,    email,  recordstatus, password, sysadmin)"
+                                        + " VALUES ( @Nume, @Prenume, @login,  @email, @recordstatusID, @password, @sysadmin)";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@Nume", Nume);
@@ -416,6 +416,8 @@ namespace Security
                 parameters.Add("@login", login);
                 parameters.Add("@email", email);
                 parameters.Add("@recordstatusID", recordstatusID);
+                parameters.Add("@password", Crypt.Module.CreateRandomPassword(8));
+                parameters.Add("@sysadmin", false);
 
                 result = Module.DataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = Module.DataBridge.LastError;
@@ -440,7 +442,6 @@ namespace Security
                         + " , login = @login  "
                         + " , email = @email  "
                         + " , recordstatus = @recordstatusID "
-
                         + " WHERE userID = " + userID;
 
                 Hashtable parameters = new Hashtable();

@@ -71,8 +71,9 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
                                     usersPopupExtender.Show();
                                     break;
 
-                                case "rst":
+                                case "reset":
                                     ClearResetPasswordForm();
+                                    resetPasswordSelectedClientID.Value = usersGrid.Rows[selectedIndexInUsresGrid].Cells[0].Text.Replace("&nbsp;", "");
                                     resetPassPopupExtender.Show();
                                     break;
 
@@ -116,115 +117,8 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
         }
         catch (Exception ex)
         { Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Attention! Error in system!", ex.Message); }
-    } 
-
-
-
-    #region users form
-    
-    protected void ClearUsersForm()
-    {
-        usersActionHiddenField.Value = Crypt.Module.CreateEncodedString("New");
-        users_Nume_TextBox.Text = string.Empty;
-        users_Prenume_TextBox.Text = string.Empty;
-        users_Login_TextBox.Text = string.Empty;
-        users_Email_TextBox.Text = string.Empty;
-        try
-        { userDetails_RecordStatusDDL.SelectedIndex = 0; }
-        catch { }
     }
 
-    protected void users_SaveButton_Click(object sender, EventArgs e)
-    {
-        if (allowEdit)
-        {
-            string usersAction = Crypt.Module.DecodeCriptedString(usersActionHiddenField.Value);
-            bool actionResult = false; 
-
-            int userID = 0; 
-            if(usersAction.Equals("Edit")) int.TryParse(usersSelectedUserIDHiddenField.Value , out userID);
-
-            string nume = users_Nume_TextBox.Text;
-            string prenume = users_Prenume_TextBox.Text;
-            string login = users_Login_TextBox.Text;
-            string email = users_Email_TextBox.Text;
-
-            int recordStatusID = 0;
-            int.TryParse(userDetails_RecordStatusDDL.SelectedValue, out recordStatusID);
-
-            if (actionResult.Equals("New"))
-            {
-                actionResult = Utils.ModuleSecurity().NewUser(nume, prenume, login, email, recordStatusID);
-            }
-            else
-            {
-                actionResult = Utils.ModuleSecurity().UpdateUser(userID, nume, prenume, login, email, recordStatusID);
-            }
-
-            if (actionResult)
-            {
-                ClearUsersForm();
-                FillUsersGridView();
-                usersPopupExtender.Hide();
-                   
-                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Ok, "Congratulation", "Succesifuly added user information.");
-            }
-            else
-            {
-                usersPopupExtender.Show();
-                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Attention", "Unable to add new user, try again later. " + (Utils.UserObject().IsSysadmin ? Utils.ModuleSecurity().LastError : string.Empty));
-            }
-        }
-        else
-        {
-            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
-        }            
-    }
-
-    #endregion users
-
-    #region Reset Pass
-
-    protected void ClearResetPasswordForm()
-    {
-        resetPassTextBox.Text = string.Empty;
-        resetPass_repeatTextBox.Text = string.Empty;
-    }
-    
-    protected void resetPassOkButton_Click(object sender, EventArgs e)
-    {        
-        if (allowEdit)
-        {
-            if (usersGrid.SelectedRow != null)
-            {
-                int userID = 0;
-                int.TryParse(usersGrid.SelectedRow.Cells[0].Text, out userID);
-
-                if (userID != 0)
-                {
-                    string newPassword = resetPass_repeatTextBox.Text.Trim();
-
-                    if (Utils.ModuleSecurity().ResetUserPassword(userID, newPassword))
-                    {
-                        resetPassPopupExtender.Hide();
-                        ClearResetPasswordForm();
-                    }
-                    else
-                    {
-                        resetPassPopupExtender.Hide();
-                        Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Error updating record.", "For selected user was not changet password. Try again later! " + (Utils.UserObject().IsSysadmin ? Utils.ModuleSecurity().LastError : string.Empty));
-                    }
-                }
-            }
-        }
-        else
-        {
-            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
-        }  
-    }
-
-    #endregion Reset Pass
-    
     private void ShowPanels(string panelID)
     {
         #region Hode all panels
@@ -262,8 +156,68 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
         }
     }
 
+
     #region Users
 
+    protected void ClearUsersForm()
+    {
+        usersActionHiddenField.Value = Crypt.Module.CreateEncodedString("New");
+        users_Nume_TextBox.Text = string.Empty;
+        users_Prenume_TextBox.Text = string.Empty;
+        users_Login_TextBox.Text = string.Empty;
+        users_Email_TextBox.Text = string.Empty;
+        try
+        { userDetails_RecordStatusDDL.SelectedIndex = 0; }
+        catch { }
+    }
+
+    protected void users_SaveButton_Click(object sender, EventArgs e)
+    {
+        if (allowEdit)
+        {
+            string usersAction = Crypt.Module.DecodeCriptedString(usersActionHiddenField.Value);
+            bool actionResult = false; 
+
+            int userID = 0; 
+            if(usersAction.Equals("Edit")) int.TryParse(usersSelectedUserIDHiddenField.Value , out userID);
+
+            string nume = users_Nume_TextBox.Text;
+            string prenume = users_Prenume_TextBox.Text;
+            string login = users_Login_TextBox.Text;
+            string email = users_Email_TextBox.Text;
+
+            int recordStatusID = 0;
+            int.TryParse(userDetails_RecordStatusDDL.SelectedValue, out recordStatusID);
+
+            if (usersAction.Equals("New"))
+            {
+                actionResult = Utils.ModuleSecurity().NewUser(nume, prenume, login, email, recordStatusID);
+            }
+            else
+            {
+                actionResult = Utils.ModuleSecurity().UpdateUser(userID, nume, prenume, login, email, recordStatusID);
+            }
+
+            if (actionResult)
+            {
+                ClearUsersForm();
+                FillUsersGridView();
+                usersPopupExtender.Hide();
+                   
+                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Ok, "Congratulation", "Succesifuly added user information.");
+            }
+            else
+            {
+                usersPopupExtender.Show();
+                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Attention", "Unable to add new user, try again later. " + (Utils.UserObject().IsSysadmin ? Utils.ModuleSecurity().LastError : string.Empty));
+            }
+        }
+        else
+        {
+            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
+        }            
+    }
+    
     protected void FillDDLOnUsersFroms()
     {
         DataTable recordStatus = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.SystemUserRecordStatus);
@@ -298,7 +252,50 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
         ShowPanels(usersListPanel.ID);
     }
 
+    #region Reset Pass
 
+    protected void ClearResetPasswordForm()
+    {
+        resetPasswordSelectedClientID.Value = string.Empty;
+        resetPassTextBox.Text = string.Empty;
+        resetPass_repeatTextBox.Text = string.Empty;
+    }
+
+    protected void resetPassOkButton_Click(object sender, EventArgs e)
+    {
+        if (allowEdit)
+        {
+            if (usersGrid.SelectedRow != null)
+            {
+                int userID = 0;
+                int.TryParse(usersGrid.SelectedRow.Cells[0].Text, out userID);
+
+                if (userID != 0)
+                {
+                    string newPassword = resetPass_repeatTextBox.Text.Trim();
+
+                    if (Utils.ModuleSecurity().ResetUserPassword(userID, newPassword))
+                    {
+                        resetPassPopupExtender.Hide();
+                        ClearResetPasswordForm();
+                        Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Info, "Succes!", "Password was changet successfully.");
+                    }
+                    else
+                    {
+                        resetPassPopupExtender.Hide();
+                        Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Error updating record.", "For selected user was not changet password. Try again later! " + (Utils.UserObject().IsSysadmin ? Utils.ModuleSecurity().LastError : string.Empty));
+                    }
+                }
+            }
+        }
+        else
+        {
+            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
+        }
+    }
+
+    #endregion Reset Pass
+    
     #endregion Users
 
     #region Groups 

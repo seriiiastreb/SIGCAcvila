@@ -7,8 +7,8 @@ using System.Data;
 
 public partial class Customers : System.Web.UI.Page
 {
-    private readonly string mCurrentModule = Security.Module.ID;
-    private readonly string mPageName = "System Sequrity Administration";
+    private readonly string mCurrentModule = Client.Module.ID;
+    private readonly string mPageName = "Customers administraion";
 
     bool allowEdit = false;
     bool allowView = false;
