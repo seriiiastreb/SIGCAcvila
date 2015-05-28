@@ -6,6 +6,18 @@
 
 
 CREATE DATABASE [sigc]
+ON PRIMARY
+  ( NAME = [sigc],
+    FILENAME = 'c:\Program Files\Microsoft SQL Server\MSSQL10_50.SQLEXPRESS\MSSQL\DATA\sigc.mdf',
+    SIZE = 2 MB,
+    MAXSIZE = UNLIMITED,
+    FILEGROWTH = 1 MB )
+LOG ON
+  ( NAME = [sigc_log],
+    FILENAME = 'c:\Program Files\Microsoft SQL Server\MSSQL10_50.SQLEXPRESS\MSSQL\DATA\sigc_log.ldf',
+    SIZE = 1 MB,
+    MAXSIZE = 0 MB,
+    FILEGROWTH = 10 % )
 COLLATE SQL_Latin1_General_CP1_CI_AS
 GO
 
@@ -55,6 +67,21 @@ CREATE TABLE [dbo].[ClassifierType] (
   [system] bit NOT NULL
 )
 ON [PRIMARY]
+GO
+
+--
+-- Definition for table logs : 
+--
+
+CREATE TABLE [dbo].[logs] (
+  [id] int IDENTITY(1, 1) NOT NULL,
+  [eventdate] datetime NOT NULL,
+  [eventtype] nvarchar(30) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+  [message] text COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+  [userID] int NOT NULL
+)
+ON [PRIMARY]
+TEXTIMAGE_ON [PRIMARY]
 GO
 
 --
@@ -124,7 +151,7 @@ CREATE TABLE [dbo].[users] (
   [Prenume] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
   [login] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
   [password] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-  [passwordstatus] int NOT NULL,
+  [passwordstatus] int NULL,
   [recordstatus] int NOT NULL,
   [email] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
   [sysadmin] bit CONSTRAINT [DF__users__sysadmin__3F466844] DEFAULT 0 NOT NULL
@@ -133,7 +160,7 @@ ON [PRIMARY]
 GO
 
 --
--- Data for table dbo.Classifiers  (LIMIT 0,500)
+-- Data for table dbo.Classifiers  (LIMIT 0,5000)
 --
 
 SET IDENTITY_INSERT [dbo].[Classifiers] ON
@@ -1383,7 +1410,7 @@ SET IDENTITY_INSERT [dbo].[Classifiers] OFF
 GO
 
 --
--- Data for table dbo.ClassifierType  (LIMIT 0,500)
+-- Data for table dbo.ClassifierType  (LIMIT 0,5000)
 --
 
 SET IDENTITY_INSERT [dbo].[ClassifierType] ON
@@ -1448,7 +1475,7 @@ SET IDENTITY_INSERT [dbo].[ClassifierType] OFF
 GO
 
 --
--- Data for table dbo.users  (LIMIT 0,500)
+-- Data for table dbo.users  (LIMIT 0,5000)
 --
 
 SET IDENTITY_INSERT [dbo].[users] ON
@@ -1459,6 +1486,27 @@ VALUES
   (1, N'Iastrebov', N'Sergiu', N'seriiiastreb', N'T8grJq7LR9KGjE7741gXMqPny8xsLvsyBiwIFwoF7rg=', 6, 8, N'iastrebov.sergiu@mail.md', 1)
 GO
 
+INSERT INTO [dbo].[users] ([userid], [Nume], [Prenume], [login], [password], [passwordstatus], [recordstatus], [email], [sysadmin])
+VALUES 
+  (5, N'test', N'user22', N'test', N'sVVt6jLp0M2/7QOP13hydXdepAk5wUamTiBbyzSa0C8=', NULL, 8, N'email@mail.md', 0)
+GO
+
 SET IDENTITY_INSERT [dbo].[users] OFF
+GO
+
+--
+-- Definition for indices : 
+--
+
+ALTER TABLE [dbo].[logs]
+ADD CONSTRAINT [PK__logs__3213E83F08EA5793] 
+PRIMARY KEY CLUSTERED ([id])
+WITH (
+  PAD_INDEX = OFF,
+  IGNORE_DUP_KEY = OFF,
+  STATISTICS_NORECOMPUTE = OFF,
+  ALLOW_ROW_LOCKS = ON,
+  ALLOW_PAGE_LOCKS = ON)
+ON [PRIMARY]
 GO
 
