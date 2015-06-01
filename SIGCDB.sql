@@ -1406,6 +1406,22 @@ VALUES
   (8, 266, N'Bender', NULL, 133)
 GO
 
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (37, 267, N'View', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (37, 268, N'Edit', NULL, NULL)
+GO
+
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (37, 269, N'Deny', NULL, NULL)
+GO
+
 SET IDENTITY_INSERT [dbo].[Classifiers] OFF
 GO
 
