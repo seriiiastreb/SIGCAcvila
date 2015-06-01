@@ -3,70 +3,6 @@
 
 
 <asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" Runat="Server">   
-
-    <script language="javascript">
-
-        $(function () {
-            $.contextMenu({
-                selector: '.context-menu-users',
-                trigger: 'none',
-                callback: function (key, options) {
-                    if (key == "delete") {
-                        if (confirm("Are you sure you want to delete?")) {
-                            doPost("usersGridClik", key);
-                        }
-                    }
-                    else {
-                        doPost("usersGridClik", key);
-                    }
-                   
-                },
-                items: {
-                    "add": { name: "Add", icon: "add", className: 'resetMarginLeft' },
-                    "edit": { name: "Edit", icon: "edit", className: 'resetMarginLeft' },
-                    "reset": { name: "Reset PWD", icon: "reset", className: 'resetMarginLeft' },                   
-                    "delete": { name: "Delete", icon: "delete", className: 'resetMarginLeft' }
-                }
-            });
-        });
-
-
-        $(function () {
-            $("[id*=<%= usersGrid.ClientID %>] td").mousedown(function (e) {
-
-                var selectedRowIndex = $(this).parent().index();
-                var hiddField = document.getElementById('<%= usersGrid_SelectedIndex_HiddenValue.ClientID %>');
-                hiddField.value = selectedRowIndex;
-
-                var gridID = '<%= usersGrid.ClientID %>';
-                ResetGridSelection(gridID);
-
-                $(this).closest("tr").removeClass('odd');
-                $(this).closest("tr").toggleClass("selectedRow");
-
-                if (e.which == 3) //1: left, 2: middle, 3: right
-                {
-                    $(".context-menu-users").contextMenu({ x: e.pageX, y: e.pageY });
-                }
-            });
-        });
-
-        $(function () {
-            $("#<%= usersListPanel.ClientID %>").mousedown(function (e) {
-                if (e.which == 3) {
-                    $(".context-menu-users").contextMenu({ x: e.pageX, y: e.pageY });
-                }
-            }); 
-        });   
-
-
-
-
-
-     
-        
-    </script>
-
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server">  
@@ -99,6 +35,61 @@
 
         <asp:Panel ID="usersListPanel" class="context-menu-users" runat="server" Visible="false" style="min-height:300px;">
 
+            <script language="javascript">
+                $(function () {
+                    $.contextMenu({
+                        selector: '.context-menu-users',
+                        trigger: 'none',
+                        callback: function (key, options) {
+                            if (key == "delete") {
+                                if (confirm("Are you sure you want to delete?")) {
+                                    doPost("usersGridClik", key);
+                                }
+                            }
+                            else {
+                                doPost("usersGridClik", key);
+                            }
+                        },
+                        items: {
+                            "add": { name: "Add", icon: "add", className: 'resetMarginLeft' },
+                            "edit": { name: "Edit", icon: "edit", className: 'resetMarginLeft' },
+                            "reset": { name: "Reset PWD", icon: "reset", className: 'resetMarginLeft' },
+                            "delete": { name: "Delete", icon: "delete", className: 'resetMarginLeft' }
+                        }
+                    });
+                });
+
+
+                $(function () {
+                    $("[id*=<%= usersGrid.ClientID %>] td").mousedown(function (e) {
+
+                        var selectedRowIndex = $(this).parent().index();
+                        var hiddField = document.getElementById('<%= usersGrid_SelectedIndex_HiddenValue.ClientID %>');
+                        hiddField.value = selectedRowIndex;
+
+                        var gridID = '<%= usersGrid.ClientID %>';
+                        ResetGridSelection(gridID);
+
+                        $(this).closest("tr").removeClass('odd');
+                        $(this).closest("tr").toggleClass("selectedRow");
+
+                        if (e.which == 3) //1: left, 2: middle, 3: right
+                        {
+                            $(".context-menu-users").contextMenu({ x: e.pageX, y: e.pageY });
+                        }
+                    });
+                });
+
+                $(function () {
+                    $("#<%= usersListPanel.ClientID %>").mousedown(function (e) {
+                        if (e.which == 3) {
+                            $(".context-menu-users").contextMenu({ x: e.pageX, y: e.pageY });
+                        }
+                    });
+                });                           
+            </script>
+
+
             <asp:HiddenField ID="usersGrid_SelectedIndex_HiddenValue" runat="server" />
 
             <asp:GridView ID="usersGrid" runat="server"
@@ -118,8 +109,9 @@
                     <asp:BoundField DataField="sysadmin" HeaderText="Sys Admin" />
                 </Columns>
             </asp:GridView>
+        </asp:Panel>
 
-            <asp:HyperLink ID="userHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
+        <asp:HyperLink ID="userHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
 
             <ajax:ModalPopupExtender ID="usersPopupExtender" runat="server"     
                 TargetControlID="userHyperLink"
@@ -198,8 +190,6 @@
               
 		        </fieldset>    
             </asp:Panel>
-
-
             
 
             <asp:HyperLink ID="resetPassHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
@@ -254,128 +244,133 @@
 
 
 
-
-        </asp:Panel>
-
         <asp:Panel ID="groupsListPanel" runat="server" Visible="false">
         </asp:Panel>
 
-        <asp:Panel ID="domainsListPanel" runat="server" Visible="false">
+
+
+
+
+
+        <asp:Panel ID="domainsListPanel" runat="server" class="context-menu-domains" Visible="false" style="min-height:300px;">
+            
+            <script language="javascript">
+
+                $(function () {
+                    $.contextMenu({
+                        selector: '.context-menu-domains',
+                        trigger: 'none',
+                        callback: function (key, options) {
+                            if (key == "delete") {
+                                if (confirm("Are you sure you want to delete?")) {
+                                    doPost("domainsGridClik", key);
+                                }
+                            }
+                            else {
+                                doPost("domainsGridClik", key);
+                            }
+
+                        },
+                        items: {
+                            "add": { name: "Add", icon: "add", className: 'resetMarginLeft' },
+                            "edit": { name: "Edit", icon: "edit", className: 'resetMarginLeft' },
+                            "delete": { name: "Delete", icon: "delete", className: 'resetMarginLeft' }
+                        }
+                    });
+                });
+
+
+                $(function () {
+                    $("[id*=<%= doaminsGridView.ClientID %>] td").mousedown(function (e) {
+
+                        var selectedRowIndex = $(this).parent().index();
+                        var hiddField = document.getElementById('<%= domainsGridSelectedIndexHiddenField.ClientID %>');
+                        hiddField.value = selectedRowIndex;
+
+                        var gridID = '<%= doaminsGridView.ClientID %>';
+                        ResetGridSelection(gridID);
+
+                        $(this).closest("tr").removeClass('odd');
+                        $(this).closest("tr").toggleClass("selectedRow");
+
+                        if (e.which == 3) //1: left, 2: middle, 3: right
+                        {
+                            $(".context-menu-domains").contextMenu({ x: e.pageX, y: e.pageY });
+                        }
+                    });
+                });
+
+                $(function () {
+                    $("#<%= domainsListPanel.ClientID %>").mousedown(function (e) {
+                        if (e.which == 3) {
+                            $(".context-menu-domains").contextMenu({ x: e.pageX, y: e.pageY });
+                        }
+                    });
+                });        
+        
+            </script>
+
+            <asp:HiddenField ID="domainsGridSelectedIndexHiddenField" runat="server" />
+
+            <asp:GridView ID="doaminsGridView" runat="server"
+                AutoGenerateColumns="false"
+                AlternatingRowStyle-CssClass="odd"
+                OnRowCreated="doaminsGridView_RowCreated"
+                AllowPaging="false"  
+                SelectedRowStyle-CssClass = "selectedRow">
+                <Columns>
+                    <asp:BoundField DataField="role_id" HeaderText="Group" />
+                    <asp:BoundField DataField="module_id" HeaderText="Module ID" />
+                    <asp:BoundField DataField="domain_id" HeaderText="Domain" />
+                    <asp:BoundField DataField="permissions" HeaderText="permission" HeaderStyle-CssClass="hidden"  ItemStyle-CssClass="hidden" />
+                    <asp:BoundField DataField="permissions_name" HeaderText="Permission" />
+                </Columns>
+            </asp:GridView>           
+            
         </asp:Panel>
+
+        <asp:HyperLink ID="domainsHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
+
+            <ajax:ModalPopupExtender ID="domainsModalPopupExtender" runat="server"     
+                TargetControlID="domainsHyperLink"
+                PopupControlID = "domainsPanel" 
+                PopupDragHandleControlID="domainsLegend"
+                CancelControlID="domainsCancelButton"
+                DropShadow="true" >
+            </ajax:ModalPopupExtender>   
+
+            <asp:Panel runat="server" ID="domainsPanel" CssClass="grid_5 box" style="display: none; width: auto; border:1px solid #000;">
+                <h2 style="cursor:move;" runat="server" id="domainsLegend">
+                    Domains Permissions
+                    <asp:ImageButton ID="refreshDomainsButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Refresh domains" ImageUrl="../images/refresh.png"  runat="server" OnClick="refreshDomainsButton_Click" AlternateText="Refresh domains" />
+                </h2>
+                <fieldset>			        
+			        <p>
+				        <label>Module ID: </label>
+                        <asp:DropDownList ID="moduleID_DDL" runat="server" AutoPostBack="true" OnSelectedIndexChanged="moduleID_DDL_SelectedIndexChanged" ></asp:DropDownList>                       
+			        </p>
+
+	                <p>
+				        <label>Domain ID: </label>
+                        <asp:DropDownList ID="domainID_DDL" runat="server"></asp:DropDownList>                       
+			        </p>
+                    <p>
+				        <label>Group: </label>
+                        <asp:DropDownList ID="roleID_DDL" runat="server"></asp:DropDownList>                       
+			        </p>
+	                <p>
+				        <label>Permission: </label>
+                        <asp:DropDownList ID="permissionDDL" runat="server"></asp:DropDownList>                       
+			        </p>
+                    
+                    <asp:Button ID="domainsSaveButton" runat="server" Text="Save" Width="100px"  CausesValidation="false" onclick="domainsSaveButton_Click"  />
+                    <asp:Button ID="domainsCancelButton" runat="server" Text="Cancel" Width="100px" CausesValidation="false" />                   
+              
+		        </fieldset>    
+            </asp:Panel>
+
+
      </div>
 
-
-
-
-   <%--
-
-    <asp:HyperLink ID="editUserHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
-
-    <ajax:ModalPopupExtender ID="editUserPopupExtender" runat="server"     
-        TargetControlID="editUserHyperLink"
-        PopupControlID = "editUserPanel" 
-        PopupDragHandleControlID="editUserLegend"
-        CancelControlID="editUserCancelButton"
-        DropShadow="true" >
-    </ajax:ModalPopupExtender>   
-
-    <asp:Panel runat="server" ID="editUserPanel" CssClass="grid_5 box" style="display:none; width: auto">
-        <fieldset>
-			<legend style="cursor:move;" runat="server" id="editUserLegend">Edit User</legend>
-			<p>
-				<label>First Name: </label>
-                <asp:TextBox ID="editUserNumeTextBox" runat="server" ></asp:TextBox>
-                <asp:RequiredFieldValidator ID="editUserNameRequiredFieldValidator" runat="server" EnableClientScript="true" Display="None" ControlToValidate="editUserNumeTextBox" ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
-                <ajax:ValidatorCalloutExtender 
-                    runat="Server"
-                    ID="ValidatorCalloutExtender7"                     
-                    TargetControlID="editUserNameRequiredFieldValidator" 
-                    Width="250px"
-                    PopupPosition="Right" />
-			</p>
-
-            <p>
-				<label>Last Name: </label>
-				<asp:TextBox ID="editUserLastNameTextBox" runat="server" ></asp:TextBox>
-                <asp:RequiredFieldValidator ID="ediuUserlastNameRequiredFieldValidator" runat="server" EnableClientScript="true" Display="None" ControlToValidate="editUserLastNameTextBox" ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
-                <ajax:ValidatorCalloutExtender 
-                    runat="Server"
-                    ID="ValidatorCalloutExtender8"
-                    TargetControlID="ediuUserlastNameRequiredFieldValidator" 
-                    Width="250px"
-                    PopupPosition="Right" />
-			</p>
-
-			<p>
-				<label>Login: </label>
-				<asp:TextBox ID="editUserLoginTextBox" runat="server" ></asp:TextBox>
-                <asp:RequiredFieldValidator ID="editUserLoginRequiredFieldValidator" runat="server" EnableClientScript="true" Display="None" ControlToValidate="editUserLoginTextBox" ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
-                <ajax:ValidatorCalloutExtender 
-                    runat="Server"
-                    ID="ValidatorCalloutExtender9"
-                    TargetControlID="editUserLoginRequiredFieldValidator" 
-                    Width="250px"
-                    PopupPosition="Right" />
-			</p>
-
-			<p>
-				<label>Email: </label>
-                <asp:TextBox ID="editUserEmailTextBox" runat="server" ></asp:TextBox>
-                <asp:RequiredFieldValidator ID="editUserEmailRequiredFieldValidator" runat="server" EnableClientScript="true" Display="None" ControlToValidate="editUserEmailTextBox"  ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
-                <asp:RegularExpressionValidator runat="server" ID="emailRegularExpressionValidator" Display="None" ControlToValidate="editUserEmailTextBox" ErrorMessage="The email is not well formed." ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
-                <ajax:ValidatorCalloutExtender 
-                    runat="Server"
-                    ID="ValidatorCalloutExtender10"
-                    TargetControlID="editUserEmailRequiredFieldValidator" 
-                    Width="250px"
-                    PopupPosition="Right" />
-                <ajax:ValidatorCalloutExtender 
-                    runat="Server"
-                    ID="ValidatorCalloutExtender11"
-                    TargetControlID="emailRegularExpressionValidator" 
-                    Width="250px"
-                    PopupPosition="Right" />
-			</p>           
-
-            <p>
-				<label>Password Status: </label>
-                <asp:DropDownList ID="editUserPWDStatusDDL" runat="server" ></asp:DropDownList>
-			</p>
-
-	        <p>
-				<label>Record Status: </label>
-                <asp:DropDownList ID="editUserRECStatus" runat="server"  ></asp:DropDownList>
-			</p>
-
-            <asp:Button ID="editUserOkButton" CssClass="register-button" runat="server" Text="Save" Width="100px" onclick="editUserOkButton_Click"  />
-            <asp:Button ID="editUserCancelButton" runat="server" Text="Cancel" Width="100px" CausesValidation="false" />                   
-              
-		</fieldset>    
-    </asp:Panel>
-
-
-    <asp:HyperLink ID="deleteUserHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
-
-    <ajax:ModalPopupExtender ID="deleteUserModalPopupExtender" runat="server"     
-        TargetControlID="deleteUserHyperLink"
-        PopupControlID = "deleteUserPanel" 
-        PopupDragHandleControlID="deleteUserLegend"
-        CancelControlID="deleteUserCancelButton"
-        DropShadow="true" >
-    </ajax:ModalPopupExtender>   
-
-    <asp:Panel runat="server" ID="deleteUserPanel" CssClass="grid_5 box" style="display:none; width: auto">
-        <fieldset>
-			<legend style="cursor:move;" runat="server" id="deleteUserLegend">Delete User confirmation</legend>			
-            <p>
-                <h3>Sure you want to delete this user from the system? After this operation he will not have access to the system.</h3>
-            </p>
-
-            <asp:Button ID="deleteUserOkButton" CssClass="register-button" runat="server" Text="Ok" Width="100px" onclick="deleteUserOkButton_Click"  />
-            <asp:Button ID="deleteUserCancelButton" runat="server" Text="Cancel" Width="100px" CausesValidation="false" />                   
-              
-		</fieldset>    
-    </asp:Panel>
---%>
 </asp:Content>
 

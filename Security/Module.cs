@@ -21,28 +21,34 @@ namespace Security
             get { return mLastError; }
         }
 
+        public static void Register()
+        {
+            Registrar.RegisterModule(ID, Description);
+            Domains.Administration.Register();
+        }
+
         public Module()
         {
             Plus = Module.DataBridge.ConcatSimbol + " ' ' " + Module.DataBridge.ConcatSimbol;
         }
 
-        //public DataTable GetGroupsList()
-        //{
-        //    DataTable modules = new DataTable();
+        public DataTable GetGroupsList()
+        {
+            DataTable modules = new DataTable();
 
-        //    try
-        //    {
-        //        string query = "SELECT role_id FROM st_roles order by role_id ";
-        //        modules = Module.DataBridge.ExecuteQuery(query);
-        //        mLastError = Module.DataBridge.LastError;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        mLastError += ex.Message;
-        //    }
-            
-        //    return modules;
-        //}
+            try
+            {
+                string query = "SELECT role_id FROM st_roles order by role_id ";
+                modules = Module.DataBridge.ExecuteQuery(query);
+                mLastError = Module.DataBridge.LastError;
+            }
+            catch (Exception ex)
+            {
+                mLastError += ex.Message;
+            }
+
+            return modules;
+        }
 
         //public bool AddGroup(string group_id)
         //{
@@ -87,24 +93,24 @@ namespace Security
 
         //    return result;
         //}
-        
-        //public DataTable GetModulesList()
-        //{
-        //    DataTable modules = new DataTable();
 
-        //    try
-        //    {
-        //        string query = "SELECT module_id, description FROM st_modules order by description ";
-        //        modules = Module.DataBridge.ExecuteQuery(query);
-        //        mLastError = Module.DataBridge.LastError;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        mLastError += ex.Message;
-        //    }        
+        public DataTable GetModulesList()
+        {
+            DataTable modules = new DataTable();
 
-        //    return modules;
-        //}
+            try
+            {
+                string query = "SELECT module_id, description FROM st_modules order by description ";
+                modules = Module.DataBridge.ExecuteQuery(query);
+                mLastError = Module.DataBridge.LastError;
+            }
+            catch (Exception ex)
+            {
+                mLastError += ex.Message;
+            }
+
+            return modules;
+        }
 
         public string GetModuleDescriptionById(string moduleId)
         {
@@ -134,132 +140,160 @@ namespace Security
             return description;
         }
 
-        //public DataTable GetDomainsListInModule(string moduleID)
-        //{
-        //    DataTable modules = new DataTable();
+        public DataTable GetDomainsListInModule(string moduleID)
+        {
+            DataTable modules = new DataTable();
 
-        //    try
-        //    {
-        //        string query = "SELECT module_id, domain_id, description FROM st_domains WHERE module_id = @moduleID ";
+            try
+            {
+                string query = "SELECT module_id, domain_id, description FROM st_domains WHERE module_id = @moduleID ";
 
-        //        Hashtable parameters = new Hashtable();
-        //        parameters.Add("@moduleID", moduleID);
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@moduleID", moduleID);
 
-        //        modules = Module.DataBridge.ExecuteQuery(query, parameters);
-        //        mLastError = Module.DataBridge.LastError;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        mLastError += ex.Message;
-        //    }
+                modules = Module.DataBridge.ExecuteQuery(query, parameters);
+                mLastError = Module.DataBridge.LastError;
+            }
+            catch (Exception ex)
+            {
+                mLastError += ex.Message;
+            }
 
-        //    return modules;
-        //}
+            return modules;
+        }
 
-        //public DataTable GetPermissionsForGroup(string groupID)
-        //{
-        //    DataTable permissions = new DataTable();
+        public DataTable GetPermissionsForGroup(string groupID)
+        {
+            DataTable permissions = new DataTable();
 
-        //    try
-        //    {
-        //        string query = "SELECT "
-        //                        + "    module_id "
-        //                        + "   , role_id "
-        //                        + "   , domain_id "                                
-        //                        + "   , permissions "
-        //                        + "   , module_id " + Module.DataBridge.ConcatSimbol + " '~' " + Module.DataBridge.ConcatSimbol + " role_id " + Module.DataBridge.ConcatSimbol + " '~' " + Module.DataBridge.ConcatSimbol + " domain_id " + Module.DataBridge.ConcatSimbol + " '~' " + Module.DataBridge.ConcatSimbol + " CAST(permissions as varchar)  as \"key\" "
-        //                        + "   , module_id " + Module.DataBridge.ConcatSimbol + " '~' " + Module.DataBridge.ConcatSimbol + " role_id " + Module.DataBridge.ConcatSimbol + " '~' " + Module.DataBridge.ConcatSimbol + " domain_id  as \"display_key\" "
-        //                        + " FROM  "
-        //                        + "   st_roles_permissions "
-        //                        + " WHERE role_id = @groupID ";
+            try
+            {
+                string query = "SELECT "
+                                + "    module_id "
+                                + "   , role_id "
+                                + "   , domain_id "
+                                + "   , permissions "
+                                //+ "   , module_id " + Module.DataBridge.ConcatSimbol + " '~' " + Module.DataBridge.ConcatSimbol + " role_id " + Module.DataBridge.ConcatSimbol + " '~' " + Module.DataBridge.ConcatSimbol + " domain_id " + Module.DataBridge.ConcatSimbol + " '~' " + Module.DataBridge.ConcatSimbol + " CAST(permissions as varchar)  as \"key\" "
+                                //+ "   , module_id " + Module.DataBridge.ConcatSimbol + " '~' " + Module.DataBridge.ConcatSimbol + " role_id " + Module.DataBridge.ConcatSimbol + " '~' " + Module.DataBridge.ConcatSimbol + " domain_id  as \"display_key\" "
+                                + " FROM  "
+                                + "   st_roles_permissions "
+                                + " WHERE role_id = @groupID ";
 
-        //        Hashtable parameters = new Hashtable();
-        //        parameters.Add("@groupID", groupID);
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@groupID", groupID);
 
-        //        permissions = Module.DataBridge.ExecuteQuery(query, parameters);
-        //        mLastError = Module.DataBridge.LastError;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        mLastError += ex.Message;
-        //    }
+                permissions = Module.DataBridge.ExecuteQuery(query, parameters);
+                mLastError = Module.DataBridge.LastError;
+            }
+            catch (Exception ex)
+            {
+                mLastError += ex.Message;
+            }
 
-        //    return permissions;
-        //}
+            return permissions;
+        }
 
-        //public bool UpdatePermissions(string moduleID, string roleID, string domainID, int permission)
-        //{
-        //    bool result = false;
+        public DataTable GetPermissionsForGroup()
+        {
+            DataTable permissions = new DataTable();
 
-        //    try
-        //    {
-        //        string selectString = "SELECT * FROM st_roles_permissions WHERE module_id = @moduleID AND role_id = @roleID AND domain_id = @domainID ";
+            try
+            {
+                string query = "SELECT \r\n "
+                                + "    module_id \r\n"
+                                + "   , role_id \r\n"
+                                + "   , domain_id \r\n"
+                                + "   , permissions \r\n"
+                                + "   , (Select Name from Classifiers WHERE Code = permissions) as permissions_name \r\n"
+                                + " FROM  \r\n"
+                                + "   st_roles_permissions \r\n";
 
-        //        Hashtable parameters = new Hashtable();
-        //        parameters.Add("@moduleID", moduleID);
-        //        parameters.Add("@roleID", roleID);
-        //        parameters.Add("@domainID", domainID);
-        //        parameters.Add("@permission", permission);
 
-        //        DataTable existPermisssionDT = Module.DataBridge.ExecuteQuery(selectString, parameters);
-        //        mLastError = Module.DataBridge.LastError;
+                permissions = Module.DataBridge.ExecuteQuery(query);
+                mLastError = Module.DataBridge.LastError;
+            }
+            catch (Exception ex)
+            {
+                mLastError += ex.Message;
+            }
 
-        //        if (existPermisssionDT != null && existPermisssionDT.Rows.Count == 1)
-        //        {
-        //            string updatestrig = "UPDATE st_roles_permissions SET "
-        //                        + " permissions = @permission " 
-        //                        + " WHERE "
-        //                        + " module_id = @moduleID "
-        //                        + " AND role_id = @roleID "
-        //                        + " AND domain_id = @domainID ";
+            return permissions;
+        }
 
-        //            result = Module.DataBridge.ExecuteNonQuery(updatestrig, parameters);
-        //            mLastError = Module.DataBridge.LastError;
-        //        }
-        //        else
-        //        {
-        //            string insertString = "INSERT INTO st_roles_permissions (module_id, role_id , domain_id , permissions) "
-        //                        + "  VALUES ( @moduleID, @roleID, @domainID, @permission )  ";
 
-        //            result = Module.DataBridge.ExecuteNonQuery(insertString, parameters);
-        //            mLastError = Module.DataBridge.LastError;
-        //        }        
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        mLastError += ex.Message;
-        //    }
+        public bool UpdatePermissions(string moduleID, string roleID, string domainID, int permission)
+        {
+            bool result = false;
 
-        //    return result;
-        //}
+            try
+            {
+                string selectString = "SELECT * FROM st_roles_permissions WHERE module_id = @moduleID AND role_id = @roleID AND domain_id = @domainID ";
 
-        //public bool DeletePermissions(string moduleID, string roleID, string domainID)
-        //{
-        //    bool result = false;
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@moduleID", moduleID);
+                parameters.Add("@roleID", roleID);
+                parameters.Add("@domainID", domainID);
+                parameters.Add("@permission", permission);
 
-        //    try
-        //    {              
-        //        string updatestrig = "DELETE FROM st_roles_permissions  "                                
-        //                    + " WHERE "
-        //                    + " module_id = @moduleID "
-        //                    + " AND role_id = @roleID "
-        //                    + " AND domain_id = @domainID ";
+                DataTable existPermisssionDT = Module.DataBridge.ExecuteQuery(selectString, parameters);
+                mLastError = Module.DataBridge.LastError;
 
-        //        Hashtable parameters = new Hashtable();
-        //        parameters.Add("@moduleID", moduleID);
-        //        parameters.Add("@roleID", roleID);
-        //        parameters.Add("@domainID", domainID);
+                if (existPermisssionDT != null && existPermisssionDT.Rows.Count == 1)
+                {
+                    string updatestrig = "UPDATE st_roles_permissions SET "
+                                + " permissions = @permission "
+                                + " WHERE "
+                                + " module_id = @moduleID "
+                                + " AND role_id = @roleID "
+                                + " AND domain_id = @domainID ";
 
-        //        result = Module.DataBridge.ExecuteNonQuery(updatestrig, parameters);
-        //        mLastError = Module.DataBridge.LastError;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        mLastError += ex.Message;
-        //    }
+                    result = Module.DataBridge.ExecuteNonQuery(updatestrig, parameters);
+                    mLastError = Module.DataBridge.LastError;
+                }
+                else
+                {
+                    string insertString = "INSERT INTO st_roles_permissions (module_id, role_id , domain_id , permissions) "
+                                + "  VALUES ( @moduleID, @roleID, @domainID, @permission )  ";
 
-        //    return result;
-        //}
+                    result = Module.DataBridge.ExecuteNonQuery(insertString, parameters);
+                    mLastError = Module.DataBridge.LastError;
+                }
+            }
+            catch (Exception ex)
+            {
+                mLastError += ex.Message;
+            }
+
+            return result;
+        }
+
+        public bool DeletePermissions(string moduleID, string roleID, string domainID)
+        {
+            bool result = false;
+
+            try
+            {
+                string updatestrig = "DELETE FROM st_roles_permissions  "
+                            + " WHERE "
+                            + " module_id = @moduleID "
+                            + " AND role_id = @roleID "
+                            + " AND domain_id = @domainID ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@moduleID", moduleID);
+                parameters.Add("@roleID", roleID);
+                parameters.Add("@domainID", domainID);
+
+                result = Module.DataBridge.ExecuteNonQuery(updatestrig, parameters);
+                mLastError = Module.DataBridge.LastError;
+            }
+            catch (Exception ex)
+            {
+                mLastError += ex.Message;
+            }
+
+            return result;
+        }
         
         #region Users Region
 
@@ -472,7 +506,13 @@ namespace Security
         /// </summary>
         public class Administration
         {
-            public static readonly string Name = "Administration";            
+            public static readonly string Name = "Administration";
+            public static readonly string Description = "Administration";
+
+            public static void Register()
+            {
+                Registrar.RegisterDomain(Security.Module.ID, Name, Description);
+            }
         }
     }
 }

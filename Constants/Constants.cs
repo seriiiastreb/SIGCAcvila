@@ -12,7 +12,7 @@ public class Constants
         LanguageList = 5,
         SystemUserRecordStatus = 6,
         Province = 7,
-        Permissions = 8,
+        Permissions = 37,
     }
 
     public enum Classifiers
