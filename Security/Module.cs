@@ -50,49 +50,72 @@ namespace Security
             return modules;
         }
 
-        //public bool AddGroup(string group_id)
-        //{
-        //    bool result = false;
+        public bool AddGroup(string group_id)
+        {
+            bool result = false;
 
-        //    try
-        //    {
-        //        string query = "INSERT INTO st_roles (role_id) VALUES (@group_id) ";
+            try
+            {
+                string query = "INSERT INTO st_roles (role_id) VALUES (@group_id) ";
 
-        //        Hashtable parameters = new Hashtable();
-        //        parameters.Add("@group_id", group_id);
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@group_id", group_id);
 
-        //        result = Module.DataBridge.ExecuteNonQuery(query, parameters);
-        //        mLastError = Module.DataBridge.LastError;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        mLastError += ex.Message;
-        //    }
+                result = Module.DataBridge.ExecuteNonQuery(query, parameters);
+                mLastError = Module.DataBridge.LastError;
+            }
+            catch (Exception ex)
+            {
+                mLastError += ex.Message;
+            }
 
-        //    return result;
-        //}
+            return result;
+        }
 
-        //public bool DeleteGroup(string group_id)
-        //{
-        //    bool result = false;
+        public bool UpdateGroup(string newGroup_id, string oldGroupID)
+        {
+            bool result = false;
 
-        //    try
-        //    {
-        //        string query = "DELETE FROM st_roles WHERE role_id = @group_id ";
+            try
+            {
+                string query = "UPDATE st_roles SET role_id = @newGroupID WHERE role_id = @oldGroupID ";
 
-        //        Hashtable parameters = new Hashtable();
-        //        parameters.Add("@group_id", group_id);
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@oldGroupID", oldGroupID);
+                parameters.Add("@newGroupID", newGroup_id);
 
-        //        result = Module.DataBridge.ExecuteNonQuery(query, parameters);
-        //        mLastError = Module.DataBridge.LastError;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        mLastError += ex.Message;
-        //    }
+                result = Module.DataBridge.ExecuteNonQuery(query, parameters);
+                mLastError = Module.DataBridge.LastError;
+            }
+            catch (Exception ex)
+            {
+                mLastError += ex.Message;
+            }
 
-        //    return result;
-        //}
+            return result;
+        }
+
+        public bool DeleteGroup(string group_id)
+        {
+            bool result = false;
+
+            try
+            {
+                string query = "DELETE FROM st_roles WHERE role_id = @group_id ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@group_id", group_id);
+
+                result = Module.DataBridge.ExecuteNonQuery(query, parameters);
+                mLastError = Module.DataBridge.LastError;
+            }
+            catch (Exception ex)
+            {
+                mLastError += ex.Message;
+            }
+
+            return result;
+        }
 
         public DataTable GetModulesList()
         {

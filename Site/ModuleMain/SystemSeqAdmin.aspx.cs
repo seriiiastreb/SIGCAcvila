@@ -40,6 +40,10 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
                     int.TryParse(usersGrid_SelectedIndex_HiddenValue.Value, out selectedIndexInUsresGrid);
                     if (!usersGrid_SelectedIndex_HiddenValue.Value.Equals(string.Empty)) usersGrid.SelectedIndex = selectedIndexInUsresGrid;
 
+                    int selectedIndexInGroupsGridView = 0;
+                    int.TryParse(groupsGridSelectedIndexHiddenField.Value, out selectedIndexInGroupsGridView);
+                    if (!groupsGridSelectedIndexHiddenField.Value.Equals(string.Empty)) grupsGridView.SelectedIndex = selectedIndexInGroupsGridView;
+
                     int selectedIndexInDomainGrid = 0;
                     int.TryParse(domainsGridSelectedIndexHiddenField.Value, out selectedIndexInDomainGrid);
                     if (!domainsGridSelectedIndexHiddenField.Value.Equals(string.Empty)) doaminsGridView.SelectedIndex = selectedIndexInDomainGrid;
@@ -186,7 +190,53 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
 
                             break;
 
-                        default:
+
+                        case "groupsGridClik":
+
+                            #region Groups Grid Events
+
+                            switch (action.ToLower())
+                            {
+                                case "add":
+                                    {
+                                        ClearGroupsPanel();
+                                        groupModalPopupExtender.Show();
+                                    }
+                                    break;
+
+                                case "edit":
+                                    ClearGroupsPanel();
+                                    groupsActionHiddenField.Value = Crypt.Module.CreateEncodedString("Edit");
+                                    selectedGroupIDHiddenField.Value = grupsGridView.Rows[selectedIndexInGroupsGridView].Cells[0].Text.Replace("&nbsp;", "");
+                                    groupsIDNameTextBox.Text = grupsGridView.Rows[selectedIndexInGroupsGridView].Cells[0].Text.Replace("&nbsp;", "");
+                                    groupModalPopupExtender.Show();
+                                    break;
+                                    
+                                case "delete":
+                                    if (allowEdit)
+                                    {
+                                        string groupID = selectedGroupIDHiddenField.Value;
+
+                                        if (!string.IsNullOrEmpty(groupID))
+                                        {
+                                            if (Utils.ModuleSecurity().DeleteGroup(groupID))
+                                            {
+                                                FillGroupsGridView();
+                                            }
+                                            else
+                                            {
+                                                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Error deleting record.", "Selected group not deleted. Try again later! " + (Utils.UserObject().IsSysadmin ? Utils.ModuleSecurity().LastError : string.Empty));
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
+                                    }
+                                    break;
+                            }
+                            #endregion Groups Grid Events
+
                             break;
                     }
                 }
@@ -384,13 +434,77 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
 
     #region Groups 
 
+    protected void ClearGroupsPanel()
+    {
+        groupsActionHiddenField.Value = Crypt.Module.CreateEncodedString("New");
+        selectedGroupIDHiddenField.Value = string.Empty;
+        groupsIDNameTextBox.Text = string.Empty;
+    }
+
+    protected void grupsGridView_RowCreated(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.Header)
+        { e.Row.TableSection = TableRowSection.TableHeader; }
+
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
+            e.Row.Attributes["onmouseout"] = "this.style.textDecoration='none';";
+        }
+    }
+  
     protected void groupsListLinkButton_Click(object sender, EventArgs e)
     {        
         ShowPanels(groupsListPanel.ID);
     }
 
     protected void FillGroupsGridView()
-    { 
+    {
+        groupsGridSelectedIndexHiddenField.Value = string.Empty;
+
+        DataTable sourceDT = Utils.ModuleSecurity().GetGroupsList();
+        grupsGridView.DataSource = sourceDT;
+        grupsGridView.DataBind();    
+    }
+
+    protected void groupSaveButton_Click(object sender, EventArgs e)
+    {
+        if (allowEdit)
+        {
+            string ation = Crypt.Module.DecodeCriptedString(groupsActionHiddenField.Value);
+            bool actionResult = false;
+
+            string oldGroupID = string.Empty;
+            if (ation.Equals("Edit")) oldGroupID = selectedGroupIDHiddenField.Value;
+
+            string nume = groupsIDNameTextBox.Text;
+
+            if (ation.Equals("New"))
+            {
+                actionResult = Utils.ModuleSecurity().AddGroup(nume);
+            }
+            else
+            {
+                actionResult = Utils.ModuleSecurity().UpdateGroup(nume, oldGroupID);
+            }
+
+            if (actionResult)
+            {
+                ClearGroupsPanel();
+                FillGroupsGridView();
+                groupModalPopupExtender.Hide();
+                //Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Ok, "Congratulation", "Succesifuly added user information.");
+            }
+            else
+            {
+                groupModalPopupExtender.Show();
+                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Attention", "Unable to save record, try again later. " + (Utils.UserObject().IsSysadmin ? Utils.ModuleSecurity().LastError : string.Empty));
+            }
+        }
+        else
+        {
+            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
+        }          
     }
 
     #endregion Groups 
