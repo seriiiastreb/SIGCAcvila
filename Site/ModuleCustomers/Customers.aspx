@@ -4,366 +4,438 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" Runat="Server">   
 
-    <script language="javascript">
-
-        $(function () {
-            $.contextMenu({
-                selector: '.context-menu-users',
-                trigger: 'none',
-                callback: function (key, options) {
-                    doPost("usersGridClik", key);
-                },
-                items: {
-                    "add": { name: "Add", icon: "add", className: 'resetMarginLeft' },
-                    "edit": { name: "Edit", icon: "edit", className: 'resetMarginLeft' },
-                    "reset": { name: "Reset PWD", icon: "reset", className: 'resetMarginLeft' },                   
-                    "delete": { name: "Delete", icon: "delete", className: 'resetMarginLeft' }
-                }
-            });
-        });
-
-
-        $(function () {
-            $("[id*=<%= usersGrid.ClientID %>] td").mousedown(function (e) {
-
-                var selectedRowIndex = $(this).parent().index();
-                var hiddField = document.getElementById('<%= usersGrid_SelectedIndex_HiddenValue.ClientID %>');
-                hiddField.value = selectedRowIndex;
-
-                var gridID = '<%= usersGrid.ClientID %>';
-                ResetGridSelection(gridID);
-
-                $(this).closest("tr").removeClass('odd');
-                $(this).closest("tr").toggleClass("selectedRow");
-
-                if (e.which == 3) //1: left, 2: middle, 3: right
-                {
-                    $(".context-menu-users").contextMenu({ x: e.pageX, y: e.pageY });
-                }
-            });
-        });
-
-
-        $("#<%= usersListPanel.ClientID %>").mousedown(function (e) {
-            if (e.which == 3) {
-                $(".context-menu-users").contextMenu({ x: e.pageX, y: e.pageY });
-            }
-        }); 
-
-
-     
-        
-    </script>
 
 </asp:Content>
 
-<asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server">  
-
-    <div class="grid_3 box">
-		<h2>
-			System Management
-		</h2>
-		<div class="block" id="list-items">
-			<p>Here you can add/edit users and groups in system. And you can change permissions of them.</p>
-			<h5>Users and Grousp</h5>
-			<ul class="menu">
-				<li>
-                    <asp:LinkButton ID="usersListLinkButton" runat="server" Text="Users" onclick="usersListLinkButton_Click"></asp:LinkButton>
-				</li>
-				<li>
-                    <asp:LinkButton ID="groupsListLinkButton" runat="server" Text="Groups" onclick="groupsListLinkButton_Click"></asp:LinkButton>
-				</li>
-				<li>
-					<asp:LinkButton ID="domainsListLinkButton" runat="server" Text="Domains" onclick="domainsListLinkButton_Click"></asp:LinkButton>
-				</li>
-			</ul>
+<asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server"> 
+    
+    <asp:Panel ID="clientSelectionPanel" runat="server" Visible="false">
+        <div style="text-align:right;">
+            <asp:Button ID="addNewClientButton" runat="server" Text="Add New Client" OnClick="addNewClientButton_Click" />
         </div>
-    </div>
-
-     <div class="grid_10 box" style=" min-height:300px;">
-        <h2>
-		    <asp:Label ID="currentSelected"  runat="server" Text=""></asp:Label>
-	    </h2>
-
-        <asp:Panel ID="usersListPanel" class="context-menu-users" runat="server" Visible="false" style="min-height:300px;">
-
-            <asp:HiddenField ID="usersGrid_SelectedIndex_HiddenValue" runat="server" />
-
-            <asp:GridView ID="usersGrid" runat="server"
+        <asp:GridView ID="clientListGridView" runat="server" 
                 AutoGenerateColumns="false"
                 AlternatingRowStyle-CssClass="odd"
                 OnRowCreated="usersGrid_RowCreated"
+                OnSelectedIndexChanged="clientListGridView_SelectedIndexChanged"
                 AllowPaging="false"  
-                SelectedRowStyle-CssClass = "selectedRow">
+                SelectedRowStyle-CssClass = "selectedRow" >
                 <Columns>
-                    <asp:BoundField DataField="userid" HeaderText="User ID"  HeaderStyle-CssClass="hidden"  ItemStyle-CssClass="hidden" />
-                    <asp:BoundField DataField="nume" HeaderText="First Name" />
-                    <asp:BoundField DataField="prenume" HeaderText="Last Name" />
-                    <asp:BoundField DataField="login" HeaderText="Login" />                   
-                    <asp:BoundField DataField="recordstatus" HeaderText="recordstatus" HeaderStyle-CssClass="hidden"  ItemStyle-CssClass="hidden" />
-                    <asp:BoundField DataField="recordstatus_string" HeaderText="Record Status" />
-                    <asp:BoundField DataField="email" HeaderText="Email" />
-                    <asp:BoundField DataField="sysadmin" HeaderText="Sys Admin" />
+                    <asp:BoundField DataField="clientID" ItemStyle-CssClass="HiddenColumn" HeaderStyle-CssClass="HiddenColumn" />
+                    <asp:BoundField DataField="FirstName" HeaderText="FirstName" />
+                    <asp:BoundField DataField="LastName" HeaderText="LastName"  />                
+                    <asp:TemplateField HeaderText="Data Nastere">
+                        <ItemTemplate>
+                            <asp:Label ID="dateOfBirthLabel" Width="100px" runat="server" Text='<%# ((Eval("DateOfBirth") != null && Eval("DateOfBirth") is DateTime) ?  ((DateTime)Eval("DateOfBirth")).ToString(Constants.ISODateBackwardDotsFormat) : "") %>'></asp:Label>
+                        </ItemTemplate>
+                    </asp:TemplateField>                    
+                    <asp:BoundField DataField="buletinSeria" HeaderText="Buletin"  />
+                    <asp:BoundField DataField="personalID" HeaderText="Personal ID"  /> 
+                    <asp:BoundField DataField="telefon" HeaderText="Telefon"  />                                                  
                 </Columns>
             </asp:GridView>
+    </asp:Panel>
 
-            <asp:HyperLink ID="userHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
+    <asp:HyperLink ID="newClientHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
 
-            <ajax:ModalPopupExtender ID="usersPopupExtender" runat="server"     
-                TargetControlID="userHyperLink"
-                PopupControlID = "usersPanel" 
-                PopupDragHandleControlID="usersHeader"
-                CancelControlID="users_CancelButton"
-                DropShadow="true" >
-            </ajax:ModalPopupExtender>   
-
-            <asp:Panel runat="server" ID="usersPanel" CssClass="grid_5 box" style="display:none; width: auto">
-                <h2 style="cursor:move;" runat="server" id="usersHeader">New User</h2>
-                <fieldset>			        
-			        <p>
-                        <asp:HiddenField ID="usersActionHiddenField" runat="server" />
-                        <asp:HiddenField ID="usersSelectedUserIDHiddenField" runat="server" />
-
-				        <label>First Name: </label>
-                        <asp:TextBox ID="users_Nume_TextBox" runat="server" ></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="RequiredFieldValidator" runat="server" ValidationGroup="users" EnableClientScript="true" Display="None" ControlToValidate="users_Nume_TextBox" ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
-                        <ajax:ValidatorCalloutExtender 
-                            runat="Server"
-                            ID="PNReqE"                     
-                            TargetControlID="RequiredFieldValidator" 
-                            Width="250px"
-                            PopupPosition="Right" />
-			        </p>
-                    <p>
-				        <label>Last Name: </label>
-				        <asp:TextBox ID="users_Prenume_TextBox" runat="server" ></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="RequiredFieldValidator2" runat="server"  ValidationGroup="users" EnableClientScript="true" Display="None" ControlToValidate="users_Prenume_TextBox" ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
-                        <ajax:ValidatorCalloutExtender 
-                            runat="Server"
-                            ID="ValidatorCalloutExtender1"
-                            TargetControlID="RequiredFieldValidator2" 
-                            Width="250px"
-                            PopupPosition="Right" />
-			        </p>
-
-			        <p>
-				        <label>Login: </label>
-				        <asp:TextBox ID="users_Login_TextBox" runat="server" ></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="RequiredFieldValidator3" runat="server"  ValidationGroup="users" EnableClientScript="true" Display="None" ControlToValidate="users_Login_TextBox" ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
-                        <ajax:ValidatorCalloutExtender 
-                            runat="Server"
-                            ID="ValidatorCalloutExtender2"
-                            TargetControlID="RequiredFieldValidator3" 
-                            Width="250px"
-                            PopupPosition="Right" />
-			        </p>
-
-			        <p>
-				        <label>Email: </label>
-                        <asp:TextBox ID="users_Email_TextBox" runat="server" ></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="RequiredFieldValidator4" runat="server"  ValidationGroup="users"  EnableClientScript="true" Display="None" ControlToValidate="users_Email_TextBox"  ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
-                        <asp:RegularExpressionValidator runat="server" ID="valEmailPattern" Display="None"  ValidationGroup="users" ControlToValidate="users_Email_TextBox" ErrorMessage="The email is not well formed." ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
-                        <ajax:ValidatorCalloutExtender 
-                            runat="Server"
-                            ID="ValidatorCalloutExtender3"
-                            TargetControlID="RequiredFieldValidator4" 
-                            Width="250px"
-                            PopupPosition="Right" />
-                        <ajax:ValidatorCalloutExtender 
-                            runat="Server"
-                            ID="ValidatorCalloutExtender6"
-                            TargetControlID="valEmailPattern" 
-                            Width="250px"
-                            PopupPosition="Right" />
-			        </p>
-	                <p>
-				        <label>Record Status: </label>
-                        <asp:DropDownList ID="userDetails_RecordStatusDDL" runat="server"  ></asp:DropDownList>
-			        </p>
-
-                    <asp:Button ID="users_SaveButton" CssClass="register-button" runat="server" Text="Save" Width="100px"  ValidationGroup="users" onclick="users_SaveButton_Click"  />
-                    <asp:Button ID="users_CancelButton" runat="server" Text="Cancel" Width="100px" CausesValidation="false" />                   
-              
-		        </fieldset>    
-            </asp:Panel>
-
-
-            
-
-            <asp:HyperLink ID="resetPassHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
-
-            <ajax:ModalPopupExtender ID="resetPassPopupExtender" runat="server"     
-                TargetControlID="resetPassHyperLink"
-                PopupControlID = "resetPassPanel" 
-                PopupDragHandleControlID="resetPassLegend"
-                CancelControlID="resetPassCancelButton"
-                DropShadow="true" >
-            </ajax:ModalPopupExtender>   
-
-             <asp:Panel runat="server" ID="resetPassPanel" CssClass="grid_5 box" style="display:none; width: auto">
-                <fieldset>
-			        <legend style="cursor:move;" runat="server" id="resetPassLegend">Reset Password</legend>			
-                    <p>
-				        <label>Password: </label>
-                        <asp:TextBox ID="resetPassTextBox" runat="server" TextMode="Password"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="resetPassRequereValiator" runat="server" EnableClientScript="true" Display="None" ControlToValidate="resetPassTextBox" ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
-                        <ajax:ValidatorCalloutExtender 
-                            runat="Server"
-                            ID="ValidatorCalloutExtender12"
-                            TargetControlID="resetPassRequereValiator" 
-                            Width="250px"
-                            PopupPosition="Right" />
-			        </p>
-
-			        <p>
-				        <label>Repeat Password: </label>
-                        <asp:TextBox ID="resetPass_repeatTextBox" runat="server" TextMode="Password"></asp:TextBox>
-                        <asp:CompareValidator id="resetPass_CompareValidator" 
-                            runat="server"
-                            ControlToCompare="resetPass_repeatTextBox"
-                            ControlToValidate="resetPassTextBox"
-                            ErrorMessage="Attention! Passwords do not match."
-                            Display="None" />
-
-                            <ajax:ValidatorCalloutExtender 
-                            runat="Server"
-                            ID="ValidatorCalloutExtender13"
-                            TargetControlID="resetPass_CompareValidator" 
-                            Width="250px"
-                            PopupPosition="Right" />
-			        </p>       
-
-                    <asp:Button ID="resetPassOkButton" CssClass="register-button" runat="server" Text="Save" Width="100px" onclick="resetPassOkButton_Click"  />
-                    <asp:Button ID="resetPassCancelButton" runat="server" Text="Cancel" Width="100px" CausesValidation="false" />                   
-              
-		        </fieldset>    
-            </asp:Panel>
-
-
-
-
-
-        </asp:Panel>
-
-        <asp:Panel ID="groupsListPanel" runat="server" Visible="false">
-        </asp:Panel>
-
-        <asp:Panel ID="domainsListPanel" runat="server" Visible="false">
-        </asp:Panel>
-     </div>
-
-
-
-
-   <%--
-
-    <asp:HyperLink ID="editUserHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
-
-    <ajax:ModalPopupExtender ID="editUserPopupExtender" runat="server"     
-        TargetControlID="editUserHyperLink"
-        PopupControlID = "editUserPanel" 
-        PopupDragHandleControlID="editUserLegend"
-        CancelControlID="editUserCancelButton"
+    <ajax:ModalPopupExtender ID="newClientPopupExtender" runat="server"     
+        TargetControlID="newClientHyperLink"
+        PopupControlID = "newClientPanel" 
+        PopupDragHandleControlID="newClientHeader"
+        CancelControlID="users_CancelButton"
         DropShadow="true" >
     </ajax:ModalPopupExtender>   
 
-    <asp:Panel runat="server" ID="editUserPanel" CssClass="grid_5 box" style="display:none; width: auto">
-        <fieldset>
-			<legend style="cursor:move;" runat="server" id="editUserLegend">Edit User</legend>
-			<p>
-				<label>First Name: </label>
-                <asp:TextBox ID="editUserNumeTextBox" runat="server" ></asp:TextBox>
-                <asp:RequiredFieldValidator ID="editUserNameRequiredFieldValidator" runat="server" EnableClientScript="true" Display="None" ControlToValidate="editUserNumeTextBox" ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
-                <ajax:ValidatorCalloutExtender 
-                    runat="Server"
-                    ID="ValidatorCalloutExtender7"                     
-                    TargetControlID="editUserNameRequiredFieldValidator" 
-                    Width="250px"
-                    PopupPosition="Right" />
-			</p>
+    <asp:Panel runat="server" ID="newClientPanel" CssClass="grid_5 box" style=" width: auto; border:1px solid #000;">
+        <h2 style="cursor:move;" runat="server" id="newClientHeader">New Client  <asp:Image ID="users_CancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="19px" Height="19px" style="float:right; cursor:default;" /></h2>
+        <fieldset>	
+            <asp:UpdatePanel ID="updatePanle1" runat="server" >
+                <ContentTemplate>
+                	<p>
+                        <label>Gender:</label>
+                        <asp:DropDownList ID="newClientGenderListDDL" runat="server" AutoPostBack="true" CausesValidation="false" OnSelectedIndexChanged="newClientGenderList_SelectedIndexChanged"></asp:DropDownList>
+                    </p>
+                    
+                    <asp:Panel ID="newCleint_simplePersonPanel" runat="server" Visible="false">
+                        <p>
+                            <label>Firts Name:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_FirstNameTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Last Name:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_LastNameTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Birth Date:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_BirthDateTextBox" ></asp:TextBox>
+                            <ajax:CalendarExtender ID="newClientSimple_BirthDateCalendarExtender" runat="server" TargetControlID="newClientSimple_BirthDateTextBox"></ajax:CalendarExtender>
+                        </p>
 
-            <p>
-				<label>Last Name: </label>
-				<asp:TextBox ID="editUserLastNameTextBox" runat="server" ></asp:TextBox>
-                <asp:RequiredFieldValidator ID="ediuUserlastNameRequiredFieldValidator" runat="server" EnableClientScript="true" Display="None" ControlToValidate="editUserLastNameTextBox" ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
-                <ajax:ValidatorCalloutExtender 
-                    runat="Server"
-                    ID="ValidatorCalloutExtender8"
-                    TargetControlID="ediuUserlastNameRequiredFieldValidator" 
-                    Width="250px"
-                    PopupPosition="Right" />
-			</p>
+                        <p>
+                            <label>Personal number (IDNP):</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_IDNPTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Buletin:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_BuletinTextBox" ></asp:TextBox>
+                        </p>
 
-			<p>
-				<label>Login: </label>
-				<asp:TextBox ID="editUserLoginTextBox" runat="server" ></asp:TextBox>
-                <asp:RequiredFieldValidator ID="editUserLoginRequiredFieldValidator" runat="server" EnableClientScript="true" Display="None" ControlToValidate="editUserLoginTextBox" ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
-                <ajax:ValidatorCalloutExtender 
-                    runat="Server"
-                    ID="ValidatorCalloutExtender9"
-                    TargetControlID="editUserLoginRequiredFieldValidator" 
-                    Width="250px"
-                    PopupPosition="Right" />
-			</p>
+                        <p>
+                            <label>Telefon / Fax:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_TelefonFixTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Telefon mobil:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_TelefonMobilTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Email:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_EmailTextBox" ></asp:TextBox>
+                            <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" 
+                                ErrorMessage="Wrong email!" ControlToValidate="newClientSimple_EmailTextBox" 
+                                Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
+                           <ajax:ValidatorCalloutExtender 
+                                runat="Server"
+                                ID="PNReqE"                     
+                                TargetControlID="RegularExpressionValidator1" 
+                                Width="250px"
+                                PopupPosition="Right" />
+                        </p>
+                    </asp:Panel>
 
-			<p>
-				<label>Email: </label>
-                <asp:TextBox ID="editUserEmailTextBox" runat="server" ></asp:TextBox>
-                <asp:RequiredFieldValidator ID="editUserEmailRequiredFieldValidator" runat="server" EnableClientScript="true" Display="None" ControlToValidate="editUserEmailTextBox"  ErrorMessage="This field is mandatory."> </asp:RequiredFieldValidator>
-                <asp:RegularExpressionValidator runat="server" ID="emailRegularExpressionValidator" Display="None" ControlToValidate="editUserEmailTextBox" ErrorMessage="The email is not well formed." ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
-                <ajax:ValidatorCalloutExtender 
-                    runat="Server"
-                    ID="ValidatorCalloutExtender10"
-                    TargetControlID="editUserEmailRequiredFieldValidator" 
-                    Width="250px"
-                    PopupPosition="Right" />
-                <ajax:ValidatorCalloutExtender 
-                    runat="Server"
-                    ID="ValidatorCalloutExtender11"
-                    TargetControlID="emailRegularExpressionValidator" 
-                    Width="250px"
-                    PopupPosition="Right" />
-			</p>           
-
-            <p>
-				<label>Password Status: </label>
-                <asp:DropDownList ID="editUserPWDStatusDDL" runat="server" ></asp:DropDownList>
-			</p>
-
-	        <p>
-				<label>Record Status: </label>
-                <asp:DropDownList ID="editUserRECStatus" runat="server"  ></asp:DropDownList>
-			</p>
-
-            <asp:Button ID="editUserOkButton" CssClass="register-button" runat="server" Text="Save" Width="100px" onclick="editUserOkButton_Click"  />
-            <asp:Button ID="editUserCancelButton" runat="server" Text="Cancel" Width="100px" CausesValidation="false" />                   
-              
-		</fieldset>    
+                     <asp:Panel ID="newCleint_juridPersonPanel" runat="server" Visible="true">
+                        <p>
+                            <label>Full Name:</label>
+                            <asp:TextBox runat="server" ID="newClient_juridFullNameTextBox" ></asp:TextBox>
+                        </p>    
+                        <p>
+                            <label>Registration nr.:</label>
+                            <asp:TextBox runat="server" ID="newClient_juridRegistrationNRTextBox" ></asp:TextBox>
+                        </p>                 
+                        <p>
+                            <label>Contact Person:</label>
+                            <asp:TextBox runat="server" ID="newClient_juridContactPersonTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Telefon / Fax:</label>
+                            <asp:TextBox runat="server" ID="newClient_juridTelefonFixTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Telefon mobil:</label>
+                            <asp:TextBox runat="server" ID="newClient_juridTelefonMobilTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Email:</label>
+                            <asp:TextBox runat="server" ID="newClient_juridEmailTextBox" ></asp:TextBox>
+                            <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" 
+                                ErrorMessage="Wrong email!" ControlToValidate="newClient_juridEmailTextBox" 
+                                Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
+                           <ajax:ValidatorCalloutExtender 
+                                runat="Server"
+                                ID="ValidatorCalloutExtender1"                     
+                                TargetControlID="RegularExpressionValidator2" 
+                                Width="250px"
+                                PopupPosition="Right" />
+                        </p>
+                    </asp:Panel>
+                </ContentTemplate>
+            </asp:UpdatePanel>    
+            <div style="text-align:right;">
+                <asp:Button runat="server" ID="newClientSaveBurtton" Text="Save" onclick="newClientSaveBurtton_Click"  Width="100px"  />
+            </div>
+        </fieldset>
     </asp:Panel>
 
 
-    <asp:HyperLink ID="deleteUserHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
 
-    <ajax:ModalPopupExtender ID="deleteUserModalPopupExtender" runat="server"     
-        TargetControlID="deleteUserHyperLink"
-        PopupControlID = "deleteUserPanel" 
-        PopupDragHandleControlID="deleteUserLegend"
-        CancelControlID="deleteUserCancelButton"
-        DropShadow="true" >
-    </ajax:ModalPopupExtender>   
 
-    <asp:Panel runat="server" ID="deleteUserPanel" CssClass="grid_5 box" style="display:none; width: auto">
-        <fieldset>
-			<legend style="cursor:move;" runat="server" id="deleteUserLegend">Delete User confirmation</legend>			
-            <p>
-                <h3>Sure you want to delete this user from the system? After this operation he will not have access to the system.</h3>
-            </p>
 
-            <asp:Button ID="deleteUserOkButton" CssClass="register-button" runat="server" Text="Ok" Width="100px" onclick="deleteUserOkButton_Click"  />
-            <asp:Button ID="deleteUserCancelButton" runat="server" Text="Cancel" Width="100px" CausesValidation="false" />                   
-              
-		</fieldset>    
+
+
+    <asp:Panel ID="clientWorkPanel" Visible="false" runat="server">
+        <ajax:TabContainer ID="detailsClientTabContainer"  runat="server" 
+            cssclass="ajax__myTab"  Width="100%" ActiveTabIndex="1" Height="24px">  
+            <ajax:TabPanel ID="generalInfoTabPanel" runat="server">                
+                <HeaderTemplate>&nbsp; General Info&nbsp; </HeaderTemplate>                	
+                <ContentTemplate>
+                    <div style="float:left; width:20%;"> 
+                        <table>
+                            <tr>
+                                <td>Activation date:</td>
+                                <td><asp:Label ID="genInfoActivationDateLabel" runat="server"></asp:Label></td>
+                            </tr>
+                        </table>
+                    </div>
+                </ContentTemplate>
+            </ajax:TabPanel>
+
+            <ajax:TabPanel ID="personalDataTabPanel" runat="server">                
+                <HeaderTemplate>&nbsp; Personal data&nbsp; </HeaderTemplate>                	
+                <ContentTemplate>
+                    <asp:Panel runat="server" ID="Panel3" CssClass="grid_5 box" style="border:1px solid #000;">
+                        <h2 style="cursor:move;" runat="server" id="H1">Personal data</h2>
+                        <fieldset>	
+                            <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+                                <ContentTemplate>
+                	                <p>
+                                        <label>Gender:</label>
+                                        <asp:DropDownList ID="clientPersDataGenderListDDL" runat="server" AutoPostBack="true" CausesValidation="false" OnSelectedIndexChanged="clientPersDataGenderList_SelectedIndexChanged"></asp:DropDownList>
+                                    </p>
+                    
+                                    <asp:Panel ID="clientPersonalDataSimplePanel" runat="server" Visible="false">
+                                        <p>
+                                            <label>Firts Name:</label>
+                                            <asp:TextBox runat="server" ID="clientPersDataSimple_FirstNameTextBox" ></asp:TextBox>
+                                        </p>
+                                        <p>
+                                            <label>Last Name:</label>
+                                            <asp:TextBox runat="server" ID="clientPersDataSimple_LastNameTextBox" ></asp:TextBox>
+                                        </p>
+                                        <p>
+                                            <label>Birth Date:</label>
+                                            <asp:TextBox runat="server" ID="clientPersDataSimple_BirthDateTextBox" ></asp:TextBox>
+                                            <ajax:CalendarExtender ID="clientPersDataSimple_BirthDateCalendarExtender" runat="server" TargetControlID="clientPersDataSimple_BirthDateTextBox"></ajax:CalendarExtender>
+                                        </p>
+
+                                        <p>
+                                            <label>Personal number (IDNP):</label>
+                                            <asp:TextBox runat="server" ID="clientPersDataSimple_IDNPTextBox" ></asp:TextBox>
+                                        </p>
+                                        <p>
+                                            <label>Buletin:</label>
+                                            <asp:TextBox runat="server" ID="clientPersDataSimple_BuletinTextBox" ></asp:TextBox>
+                                        </p>
+
+                                        <p>
+                                            <label>Telefon / Fax:</label>
+                                            <asp:TextBox runat="server" ID="clientPersDataSimple_TelefonFixTextBox" ></asp:TextBox>
+                                        </p>
+                                        <p>
+                                            <label>Telefon mobil:</label>
+                                            <asp:TextBox runat="server" ID="clientPersDataSimple_TelefonMobilTextBox" ></asp:TextBox>
+                                        </p>
+                                        <p>
+                                            <label>Email:</label>
+                                            <asp:TextBox runat="server" ID="clientPersDataSimple_EmailTextBox" ></asp:TextBox>
+                                            <asp:RegularExpressionValidator ID="RegularExpressionValidator3" runat="server" 
+                                                ErrorMessage="Wrong email!" ControlToValidate="clientPersDataSimple_EmailTextBox" 
+                                                Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
+                                           <ajax:ValidatorCalloutExtender 
+                                                runat="Server"
+                                                ID="ValidatorCalloutExtender2"                     
+                                                TargetControlID="RegularExpressionValidator1" 
+                                                Width="250px"
+                                                PopupPosition="Right" />
+                                        </p>
+                                    </asp:Panel>
+
+                                     <asp:Panel ID="clientPersonalDataJuridicPanel" runat="server" Visible="true">
+                                        <p>
+                                            <label>Full Name:</label>
+                                            <asp:TextBox runat="server" ID="clientPersData_juridFullNameTextBox" ></asp:TextBox>
+                                        </p>    
+                                        <p>
+                                            <label>Registration nr.:</label>
+                                            <asp:TextBox runat="server" ID="clientPersData_juridRegistrationNRTextBox" ></asp:TextBox>
+                                        </p>                 
+                                        <p>
+                                            <label>Contact Person:</label>
+                                            <asp:TextBox runat="server" ID="clientPersData_juridContactPersonTextBox" ></asp:TextBox>
+                                        </p>
+                                        <p>
+                                            <label>Telefon / Fax:</label>
+                                            <asp:TextBox runat="server" ID="clientPersData_juridTelefonFixTextBox" ></asp:TextBox>
+                                        </p>
+                                        <p>
+                                            <label>Telefon mobil:</label>
+                                            <asp:TextBox runat="server" ID="clientPersData_juridTelefonMobilTextBox" ></asp:TextBox>
+                                        </p>
+                                        <p>
+                                            <label>Email:</label>
+                                            <asp:TextBox runat="server" ID="clientPersData_juridEmailTextBox" ></asp:TextBox>
+                                            <asp:RegularExpressionValidator ID="RegularExpressionValidator4" runat="server" 
+                                                ErrorMessage="Wrong email!" ControlToValidate="clientPersData_juridEmailTextBox" 
+                                                Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
+                                           <ajax:ValidatorCalloutExtender 
+                                                runat="Server"
+                                                ID="ValidatorCalloutExtender3"                     
+                                                TargetControlID="RegularExpressionValidator2" 
+                                                Width="250px"
+                                                PopupPosition="Right" />
+                                        </p>
+                                    </asp:Panel>
+                                </ContentTemplate>
+                            </asp:UpdatePanel>    
+                            <div style="text-align:right;">
+                                <asp:Button runat="server" ID="clientPersDataSaveBurtton" Text="Save" onclick="clientPersDataSaveBurtton_Click"  Width="100px"  />
+                            </div>
+                        </fieldset>
+                    </asp:Panel>
+
+
+                </ContentTemplate>
+            </ajax:TabPanel>
+
+        </ajax:TabContainer>
+
+
+
+<%--        <ajax:TabContainer ID="detailsClientTabContainer"  runat="server" cssclass="ajax__myTab"  Width="100%" ActiveTabIndex="0" Height="24px">  
+
+            <ajax:TabPanel ID="generalInfoTabPanel" runat="server">                
+                <HeaderTemplate>&nbsp; Generalizari&nbsp; </HeaderTemplate>                	
+                <ContentTemplate>
+                    <div style="float:left; width:20%;"> 
+                        <table>
+                            <tr>
+                                <td>Activation date:</td>
+                                <td><asp:Label ID="genInfoActivationDateLabel" runat="server"></asp:Label></td>
+                            </tr>
+                            <tr>
+                                <td>Nr. de lefenon:</td>
+                                <td><asp:Label ID="genInfoMobileNumberLabel" runat="server"></asp:Label></td>
+                            </tr>
+                            <tr>
+                                <td>Manager creditare:</td>
+                                <td><asp:Label ID="genInfoManagerCreditareLabel" runat="server"></asp:Label></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Performance History:</td>
+                            </tr>
+                            <tr>
+                                <td> Nr. de Imprumuturi:</td>
+                                <td><asp:Label ID="genInfoTotalLoansNumberLabel" runat="server"></asp:Label></td>
+                            </tr>
+                            <tr>
+                                <td>Summa ultimul imprumut:</td>
+                                <td> <asp:Label ID="genInfoLastLoanAmountLabel" runat="server"></asp:Label>   </td>
+                            </tr>
+                            <tr>
+                                <td>Imprumuturi active:</td>
+                                <td><asp:Label ID="genInfoActiveLoansLabel" runat="server"></asp:Label></td>
+                            </tr>
+                            <tr>
+                                <td>Total savings:</td>
+                                <td><asp:Label ID="genInfoTotalSavingsLabel" runat="server"></asp:Label></td>
+                            </tr>
+                            <tr>
+                                <td>Active savings:</td>
+                                <td><asp:Label ID="genInfoActiveSavingsLabel" runat="server"></asp:Label></td>
+                            </tr>
+                        </table>                        
+                    </div>
+                    <div style="float:left; width:79%;"> 
+                    </div>
+                </ContentTemplate>
+            </ajax:TabPanel>
+
+            <ajax:TabPanel ID="personalDataInfoTabPanel" runat="server">                
+                <HeaderTemplate>&nbsp; Date personale&nbsp; </HeaderTemplate>                	
+                <ContentTemplate>
+
+                </ContentTemplate>                
+            </ajax:TabPanel>
+
+            <ajax:TabPanel ID="bankInfoTabPanel" runat="server">
+                <HeaderTemplate>  Banca  </HeaderTemplate>	
+                <ContentTemplate>  
+                    <div class="TreeLeftColumn groupDataPanel" >
+                        <fieldset>
+                            <legend>DATELE BANCARE</legend>                                
+                            <dl> 
+                                <dt class="part">Banca Selectata: </dt>
+                                <dd class="part"><asp:DropDownList ID="clientBankDDL" runat="server" AutoPostBack="true" OnSelectedIndexChanged="clientBankDDL_SelectedIndexChanged" ></asp:DropDownList></dd>
+                                                                        
+                                <dt class="inpart">IBAN: </dt>
+                                <dd class="inpart"><asp:TextBox ID="clientBankIBANTextBox" runat="server" ReadOnly="True" CssClass="microElement"/></dd>
+
+                                <dt class="part">Contul bancar: </dt>
+                                <dd class="part"><asp:TextBox ID="clientBankContBancarTextBox" runat="server" CssClass="microElement"/></dd>
+                            </dl>                             
+                        </fieldset>
+                    </div>    
+                    <br />
+                    <div class="centerBox" style="width:255px">
+                            <asp:Button ID="Button3"  runat="server" Text="Save Personal Data" onclick="clientPersonalDataSaveButton_Click" Width="150px"  />
+                            <asp:Button ID="Button4" runat="server" Text="Cancel"  onclick="clientPersonalDataCancelButton_Click" Width="100px"  />
+                    </div>                
+                </ContentTemplate>
+            </ajax:TabPanel>
+
+            <ajax:TabPanel ID="AddressInfoTabPanel" runat="server">
+                <HeaderTemplate>&nbsp;Adrese&nbsp;</HeaderTemplate>	
+                <ContentTemplate>  
+                         <div class="TreeCenterColumn">
+                                <asp:Panel ID="adresaPanel" runat="server" GroupingText="ADRESA" CssClass="groupDataPanel">                               
+                                    <asp:Label ID="Label9" runat="server" Text="Viza de resedinta"></asp:Label>
+                                    <dl>         
+                                        <dt class="part">Tara: </dt>
+                                        <dd class="part"><asp:DropDownList ID="vizaClientAddressCountryDDL" runat="server"  AutoPostBack="True"  onselectedindexchanged="vizaClientCountryDDL_SelectedIndexChanged" CssClass="microDDL"/></dd>
+
+                                        <dt class="inpart">Raionul: </dt>
+                                        <dd class="inpart"> <asp:DropDownList ID="vizaClientAddressClientRaionDDL" runat="server" CssClass="microDDL"/></dd>
+
+                                        <dt class="part">Urban / Rural : </dt>
+                                        <dd class="part"> <asp:DropDownList ID="vizaUrbanRuralDDL" runat="server" CssClass="microDDL">
+                                                <asp:ListItem Text="**"/>
+                                                <asp:ListItem Text="Rural"  Value="Rural"/>
+                                                <asp:ListItem Text="Urban"  Value="Urban"/>
+                                            </asp:DropDownList>
+                                        </dd>
+
+                                        <dt class="inpart">Localitatea:  </dt>
+                                        <dd class="inpart"><asp:TextBox ID="vizaClientAddressLocalitateaTextBox" runat="server" CssClass="microElement"/></dd>
+
+                                        <dt class="part">Adresa/Strada:  </dt>
+                                        <dd class="part"><asp:TextBox ID="vizaClientAddressAdresaTextBox" runat="server" CssClass="microElement"/></dd>
+                                    </dl>
+
+                                    <br /><br />
+                                        Adresa reala de locuinta
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <asp:Button ID="copyInfoFromVizaAddress" runat="server" OnClick="copyInfoFromVizaAddress_Click" Text="Copie de la viza de resedinta" />
+                                    <dl>
+                                        <dt class="part">Tara:</dt>
+                                        <dd class="part"><asp:DropDownList ID="rAddressClientCountryDDL" runat="server"  AutoPostBack="True"  onselectedindexchanged="rAddressClientCountryDDL_SelectedIndexChanged" CssClass="microDDL"/></dd>
+
+                                        <dt class="inpart">Raionul: </dt>
+                                        <dd class="inpart"><asp:DropDownList ID="rAddressClientRaionDDL" runat="server" CssClass="microDDL"/></dd>
+
+                                        <dt class="part">Urban / Rural : </dt>
+                                        <dd class="part"> <asp:DropDownList ID="rAddressUrbanRuralDDL" runat="server" CssClass="microDDL">
+                                                <asp:ListItem Text="**"/>
+                                                <asp:ListItem Text="Rural"  Value="Rural"/>
+                                                <asp:ListItem Text="Urban"  Value="Urban"/>
+                                            </asp:DropDownList>
+                                        </dd>
+
+                                        <dt class="inpart">Localitatea: </dt>
+                                        <dd class="inpart"><asp:TextBox ID="rAddressClientLocalitateaTextBox" runat="server" CssClass="microElement"/></dd>
+
+                                        <dt class="part">Adresa/Strada: </dt>
+                                        <dd class="part"><asp:TextBox ID="rAddressAddresaStradaTextBox" runat="server" CssClass="microElement"/></dd>
+                                    </dl>        
+                                    
+                                    <br />
+                                    <div class="centerBox" style="width:255px">
+                                            <asp:Button ID="Button5"  runat="server" Text="Save Personal Data" onclick="clientPersonalDataSaveButton_Click" Width="150px"  />
+                                            <asp:Button ID="Button6" runat="server" Text="Cancel"  onclick="clientPersonalDataCancelButton_Click" Width="100px"  />
+                                    </div>        
+                                </asp:Panel>
+                            </div>
+                </ContentTemplate>
+            </ajax:TabPanel>
+
+            <ajax:TabPanel ID="BussnessInformationTabPanel" runat="server">
+                <HeaderTemplate>&nbsp;Descriere Afacere&nbsp;</HeaderTemplate>				    
+                    <ContentTemplate>
+  
+                    </ContentTemplate>			    
+                </ajax:TabPanel>   
+                     
+        </ajax:TabContainer>    --%>   
+
     </asp:Panel>
---%>
+
 </asp:Content>
 

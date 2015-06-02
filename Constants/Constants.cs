@@ -31,6 +31,11 @@ public class Constants
         Permissions_View = 267,
         Permissions_Edit = 268,
         Permissions_Deny = 269,
+
+        Gender_Male = 208,
+        Gender_Female = 209,
+        Gender_JuridicPerson = 270,
+
     }
 
     public enum NumberWordMode

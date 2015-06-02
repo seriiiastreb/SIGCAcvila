@@ -54,7 +54,8 @@
                             "add": { name: "Add", icon: "add", className: 'resetMarginLeft' },
                             "edit": { name: "Edit", icon: "edit", className: 'resetMarginLeft' },
                             "reset": { name: "Reset PWD", icon: "reset", className: 'resetMarginLeft' },
-                            "delete": { name: "Delete", icon: "delete", className: 'resetMarginLeft' }
+                            "delete": { name: "Delete", icon: "delete", className: 'resetMarginLeft' },
+                            "properties": { name: "Group properties", icon: "properties", className: 'resetMarginLeft' }
                         }
                     });
                 });
@@ -120,8 +121,8 @@
             DropShadow="true" >
         </ajax:ModalPopupExtender>   
 
-        <asp:Panel runat="server" ID="usersPanel" CssClass="grid_5 box" style="display: none; width: auto; border:1px solid #000;">
-            <h2 style="cursor:move;" runat="server" id="usersHeader">New User</h2>
+        <asp:Panel runat="server" ID="usersPanel" CssClass="grid_5 box" style=" display:none; width: auto; border:1px solid #000;">
+            <h2 style="cursor:move;" runat="server" id="usersHeader"> New User  <asp:Image ID="users_CancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="19px" Height="19px" style="float:right; cursor:default;" /></h2>
             <fieldset>			        
 			    <p>
                     <asp:HiddenField ID="usersActionHiddenField" runat="server" />
@@ -183,10 +184,10 @@
 				    <label>Record Status: </label>
                     <asp:DropDownList ID="userDetails_RecordStatusDDL" runat="server"  ></asp:DropDownList>
 			    </p>
-
-                <asp:Button ID="users_SaveButton" runat="server" Text="Save" Width="100px"  ValidationGroup="users" onclick="users_SaveButton_Click"  />
-                <asp:Button ID="users_CancelButton" runat="server" Text="Cancel" Width="100px" CausesValidation="false" />                   
-              
+                
+                <div style="text-align:right;">
+                    <asp:Button ID="users_SaveButton" runat="server" Text="Save" Width="100px"  ValidationGroup="users" onclick="users_SaveButton_Click"  />  
+                </div>
 		    </fieldset>    
         </asp:Panel>
             
@@ -202,7 +203,7 @@
         </ajax:ModalPopupExtender>   
 
         <asp:Panel runat="server" ID="resetPassPanel" CssClass="grid_5 box" style=" display: none; width: auto; border:1px solid #000;">
-            <h2 style="cursor:move;" runat="server" id="resetPassLegend">Reset Password</h2>
+            <h2 style="cursor:move;" runat="server" id="resetPassLegend">Reset Password <asp:Image ID="resetPassCancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="19px" Height="19px" style="float:right; cursor:default;" /></h2>
             <fieldset>			        			
                 <p>
                     <asp:HiddenField ID="resetPasswordSelectedClientID" runat="server" />
@@ -235,11 +236,59 @@
                         Width="250px"
                         PopupPosition="Right" />
 			    </p>       
-
-                <asp:Button ID="resetPassOkButton" runat="server" Text="Save" ValidationGroup="resetPWD" Width="100px" onclick="resetPassOkButton_Click"  />
-                <asp:Button ID="resetPassCancelButton" runat="server" Text="Cancel" Width="100px" CausesValidation="false" />  
+                <div style="text-align:right;">
+                    <asp:Button ID="resetPassOkButton" runat="server" Text="Save" ValidationGroup="resetPWD" Width="100px" onclick="resetPassOkButton_Click"  />
+                </div>
 		    </fieldset>    
         </asp:Panel>            
+              
+        <asp:HyperLink ID="usersGroupProprietesHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
+
+        <ajax:ModalPopupExtender ID="usersGroupProprietesExtender" runat="server"     
+            TargetControlID="usersGroupProprietesHyperLink"
+            PopupControlID = "usersGroupProprietesPanel" 
+            PopupDragHandleControlID="usersGroupProprietesLegend"
+            CancelControlID="usersProprietesCancelButton"
+            DropShadow="true" >
+        </ajax:ModalPopupExtender>   
+
+        <asp:Panel runat="server" ID="usersGroupProprietesPanel" CssClass="grid_5 box" style="display:none; width: auto; border:1px solid #000;">
+            <h2 style="cursor:move;" runat="server" id="usersGroupProprietesLegend">Users group Proprietes <asp:Image ID="usersProprietesCancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="19px" Height="19px" style="float:right; cursor:default;" /></h2>
+            <fieldset>		
+                <asp:HiddenField ID="usersPropr_SelecteduserIDHiddenField" runat="server" />
+                <asp:UpdatePanel runat="server" ID="updatePanel">
+                    <ContentTemplate>
+                        <div style=" overflow:auto; width:100%; height:100%;">
+                            <asp:GridView ID="usersGroupsGridView" runat="server"
+                                AutoGenerateColumns="false"
+                                AlternatingRowStyle-CssClass="odd"
+                                OnRowCreated="usersGrid_RowCreated"
+                                onrowdeleting="usersGroupsGridView_RowDeleting" 
+                                AllowPaging="false"  
+                                SelectedRowStyle-CssClass = "selectedRow">
+                                <Columns>
+                                    <asp:BoundField DataField="role_ID" HeaderText="Group Name" />             
+                                    <asp:TemplateField HeaderText="Delete">
+                                        <ItemTemplate>
+                                            <asp:ImageButton ID="deleteButton" OnClientClick="return confirm('Sure you want to delete?');" CommandName="Delete" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Delete" ImageUrl="../images/delete.png"  runat="server"  AlternateText="Delete" CausesValidation="false" />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>                
+                                </Columns>
+                            </asp:GridView>
+                        </div>
+
+                        <p>
+                            <label>Aviable Groups:</label>
+                            <asp:DropDownList ID="usersProprertiesGroupsDDL" runat="server" Width="80%"></asp:DropDownList>
+                            <asp:ImageButton ID="addUserGroupButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Add group" ImageUrl="../images/plus.png"  runat="server" OnClick="addUserGroupButton_Click" AlternateText="Add group" CausesValidation="false" />
+                        </p>
+
+                    </ContentTemplate>
+                </asp:UpdatePanel>              
+		    </fieldset>    
+        </asp:Panel>                 
+              
+              
                 
         <asp:Panel ID="groupsListPanel" class="context-menu-groups" style="min-height:300px;" runat="server" Visible="false">
             <script type="text/javascript" language="javascript">
@@ -323,7 +372,7 @@
         </ajax:ModalPopupExtender>   
 
         <asp:Panel runat="server" ID="groupsPanel" CssClass="grid_5 box" style=" display: none; width: auto; border:1px solid #000;">
-            <h2 style="cursor:move;" runat="server" id="groupsLegend">Group</h2>
+            <h2 style="cursor:move;" runat="server" id="groupsLegend">Group <asp:Image ID="groupsCancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="19px" Height="19px" style="float:right; cursor:default;" /></h2>
             <fieldset>			        			
                 <p>
                     <asp:HiddenField ID="groupsActionHiddenField" runat="server" />
@@ -331,8 +380,9 @@
 				    <label>Group Name: </label>
                     <asp:TextBox ID="groupsIDNameTextBox" runat="server"></asp:TextBox>                       
 			    </p>	
-                <asp:Button ID="groupSaveButton" runat="server" Text="Save" Width="100px" onclick="groupSaveButton_Click"  CausesValidation="false"/>
-                <asp:Button ID="groupsCancelButton" runat="server" Text="Cancel" Width="100px" CausesValidation="false" />  
+                <div style="text-align:right;">
+                    <asp:Button ID="groupSaveButton" runat="server" Text="Save" Width="100px" onclick="groupSaveButton_Click"  CausesValidation="false"/>
+                </div>
 		    </fieldset>    
         </asp:Panel>
 
@@ -428,6 +478,7 @@
                 <h2 style="cursor:move;" runat="server" id="domainsLegend">
                     Domains Permissions
                     <asp:ImageButton ID="refreshDomainsButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Refresh domains" ImageUrl="../images/refresh.png"  runat="server" OnClick="refreshDomainsButton_Click" AlternateText="Refresh domains" CausesValidation="false" />
+                    <asp:Image ID="domainsCancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="19px" Height="19px" style="float:right; cursor:default;" />
                 </h2>
                 <fieldset>			        
 			        <p>
@@ -447,10 +498,9 @@
 				        <label>Permission: </label>
                         <asp:DropDownList ID="permissionDDL" runat="server"></asp:DropDownList>                       
 			        </p>
-                    
-                    <asp:Button ID="domainsSaveButton" runat="server" Text="Save" Width="100px"  CausesValidation="false" onclick="domainsSaveButton_Click"  />
-                    <asp:Button ID="domainsCancelButton" runat="server" Text="Cancel" Width="100px" CausesValidation="false" />                   
-              
+                    <div style="text-align:right;">
+                        <asp:Button ID="domainsSaveButton" runat="server" Text="Save" Width="100px"  CausesValidation="false" onclick="domainsSaveButton_Click"  />
+                    </div>
 		        </fieldset>    
             </asp:Panel>
      </div>

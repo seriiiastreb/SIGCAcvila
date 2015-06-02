@@ -21,6 +21,8 @@ public class Utils
     public const string SessionKey_ModuleCustomers = "ModuleCustomers";
     public const string SessionKey_ModuleCustomersMenu = "ModuleCustomersMenu";
     public const string SessionKey_HeadModuleSlector = "HeadModuleSlector";
+    public const string SessionKey_ClientObject = "ClientObject";
+
 
 	public Utils()
 	{
@@ -493,7 +495,13 @@ public class Utils
         Security.MainModule mModuleMain = (Security.MainModule)HttpContext.Current.Session[SessionKey_ModuleMain];
         return mModuleMain;
     }
-    
+
+    public static Client.Module ModuleCustomers()
+    {
+        Client.Module mModuleCustomers = (Client.Module)HttpContext.Current.Session[SessionKey_ModuleCustomers];
+        return mModuleCustomers;
+    } 
+
     public static bool PermissionAllowed(string moduleName, string domainName, Constants.Classifiers permission)
     {
         bool result = false;

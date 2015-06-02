@@ -387,6 +387,51 @@ namespace Security
             return usersList;
         }
 
+        public bool AddGroupForUser(int userID, string role_id)
+        {
+            bool result = false;
+
+            try
+            {
+                string nonQuery = @"INSERT INTO st_users_roles (user_id, role_id) Values (" + userID + ", @roleID); ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@roleID", role_id);
+
+                result = Module.DataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = Module.DataBridge.LastError;                
+            }
+            catch (Exception ex)
+            {
+                mLastError += ex.Message;
+            }
+
+            return result;
+        }
+
+        public bool DeleteGroupForUser(int userID, string role_id)
+        {
+            bool result = false;
+
+            try
+            {
+                string nonQuery = @"DELETE FROM st_users_roles WHERE user_id = " + userID + " AND role_id = @roleID; ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@roleID", role_id);
+
+                result = Module.DataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = Module.DataBridge.LastError;
+            }
+            catch (Exception ex)
+            {
+                mLastError += ex.Message;
+            }
+
+            return result;
+        }
+
+
         public bool UpdateUserPasswordByLoginAndEmail(string login, string email, string newPassword)
         {
             bool result = false;

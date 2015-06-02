@@ -54,7 +54,7 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
 
                         case "domainsGridClik":
 
-                            #region Users Grid Events
+                            #region Domains Grid Events
 
                             switch (action.ToLower())
                             {
@@ -123,10 +123,10 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
                                     }
                                     break;
                             }
-                            #endregion Users Grid Events
-
-
+                            #endregion Domains Grid Events
+                            
                             break;
+
                         case "usersGridClik":
 
                             #region Users Grid Events
@@ -160,6 +160,13 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
                                     ClearResetPasswordForm();
                                     resetPasswordSelectedClientID.Value = usersGrid.Rows[selectedIndexInUsresGrid].Cells[0].Text.Replace("&nbsp;", "");
                                     resetPassPopupExtender.Show();
+                                    break;
+
+                                case "properties":
+                                    FillusersProprertiesGroupsDDL();
+                                    usersPropr_SelecteduserIDHiddenField.Value = usersGrid.Rows[selectedIndexInUsresGrid].Cells[0].Text.Replace("&nbsp;", "");
+                                    FillusersGroupsGridView();
+                                    usersGroupProprietesExtender.Show();
                                     break;
 
                                 case "delete":
@@ -429,7 +436,60 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
     }
 
     #endregion Reset Pass
-    
+
+
+
+    protected void FillusersProprertiesGroupsDDL()
+    {
+        DataTable dt = Utils.ModuleSecurity().GetGroupsList();
+        Utils.FillSelector(usersProprertiesGroupsDDL, dt, "role_id", "role_id");
+    }
+
+    protected void FillusersGroupsGridView()
+    {
+        int userID = 0;
+        int.TryParse(usersPropr_SelecteduserIDHiddenField.Value, out userID);
+
+        DataTable groupsForUser = Utils.ModuleSecurity().GetUserGroupsList(userID);
+        usersGroupsGridView.DataSource = groupsForUser;
+        usersGroupsGridView.DataBind();
+    }
+
+    protected void addUserGroupButton_Click(object sender, ImageClickEventArgs e)
+    {
+        try
+        {
+            int userID = 0;
+            int.TryParse(usersPropr_SelecteduserIDHiddenField.Value, out userID);
+
+            string selectedRoleID = usersProprertiesGroupsDDL.SelectedValue;
+
+            if (!selectedRoleID.Equals(string.Empty) && Utils.ModuleSecurity().AddGroupForUser(userID, selectedRoleID))
+            { FillusersGroupsGridView(); }
+        }
+        catch (Exception ex)
+        { Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Attention! Error in system!", ex.Message); }
+    }
+
+    protected void usersGroupsGridView_RowDeleting(object sender, GridViewDeleteEventArgs e)
+    {
+        int index = e.RowIndex;
+
+        try
+        {
+            int userID = 0;
+            int.TryParse(usersPropr_SelecteduserIDHiddenField.Value, out userID);
+
+            string selectedRoleID = usersGroupsGridView.Rows[index].Cells[0].Text;
+
+            if (!selectedRoleID.Equals(string.Empty) && Utils.ModuleSecurity().DeleteGroupForUser(userID, selectedRoleID))
+            { FillusersGroupsGridView(); }
+        }
+        catch (Exception ex)
+        { Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Attention! Error in system!", ex.Message); }
+    }
+
+
     #endregion Users
 
     #region Groups 
@@ -676,4 +736,6 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
     }
 
     #endregion Domains 
+
+
 }

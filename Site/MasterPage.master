@@ -57,6 +57,7 @@
 						<a href="http://960.gs/" title="960.gs | A CSS grid system developed by Nathan Smith">The 960 Grid System</a>
 					</li>--%>
 				</ul>
+                <div id="shortNavigation" runat="server" style="text-transform: uppercase; padding-left:30px; padding-top:5px; font-size: 14px;"></div>	
 			</div>
 			<div class="clear"></div>
 

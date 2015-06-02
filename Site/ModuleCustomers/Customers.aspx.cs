@@ -12,7 +12,14 @@ public partial class Customers : System.Web.UI.Page
 
     bool allowEdit = false;
     bool allowView = false;
-    
+
+    DataObjects.Client ClientObject
+    {
+        get { return Session[Utils.SessionKey_ClientObject] != null ? (DataObjects.Client)Session[Utils.SessionKey_ClientObject] : new DataObjects.Client(); }
+        set { Session[Utils.SessionKey_ClientObject] = value; }
+    }
+
+
     protected void Page_Load(object sender, EventArgs e)
     {
         Utils.GetMaster(this).PerformPreloadActions(mCurrentModule, mPageName);
@@ -27,86 +34,15 @@ public partial class Customers : System.Web.UI.Page
             {
                 if (!IsPostBack)
                 {
-                    FillDDLOnUsersFroms();
-                    ShowPanels(usersListPanel.ID);
+                    Utils.GetMaster(this).AddNavlink("Customers", "../ModuleCustomers/Customers.aspx", "ClientsPageID");
+
+                    newClientSimple_BirthDateCalendarExtender.Format = Constants.ISODateBackwardDotsFormat;
+
+                    FillAllComboBox();
+                    ShowPanel(clientSelectionPanel.ID);
                 }
                 else
                 {
-                    string eventSource = Request.Params.Get("__EVENTTARGET");
-                    string action = Request.Params.Get("__EVENTARGUMENT");
-
-                    int selectedIndexInUsresGrid = 0;
-                    int.TryParse(usersGrid_SelectedIndex_HiddenValue.Value, out selectedIndexInUsresGrid);
-                    if (!usersGrid_SelectedIndex_HiddenValue.Value.Equals(string.Empty)) usersGrid.SelectedIndex = selectedIndexInUsresGrid;
-
-
-                    switch (eventSource)
-                    {
-                        case "usersGridClik":
-
-                            #region Users Grid Events
-
-                            switch (action.ToLower())
-                            {
-                                case "add":
-                                    {
-                                        ClearUsersForm();
-                                        usersPopupExtender.Show();
-                                    }
-                                    break;
-
-                                case "edit":
-                                    ClearUsersForm();
-
-                                    usersActionHiddenField.Value = Crypt.Module.CreateEncodedString("Edit");
-                                    usersSelectedUserIDHiddenField.Value = usersGrid.Rows[selectedIndexInUsresGrid].Cells[0].Text.Replace("&nbsp;", "");
-                                    users_Nume_TextBox.Text = usersGrid.Rows[selectedIndexInUsresGrid].Cells[1].Text.Replace("&nbsp;", "");
-                                    users_Prenume_TextBox.Text = usersGrid.Rows[selectedIndexInUsresGrid].Cells[2].Text.Replace("&nbsp;", "");
-                                    users_Login_TextBox.Text = usersGrid.Rows[selectedIndexInUsresGrid].Cells[3].Text.Replace("&nbsp;", "");
-                                    users_Email_TextBox.Text = usersGrid.Rows[selectedIndexInUsresGrid].Cells[6].Text.Replace("&nbsp;", "");
-                                    try
-                                    { userDetails_RecordStatusDDL.SelectedValue = usersGrid.Rows[selectedIndexInUsresGrid].Cells[4].Text.Replace("&nbsp;", ""); }
-                                    catch { }
-
-                                    usersPopupExtender.Show();
-                                    break;
-
-                                case "rst":
-                                    ClearResetPasswordForm();
-                                    resetPassPopupExtender.Show();
-                                    break;
-
-                                case "delete":
-                                    if (allowEdit)
-                                    {
-                                        int userID = 0;
-                                        int.TryParse(usersGrid.Rows[selectedIndexInUsresGrid].Cells[0].Text, out userID);
-
-                                        if (userID != 0)
-                                        {
-                                            if (Utils.ModuleSecurity().DeleteUser(userID))
-                                            {
-                                                FillUsersGridView();
-                                            }
-                                            else
-                                            {
-                                                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Error deleting record.", "Selected user not deleted. Try again later! " + (Utils.UserObject().IsSysadmin ? Utils.ModuleSecurity().LastError : string.Empty));
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
-                                    }
-                                    break;
-                            }
-                            #endregion Users Grid Events
-
-                            break;
-
-                        default:
-                            break;
-                    }
                 }
             }
             else
@@ -116,216 +52,294 @@ public partial class Customers : System.Web.UI.Page
         }
         catch (Exception ex)
         { Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Attention! Error in system!", ex.Message); }
-    } 
+    }
 
-
-
-    #region users form
-    
-    protected void ClearUsersForm()
+    private void ShowPanel(string panelName)
     {
-        usersActionHiddenField.Value = Crypt.Module.CreateEncodedString("New");
-        users_Nume_TextBox.Text = string.Empty;
-        users_Prenume_TextBox.Text = string.Empty;
-        users_Login_TextBox.Text = string.Empty;
-        users_Email_TextBox.Text = string.Empty;
+        #region Hide panels
+        clientSelectionPanel.Visible = false;
+        clientWorkPanel.Visible = false;
+        #endregion Hide panels
+
         try
-        { userDetails_RecordStatusDDL.SelectedIndex = 0; }
-        catch { }
-    }
-
-    protected void users_SaveButton_Click(object sender, EventArgs e)
-    {
-        if (allowEdit)
         {
-            string usersAction = Crypt.Module.DecodeCriptedString(usersActionHiddenField.Value);
-            bool actionResult = false; 
+            #region Get Panel Name
 
-            int userID = 0; 
-            if(usersAction.Equals("Edit")) int.TryParse(usersSelectedUserIDHiddenField.Value , out userID);
-
-            string nume = users_Nume_TextBox.Text;
-            string prenume = users_Prenume_TextBox.Text;
-            string login = users_Login_TextBox.Text;
-            string email = users_Email_TextBox.Text;
-
-            int recordStatusID = 0;
-            int.TryParse(userDetails_RecordStatusDDL.SelectedValue, out recordStatusID);
-
-            if (actionResult.Equals("New"))
+            switch (panelName)
             {
-                actionResult = Utils.ModuleSecurity().NewUser(nume, prenume, login, email, recordStatusID);
-            }
-            else
-            {
-                actionResult = Utils.ModuleSecurity().UpdateUser(userID, nume, prenume, login, email, recordStatusID);
+                case "clientSelectionPanel":
+                    clientSelectionPanel.Visible = true;
+                    FillClientSelectionGrid();
+                    break;
+
+                case "clientWorkPanel":
+                    clientWorkPanel.Visible = true;
+
+                    break;
             }
 
-            if (actionResult)
-            {
-                ClearUsersForm();
-                FillUsersGridView();
-                usersPopupExtender.Hide();
-                   
-                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Ok, "Congratulation", "Succesifuly added user information.");
-            }
-            else
-            {
-                usersPopupExtender.Show();
-                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Attention", "Unable to add new user, try again later. " + (Utils.UserObject().IsSysadmin ? Utils.ModuleSecurity().LastError : string.Empty));
-            }
+            #endregion Get Panel Name
         }
-        else
-        {
-            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
-        }            
+        catch (Exception ex)
+        { Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Attention! Error in system!", ex.Message); }
     }
 
-    #endregion users
-
-    #region Reset Pass
-
-    protected void ClearResetPasswordForm()
+    protected void FillAllComboBox()
     {
-        resetPassTextBox.Text = string.Empty;
-        resetPass_repeatTextBox.Text = string.Empty;
+        DataTable gendersList = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.GenderList);
+        Utils.FillSelector(newClientGenderListDDL, gendersList, "Name", "Code");
     }
+
+
+    #region ClientSelection Region
     
-    protected void resetPassOkButton_Click(object sender, EventArgs e)
-    {        
-        if (allowEdit)
+    private void FillClientSelectionGrid()
+    {
+        int category = 0;
+        DataTable clientsList = Utils.ModuleCustomers().GetClientList(category);
+        clientListGridView.DataSource = clientsList;
+        clientListGridView.DataBind();
+    }
+
+    protected void clientListGridView_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (clientListGridView.SelectedRow != null)
         {
-            if (usersGrid.SelectedRow != null)
+            GridViewRow row = clientListGridView.SelectedRow;
+
+            int clientID = 0;
+            int.TryParse(row.Cells[0].Text, out clientID);
+
+            if (clientID > 0)
             {
-                int userID = 0;
-                int.TryParse(usersGrid.SelectedRow.Cells[0].Text, out userID);
+                DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(clientID);
+                this.ClientObject = clientObject;
 
-                if (userID != 0)
-                {
-                    string newPassword = resetPass_repeatTextBox.Text.Trim();
+                FillClientAllForms(clientObject);
+                ShowPanel(clientWorkPanel.ID);
 
-                    if (Utils.ModuleSecurity().ResetUserPassword(userID, newPassword))
-                    {
-                        resetPassPopupExtender.Hide();
-                        ClearResetPasswordForm();
-                    }
-                    else
-                    {
-                        resetPassPopupExtender.Hide();
-                        Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Error updating record.", "For selected user was not changet password. Try again later! " + (Utils.UserObject().IsSysadmin ? Utils.ModuleSecurity().LastError : string.Empty));
-                    }
-                }
+                Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName, "../ModuleCredits/Clients.aspx?clid=" + clientID, "clientID");
             }
         }
-        else
-        {
-            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
-        }  
     }
 
-    #endregion Reset Pass
-    
-    private void ShowPanels(string panelID)
+    protected void clientListGridView_RowDataBound(object sender, GridViewRowEventArgs e)
     {
-        #region Hode all panels
-        usersListPanel.Visible = false;
-        groupsListPanel.Visible = false;
-        domainsListPanel.Visible = false;
-        #endregion Hode all panels
-
-
-        switch (panelID)
+        if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            case "usersListPanel":
-                currentSelected.Text = "Registered Users List:";
-                FillUsersGridView();
-                usersListPanel.Visible = true;
-                break;
+            e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
+            e.Row.Attributes["onmouseout"] = "this.style.textDecoration='none';";
 
-            case "groupsListPanel":
-                currentSelected.Text = "Registered Groups:";
-                FillGroupsGridView();
-                groupsListPanel.Visible = true;
-                break;
-
-            case "domainsListPanel":
-                currentSelected.Text = "Registered Domains:";
-                FillDomainsGridView();
-                domainsListPanel.Visible = true;
-                break;
-
-
-            default:
-                FillUsersGridView();
-                usersListPanel.Visible = true;
-                break;
+            for (int i = 0; i < e.Row.Cells.Count; i++)
+            {
+                e.Row.Cells[i].Attributes["onclick"] = ClientScript.GetPostBackClientHyperlink(this.clientListGridView, "Select$" + e.Row.RowIndex);
+            }
         }
-    }
-
-    #region Users
-
-    protected void FillDDLOnUsersFroms()
-    {
-        DataTable recordStatus = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.SystemUserRecordStatus);
-        Utils.FillSelector(userDetails_RecordStatusDDL, recordStatus, "Name", "Code");
-    }
-
-    protected void FillUsersGridView()
-    {
-        usersSelectedUserIDHiddenField.Value = string.Empty;
-        usersActionHiddenField.Value = string.Empty;
-        usersGrid_SelectedIndex_HiddenValue.Value = string.Empty;
-
-        DataTable sourceDT = Utils.ModuleSecurity().GetUsersList();
-        usersGrid.DataSource = sourceDT;
-        usersGrid.DataBind();
     }
 
     protected void usersGrid_RowCreated(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.Header)
         { e.Row.TableSection = TableRowSection.TableHeader; }
+    }
 
-        if (e.Row.RowType == DataControlRowType.DataRow)
+    #endregion ClientSelection Region
+
+    #region Customers
+
+    protected void newClientGenderList_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        int selectedGender = 0;
+        int.TryParse(newClientGenderListDDL.SelectedValue, out selectedGender);
+
+        ClearNewClientForm(selectedGender);
+    }
+
+    protected void ClearNewClientForm(int gender)
+    {
+        newCleint_simplePersonPanel.Visible = false;
+        newCleint_juridPersonPanel.Visible = false;
+
+        if (gender == (int)Constants.Classifiers.Gender_Male || gender == (int)Constants.Classifiers.Gender_Female)
         {
-            e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
-            e.Row.Attributes["onmouseout"] = "this.style.textDecoration='none';";
+            newCleint_simplePersonPanel.Visible = true;
+
+            try
+            { newClientGenderListDDL.SelectedValue = ((int)Constants.Classifiers.Gender_Male).ToString(); }
+            catch { }
+
+            newClientSimple_FirstNameTextBox.Text = string.Empty;            
+            newClientSimple_LastNameTextBox.Text = string.Empty;
+            newClientSimple_BirthDateTextBox.Text = string.Empty;
+            newClientSimple_IDNPTextBox.Text = string.Empty;
+            newClientSimple_BuletinTextBox.Text = string.Empty;
+            newClientSimple_TelefonFixTextBox.Text = string.Empty;
+            newClientSimple_TelefonMobilTextBox.Text = string.Empty;
+            newClientSimple_EmailTextBox.Text = string.Empty;
+        }
+        else
+        {
+            newCleint_juridPersonPanel.Visible = true;
+
+            try
+            { newClientGenderListDDL.SelectedValue = ((int)Constants.Classifiers.Gender_JuridicPerson).ToString(); }
+            catch { }
+
+            newClient_juridFullNameTextBox.Text = string.Empty;
+            newClient_juridRegistrationNRTextBox.Text = string.Empty;
+            newClient_juridContactPersonTextBox.Text = string.Empty;
+            newClient_juridTelefonFixTextBox.Text = string.Empty;
+            newClient_juridTelefonMobilTextBox.Text = string.Empty;
+            newClient_juridEmailTextBox.Text = string.Empty;
         }
     }
     
-    protected void usersListLinkButton_Click(object sender, EventArgs e)
+    protected void addNewClientButton_Click(object sender, EventArgs e)
     {
-        ShowPanels(usersListPanel.ID);
+        ClearNewClientForm((int)Constants.Classifiers.Gender_JuridicPerson);
+        newClientPopupExtender.Show();
     }
 
-
-    #endregion Users
-
-    #region Groups 
-
-    protected void groupsListLinkButton_Click(object sender, EventArgs e)
-    {        
-        ShowPanels(groupsListPanel.ID);
-    }
-
-    protected void FillGroupsGridView()
-    { 
-    }
-
-    #endregion Groups 
-
-
-    #region Domains 
-
-    protected void domainsListLinkButton_Click(object sender, EventArgs e)
+    protected void newClientSaveBurtton_Click(object sender, EventArgs e)
     {
-        ShowPanels(domainsListPanel.ID);
+        if (allowEdit)
+        {
+            DataObjects.Client newClientObject = new DataObjects.Client();
+
+            int gender = 0;
+            int.TryParse(newClientGenderListDDL.SelectedValue, out gender);
+
+            newClientObject.Gender = gender;
+            newClientObject.Gender_String = newClientGenderListDDL.SelectedItem.Text;
+
+
+            if (gender == (int)Constants.Classifiers.Gender_Male || gender == (int)Constants.Classifiers.Gender_Female)
+            {
+                newClientObject.FirstName = newClientSimple_FirstNameTextBox.Text.Trim();
+                newClientObject.LastName = newClientSimple_LastNameTextBox.Text.Trim();
+                newClientObject.BirthDate = Crypt.Utils.ToDateTime(newClientSimple_BirthDateTextBox.Text, Constants.ISODateBackwardDotsFormat);
+                newClientObject.PersonalID = newClientSimple_IDNPTextBox.Text.Trim();
+                newClientObject.BuletinSeria = newClientSimple_BuletinTextBox.Text.Trim();
+                newClientObject.TelefonFix = newClientSimple_TelefonFixTextBox.Text.Trim();
+                newClientObject.TelefonMobil = newClientSimple_TelefonMobilTextBox.Text.Trim();
+                newClientObject.Email = newClientSimple_EmailTextBox.Text.Trim();
+            }
+            else
+            {
+                newClientObject.FirstName = newClient_juridFullNameTextBox.Text.Trim();
+                newClientObject.LastName = newClient_juridContactPersonTextBox.Text.Trim();
+                //newClientObject.BirthDate = Crypt.Utils.ToDateTime(newClientSimple_BirthDateTextBox.Text, Constants.ISODateBackwardDotsFormat);
+                newClientObject.PersonalID = newClient_juridRegistrationNRTextBox.Text.Trim();
+                //newClientObject.BuletinSeria = newClientSimple_BuletinTextBox.Text.Trim();
+                newClientObject.TelefonFix = newClient_juridTelefonFixTextBox.Text.Trim();
+                newClientObject.TelefonMobil = newClient_juridTelefonMobilTextBox.Text.Trim();
+                newClientObject.Email = newClient_juridEmailTextBox.Text.Trim();
+            }
+
+            if (Utils.ModuleCustomers().AddNewClient(ref newClientObject))
+            {
+                this.ClientObject = newClientObject;
+                ShowPanel(clientWorkPanel.ID);
+            }
+        }
+        else
+        {
+            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
+        }
     }
 
-    protected void FillDomainsGridView()
-    { 
+    protected void FillClientAllForms(DataObjects.Client clientObject)
+    {
+        clientPersonalDataSimplePanel.Visible = false;
+        clientPersonalDataJuridicPanel.Visible = false;
+
+        if (clientObject.Gender == (int)Constants.Classifiers.Gender_Male || clientObject.Gender == (int)Constants.Classifiers.Gender_Female)
+        {
+            clientPersonalDataSimplePanel.Visible = true;
+
+            try
+            { clientPersDataGenderListDDL.SelectedValue = clientObject.Gender.ToString(); }
+            catch { }
+
+            clientPersDataSimple_FirstNameTextBox.Text = clientObject.FirstName;
+            clientPersDataSimple_LastNameTextBox.Text = clientObject.LastName;
+            clientPersDataSimple_BirthDateTextBox.Text = clientObject.BirthDate.ToString(Constants.ISODateBackwardDotsFormat);
+            clientPersDataSimple_IDNPTextBox.Text = clientObject.PersonalID;
+            clientPersDataSimple_BuletinTextBox.Text = clientObject.BuletinSeria;
+            clientPersDataSimple_TelefonFixTextBox.Text = clientObject.TelefonFix;
+            clientPersDataSimple_TelefonMobilTextBox.Text = clientObject.TelefonMobil;
+            clientPersDataSimple_EmailTextBox.Text = clientObject.Email;
+        }
+        else
+        {
+            clientPersonalDataJuridicPanel.Visible = true;
+
+            try
+            { clientPersDataGenderListDDL.SelectedValue = clientObject.Gender.ToString(); }
+            catch { }
+
+            clientPersData_juridFullNameTextBox.Text = clientObject.FirstName;
+            clientPersData_juridRegistrationNRTextBox.Text = clientObject.PersonalID;
+            clientPersData_juridContactPersonTextBox.Text = clientObject.LastName;
+            clientPersData_juridTelefonFixTextBox.Text = clientObject.TelefonFix;
+            clientPersData_juridTelefonMobilTextBox.Text = clientObject.TelefonMobil;
+            clientPersData_juridEmailTextBox.Text = clientObject.Email;
+        }
     }
 
-    #endregion Domains 
+    protected void clientPersDataGenderList_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        int gender =0;
+        int.TryParse(clientPersDataGenderListDDL.SelectedValue, out gender);
+
+        ClearPersonalDataClientForm(gender);
+    }
+
+    protected void ClearPersonalDataClientForm(int gender)
+    {
+        newCleint_simplePersonPanel.Visible = false;
+        newCleint_juridPersonPanel.Visible = false;
+
+        clientPersonalDataSimplePanel.Visible = false;
+        clientPersonalDataJuridicPanel.Visible = false;
+
+        if (gender == (int)Constants.Classifiers.Gender_Male || gender == (int)Constants.Classifiers.Gender_Female)
+        {
+            clientPersonalDataSimplePanel.Visible = true;
+
+            try
+            { clientPersDataGenderListDDL.SelectedValue = ((int)Constants.Classifiers.Gender_Male).ToString(); }
+            catch { }
+
+            clientPersDataSimple_FirstNameTextBox.Text = string.Empty;
+            clientPersDataSimple_LastNameTextBox.Text = string.Empty;
+            clientPersDataSimple_BirthDateTextBox.Text = string.Empty;
+            clientPersDataSimple_IDNPTextBox.Text = string.Empty;
+            clientPersDataSimple_BuletinTextBox.Text = string.Empty;
+            clientPersDataSimple_TelefonFixTextBox.Text = string.Empty;
+            clientPersDataSimple_TelefonMobilTextBox.Text = string.Empty;
+            clientPersDataSimple_EmailTextBox.Text = string.Empty;
+        }
+        else
+        {
+            clientPersonalDataJuridicPanel.Visible = true;
+
+            try
+            { clientPersDataGenderListDDL.SelectedValue = ((int)Constants.Classifiers.Gender_JuridicPerson).ToString(); }
+            catch { }
+
+            clientPersData_juridFullNameTextBox.Text = string.Empty;
+            clientPersData_juridRegistrationNRTextBox.Text = string.Empty;
+            clientPersData_juridContactPersonTextBox.Text = string.Empty;
+            clientPersData_juridTelefonFixTextBox.Text = string.Empty;
+            clientPersData_juridTelefonMobilTextBox.Text = string.Empty;
+            clientPersData_juridEmailTextBox.Text = string.Empty;
+        }
+    }
+
+    #endregion Customers
+
+
+
 
 }
