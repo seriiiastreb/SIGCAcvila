@@ -122,7 +122,7 @@
         </ajax:ModalPopupExtender>   
 
         <asp:Panel runat="server" ID="usersPanel" CssClass="grid_5 box" style=" display:none; width: auto; border:1px solid #000;">
-            <h2 style="cursor:move;" runat="server" id="usersHeader"> New User  <asp:Image ID="users_CancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="19px" Height="19px" style="float:right; cursor:default;" /></h2>
+            <h2 style="cursor:move;" runat="server" id="usersHeader"> New User  <asp:Image ID="users_CancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="23px" Height="23px" style="float:right; cursor:default; margin-top: -5px;" /></h2>
             <fieldset>			        
 			    <p>
                     <asp:HiddenField ID="usersActionHiddenField" runat="server" />
@@ -203,7 +203,7 @@
         </ajax:ModalPopupExtender>   
 
         <asp:Panel runat="server" ID="resetPassPanel" CssClass="grid_5 box" style=" display: none; width: auto; border:1px solid #000;">
-            <h2 style="cursor:move;" runat="server" id="resetPassLegend">Reset Password <asp:Image ID="resetPassCancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="19px" Height="19px" style="float:right; cursor:default;" /></h2>
+            <h2 style="cursor:move;" runat="server" id="resetPassLegend">Reset Password <asp:Image ID="resetPassCancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="23px" Height="23px" style="float:right; cursor:default; margin-top: -5px;" /></h2>
             <fieldset>			        			
                 <p>
                     <asp:HiddenField ID="resetPasswordSelectedClientID" runat="server" />
@@ -253,7 +253,7 @@
         </ajax:ModalPopupExtender>   
 
         <asp:Panel runat="server" ID="usersGroupProprietesPanel" CssClass="grid_5 box" style="display:none; width: auto; border:1px solid #000;">
-            <h2 style="cursor:move;" runat="server" id="usersGroupProprietesLegend">Users group Proprietes <asp:Image ID="usersProprietesCancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="19px" Height="19px" style="float:right; cursor:default;" /></h2>
+            <h2 style="cursor:move;" runat="server" id="usersGroupProprietesLegend">Users group Proprietes <asp:Image ID="usersProprietesCancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="23px" Height="23px" style="float:right; cursor:default; margin-top: -5px;" /></h2>
             <fieldset>		
                 <asp:HiddenField ID="usersPropr_SelecteduserIDHiddenField" runat="server" />
                 <asp:UpdatePanel runat="server" ID="updatePanel">
@@ -372,7 +372,7 @@
         </ajax:ModalPopupExtender>   
 
         <asp:Panel runat="server" ID="groupsPanel" CssClass="grid_5 box" style=" display: none; width: auto; border:1px solid #000;">
-            <h2 style="cursor:move;" runat="server" id="groupsLegend">Group <asp:Image ID="groupsCancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="19px" Height="19px" style="float:right; cursor:default;" /></h2>
+            <h2 style="cursor:move;" runat="server" id="groupsLegend">Group <asp:Image ID="groupsCancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="23px" Height="23px" style="float:right; cursor:default; margin-top: -5px;" /></h2>
             <fieldset>			        			
                 <p>
                     <asp:HiddenField ID="groupsActionHiddenField" runat="server" />
@@ -478,7 +478,7 @@
                 <h2 style="cursor:move;" runat="server" id="domainsLegend">
                     Domains Permissions
                     <asp:ImageButton ID="refreshDomainsButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Refresh domains" ImageUrl="../images/refresh.png"  runat="server" OnClick="refreshDomainsButton_Click" AlternateText="Refresh domains" CausesValidation="false" />
-                    <asp:Image ID="domainsCancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="19px" Height="19px" style="float:right; cursor:default;" />
+                    <asp:Image ID="domainsCancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="23px" Height="23px" style="float:right; cursor:default; margin-top: -5px;" />
                 </h2>
                 <fieldset>			        
 			        <p>

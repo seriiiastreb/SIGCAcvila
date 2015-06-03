@@ -135,27 +135,27 @@ public partial class Login : System.Web.UI.Page
         if (allowCustomersModule) Session[Utils.SessionKey_ModuleCustomers] = new Client.Module();
 
         ////  Generate ModulesLiks
-        string modulesMenu = "<ul id=\"menu\"> \r\n ";
+        string modulesMenu = string.Empty;
 
         modulesMenu += " <li> <a href=\"" + appPath + "/Default.aspx\">  <img id=\"Img1\" width=\"24\" height=\"24\" alt=\"Start page\" title=\"Start page\" src=\"" + appPath + "/Images/home.png\" style=\" cursor:pointer; \"> </a> </li>  \r\n ";
-
-        if (allowBasicAdministration)
-        {
-            modulesMenu += " <img id=\"Img2\" width=\"24\" height=\"24\" alt=\"Basic Program administration\" title=\"Basic Program administration\" src=\"" + appPath + "/Images/admin.png\" style=\" cursor:pointer; \"> \r\n ";
-            modulesMenu += " <ul>  \r\n ";
-            modulesMenu += "     <li>  <a href=\"" + appPath + "/ModuleMain/Classifiers.aspx\">Classifiers Management</a> </li> \r\n ";
-            if (allowUserManagement) 
-                modulesMenu += "    <li>  <a href=\"" + appPath + "/ModuleMain/SystemSeqAdmin.aspx\">User Management</a> </li> \r\n ";
-            modulesMenu += " </ul>  \r\n ";
-        }
 
         if (allowCustomersModule)
         {
             modulesMenu += " <li> <a href=\"" + appPath + "/ModuleCustomers/Customers.aspx\">  <img id=\"Img3\" width=\"24\" height=\"24\" alt=\"Customers page\" title=\"Customers page\" src=\"" + appPath + "/Images/man.png\" style=\" cursor:pointer; \"> </a> </li>\r\n ";
         }
 
+        if (allowBasicAdministration)
+        {
+            modulesMenu += "<li> \r\n";
+            modulesMenu += "<a href='#'> <img id=\"Img2\" width=\"24\" height=\"24\" alt=\"Basic Program administration\" title=\"Basic Program administration\" src=\"" + appPath + "/Images/admin.png\" style=\" cursor:pointer; \"> </a> \r\n ";
+            modulesMenu += " <ul>  \r\n ";
+            modulesMenu += "     <li>  <a href=\"" + appPath + "/ModuleMain/Classifiers.aspx\">Classifiers Management</a> </li> \r\n ";
+            if (allowUserManagement) 
+                modulesMenu += "    <li>  <a href=\"" + appPath + "/ModuleMain/SystemSeqAdmin.aspx\">User Management</a> </li> \r\n ";
+            modulesMenu += " </ul>  \r\n ";
+            modulesMenu += "</li>\r\n ";
+        }     
 
-        modulesMenu += "</ul>\r\n ";
 
         Session[Utils.SessionKey_HeadModuleSlector] = modulesMenu;
 
