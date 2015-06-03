@@ -73,6 +73,9 @@ public partial class Customers : System.Web.UI.Page
                     break;
 
                 case "clientWorkPanel":
+                    DataObjects.Client client = this.ClientObject;
+                    FillClientAllForms(client);
+
                     clientWorkPanel.Visible = true;
 
                     break;
@@ -115,7 +118,6 @@ public partial class Customers : System.Web.UI.Page
                 DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(clientID);
                 this.ClientObject = clientObject;
 
-                FillClientAllForms(clientObject);
                 ShowPanel(clientWorkPanel.ID);
 
                 Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName, "../ModuleCredits/Clients.aspx?clid=" + clientID, "clientID");
@@ -123,8 +125,11 @@ public partial class Customers : System.Web.UI.Page
         }
     }
 
-    protected void clientListGridView_RowDataBound(object sender, GridViewRowEventArgs e)
+    protected void usersGrid_RowCreated(object sender, GridViewRowEventArgs e)
     {
+        if (e.Row.RowType == DataControlRowType.Header)
+        { e.Row.TableSection = TableRowSection.TableHeader; }
+
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
             e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
@@ -137,12 +142,6 @@ public partial class Customers : System.Web.UI.Page
         }
     }
 
-    protected void usersGrid_RowCreated(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-        { e.Row.TableSection = TableRowSection.TableHeader; }
-    }
-
     #endregion ClientSelection Region
 
     #region Customers
@@ -153,6 +152,7 @@ public partial class Customers : System.Web.UI.Page
         int.TryParse(newClientGenderListDDL.SelectedValue, out selectedGender);
 
         ClearNewClientForm(selectedGender);
+        newClientPopupExtender.Show();
     }
 
     protected void ClearNewClientForm(int gender)
@@ -228,9 +228,7 @@ public partial class Customers : System.Web.UI.Page
             {
                 newClientObject.FirstName = newClient_juridFullNameTextBox.Text.Trim();
                 newClientObject.LastName = newClient_juridContactPersonTextBox.Text.Trim();
-                //newClientObject.BirthDate = Crypt.Utils.ToDateTime(newClientSimple_BirthDateTextBox.Text, Constants.ISODateBackwardDotsFormat);
                 newClientObject.PersonalID = newClient_juridRegistrationNRTextBox.Text.Trim();
-                //newClientObject.BuletinSeria = newClientSimple_BuletinTextBox.Text.Trim();
                 newClientObject.TelefonFix = newClient_juridTelefonFixTextBox.Text.Trim();
                 newClientObject.TelefonMobil = newClient_juridTelefonMobilTextBox.Text.Trim();
                 newClientObject.Email = newClient_juridEmailTextBox.Text.Trim();
@@ -238,6 +236,7 @@ public partial class Customers : System.Web.UI.Page
 
             if (Utils.ModuleCustomers().AddNewClient(ref newClientObject))
             {
+                newClientPopupExtender.Hide();
                 this.ClientObject = newClientObject;
                 ShowPanel(clientWorkPanel.ID);
             }
@@ -337,9 +336,56 @@ public partial class Customers : System.Web.UI.Page
         }
     }
 
+    protected void clientPersDataSaveBurtton_Click(object sender, EventArgs e)
+    {
+        if (allowEdit)
+        {
+            DataObjects.Client clientObject = this.ClientObject;
+
+            int gender = 0;
+            int.TryParse(clientPersDataGenderListDDL.SelectedValue, out gender);
+
+            clientObject.Gender = gender;
+            clientObject.Gender_String = clientPersDataGenderListDDL.SelectedItem.Text;
+
+
+            if (gender == (int)Constants.Classifiers.Gender_Male || gender == (int)Constants.Classifiers.Gender_Female)
+            {
+                clientObject.FirstName = clientPersDataSimple_FirstNameTextBox.Text.Trim();
+                clientObject.LastName = clientPersDataSimple_LastNameTextBox.Text.Trim();
+                clientObject.BirthDate = Crypt.Utils.ToDateTime(clientPersDataSimple_BirthDateTextBox.Text, Constants.ISODateBackwardDotsFormat);
+                clientObject.PersonalID = clientPersDataSimple_IDNPTextBox.Text.Trim();
+                clientObject.BuletinSeria = clientPersDataSimple_BuletinTextBox.Text.Trim();
+                clientObject.TelefonFix = clientPersDataSimple_TelefonFixTextBox.Text.Trim();
+                clientObject.TelefonMobil = clientPersDataSimple_TelefonMobilTextBox.Text.Trim();
+                clientObject.Email = clientPersDataSimple_EmailTextBox.Text.Trim();
+            }
+            else
+            {
+                clientObject.FirstName = clientPersData_juridFullNameTextBox.Text.Trim();
+                clientObject.LastName = clientPersData_juridContactPersonTextBox.Text.Trim();               
+                clientObject.PersonalID = clientPersData_juridRegistrationNRTextBox.Text.Trim();
+                clientObject.TelefonFix = clientPersData_juridTelefonFixTextBox.Text.Trim();
+                clientObject.TelefonMobil = clientPersData_juridTelefonMobilTextBox.Text.Trim();
+                clientObject.Email = clientPersData_juridEmailTextBox.Text.Trim();
+            }
+
+            if (Utils.ModuleCustomers().UpdateClient(clientObject))
+            {
+                this.ClientObject = clientObject;
+                //ShowPanel(clientWorkPanel.ID);
+            }
+        }
+        else
+        {
+            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
+        }
+    }
+
     #endregion Customers
 
 
 
 
+   
 }

@@ -17,9 +17,9 @@ public class Utils
     public const string SessionKey_UserObject = "UserObject";
     public const string SessionKey_ModuleSecurity = "ModuleSecurity";
     public const string SessionKey_ModuleMain = "ModuleMain";
-    public const string SessionKey_ModuleMainMenu = "ModuleSecurityNavigateMenu";
+    //public const string SessionKey_ModuleMainMenu = "ModuleSecurityNavigateMenu";
     public const string SessionKey_ModuleCustomers = "ModuleCustomers";
-    public const string SessionKey_ModuleCustomersMenu = "ModuleCustomersMenu";
+    //public const string SessionKey_ModuleCustomersMenu = "ModuleCustomersMenu";
     public const string SessionKey_HeadModuleSlector = "HeadModuleSlector";
     public const string SessionKey_ClientObject = "ClientObject";
 

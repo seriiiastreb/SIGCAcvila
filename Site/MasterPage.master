@@ -37,7 +37,8 @@
 				<div style="float:left;  text-align:left; width:29%; font-size: 35px; margin-left:30px;">
                     SIGC Acvila</div>
                 <div style="float:left; text-align:center; margin: auto; width: 29%; margin-top: 7px;">  
-                    <div style="clear:both; " id="navMainMenuDIV" runat="server">                        
+                    <div style="clear:both;" id="mainNavigateMenu" runat="server">
+                                          
                     </div>                  
                 </div>  
                 <div style="float:right; width:39%; padding-top:7px;"> 
@@ -51,28 +52,16 @@
 			</div>
 			<div class="clear"></div>
 			<div class="grid_16">
-				<ul class="nav main" id="currentNavigateMenu" runat="server">
-					
-<%--					<li class="secondary">
-						<a href="http://960.gs/" title="960.gs | A CSS grid system developed by Nathan Smith">The 960 Grid System</a>
-					</li>--%>
-				</ul>
-                <div id="shortNavigation" runat="server" style="text-transform: uppercase; padding-left:30px; padding-top:5px; font-size: 14px;"></div>	
+				<ul class="nav main" id="currentNavigateMenu" runat="server">					
+    			</ul>
 			</div>
 			<div class="clear"></div>
 
-            <div style="padding-top:10px; min-height:655px;">
-          
-			    <asp:ContentPlaceHolder id="MainPlaceHolder" runat="server">
-        
+            <div style="padding-top:10px; min-height:655px;">          
+			    <asp:ContentPlaceHolder id="MainPlaceHolder" runat="server">        
                 </asp:ContentPlaceHolder>
             </div>
 
-<%--			<div class="grid_16" id="site_info">
-				<div class="box">
-					<p>System, processed by SERGIU</p>
-				</div>
-			</div>--%>
 			<div class="clear"></div>
 		</div>
 

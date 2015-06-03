@@ -130,59 +130,84 @@ public partial class Login : System.Web.UI.Page
         bool allowUserManagement = Utils.PermissionAllowed(Security.Module.ID, Security.Domains.Administration.Name, Constants.Classifiers.Permissions_View);
         bool allowCustomersModule = Utils.PermissionAllowed(Client.Module.ID, Security.Domains.Administration.Name, Constants.Classifiers.Permissions_View);
 
-        if (allowUserManagement) Session[Utils.SessionKey_ModuleSecurity] = new Security.Module();
         if (allowBasicAdministration) Session[Utils.SessionKey_ModuleMain] = new Security.MainModule();
+        if (allowUserManagement) Session[Utils.SessionKey_ModuleSecurity] = new Security.Module();        
         if (allowCustomersModule) Session[Utils.SessionKey_ModuleCustomers] = new Client.Module();
 
         ////  Generate ModulesLiks
-        string modulesLiks = string.Empty;
+        string modulesMenu = "<ul id=\"menu\"> \r\n ";
 
-        modulesLiks += " <a href=\"" + appPath + "/Default.aspx\">  <img id=\"Img1\" width=\"24\" height=\"24\" alt=\"Start page\" title=\"Start page\" src=\"" + appPath + "/Images/home.png\" style=\" cursor:pointer; \"> </a> ";
+        modulesMenu += " <li> <a href=\"" + appPath + "/Default.aspx\">  <img id=\"Img1\" width=\"24\" height=\"24\" alt=\"Start page\" title=\"Start page\" src=\"" + appPath + "/Images/home.png\" style=\" cursor:pointer; \"> </a> </li>  \r\n ";
+
+        if (allowBasicAdministration)
+        {
+            modulesMenu += " <img id=\"Img2\" width=\"24\" height=\"24\" alt=\"Basic Program administration\" title=\"Basic Program administration\" src=\"" + appPath + "/Images/admin.png\" style=\" cursor:pointer; \"> \r\n ";
+            modulesMenu += " <ul>  \r\n ";
+            modulesMenu += "     <li>  <a href=\"" + appPath + "/ModuleMain/Classifiers.aspx\">Classifiers Management</a> </li> \r\n ";
+            if (allowUserManagement) 
+                modulesMenu += "    <li>  <a href=\"" + appPath + "/ModuleMain/SystemSeqAdmin.aspx\">User Management</a> </li> \r\n ";
+            modulesMenu += " </ul>  \r\n ";
+        }
+
+        if (allowCustomersModule)
+        {
+            modulesMenu += " <li> <a href=\"" + appPath + "/ModuleCustomers/Customers.aspx\">  <img id=\"Img3\" width=\"24\" height=\"24\" alt=\"Customers page\" title=\"Customers page\" src=\"" + appPath + "/Images/man.png\" style=\" cursor:pointer; \"> </a> </li>\r\n ";
+        }
+
+
+        modulesMenu += "</ul>\r\n ";
+
+        Session[Utils.SessionKey_HeadModuleSlector] = modulesMenu;
+
+
+
+        //modulesLiks += " <li> <a href=\"" + appPath + "/Default.aspx\">  <img id=\"Img1\" width=\"24\" height=\"24\" alt=\"Start page\" title=\"Start page\" src=\"" + appPath + "/Images/home.png\" style=\" cursor:pointer; \"> </a> </li>";
+
+        //if (allowBasicAdministration)
+        //{
+        //    modulesLiks += "<li> \r\n "
+        //        + "  <img id=\"Img2\" width=\"24\" height=\"24\" alt=\"Basic Program administration\" title=\"Basic Program administration\" src=\"" + appPath + "/Images/admin.png\" style=\" cursor:pointer; \"> \r\n "
+        //        + "   \r\n "
+        //        + "     <li>  <a href=\"" + appPath + "/ModuleMain/Classifiers.aspx\">Classifiers Management</a> </li> \r\n ";
+
+        //    if (allowUserManagement) modulesLiks += "<li>  <a href=\"" + appPath + "/ModuleMain/SystemSeqAdmin.aspx\">User Management</a> </li> ";
+
+        //        modulesLiks +="  \r\n "
+        //        + " </li> \r\n "; 
+        //}       
+
+
+        //if (allowCustomersModule)
+        //{
+        //    modulesLiks += " <li> \r\n "
+        //                + "     <a href=\"" + appPath + "/ModuleCustomers/Customers.aspx\">  <img id=\"Img3\" width=\"24\" height=\"24\" alt=\"Customers page\" title=\"Customers page\" src=\"" + appPath + "/Images/man.png\" style=\" cursor:pointer; \"> </a> \r\n "
+        //                + " </li> \r\n ";
+        //}
         
-        if (allowBasicAdministration) modulesLiks += " <a href=\"" + appPath + "/ModuleMain/Classifiers.aspx\">  <img id=\"Img2\" width=\"24\" height=\"24\" alt=\"Basic Program administration\" title=\"Basic Program administration\" src=\"" + appPath + "/Images/admin.png\" style=\" cursor:pointer; \"> </a> ";
-        if (allowCustomersModule) modulesLiks += " <a href=\"" + appPath + "/ModuleCustomers/Customers.aspx\">  <img id=\"Img3\" width=\"24\" height=\"24\" alt=\"Customers page\" title=\"Customers page\" src=\"" + appPath + "/Images/man.png\" style=\" cursor:pointer; \"> </a> ";
+        //Session[Utils.SessionKey_HeadModuleSlector] = modulesLiks;
+
         
-        Session[Utils.SessionKey_HeadModuleSlector] = modulesLiks;
-
-
-
-        //<%--<li>
-            //            <a href="../12/">Fluid 12-column</a>
-            //            <ul>
-            //                <li>
-            //                    <a href="../12/fluid/mootools/">MooTools</a>
-            //                </li>
-            //                <li>
-            //                    <a href="../12/fluid/jquery/">jQuery</a>
-            //                </li>
-            //                <li>
-            //                    <a href="../12/fluid/none/">No Javascript</a>
-            //                </li>
-            //            </ul>
-            //        </li>--%>
 
         ////  Generate Menus for each module
 
         #region Main AND SECURITY MODULE
 
-        string mainModuleMenuLinks = string.Empty;
+        //string mainModuleMenuLinks = string.Empty;
        
-        if (allowBasicAdministration) mainModuleMenuLinks  += "<li>  <a href=\"" + appPath + "/ModuleMain/Classifiers.aspx\">Classifiers Management</a> </li> ";
-        if (allowUserManagement) mainModuleMenuLinks += "<li>  <a href=\"" + appPath + "/ModuleMain/SystemSeqAdmin.aspx\">User Management</a> </li> ";
 
-        Session[Utils.SessionKey_ModuleMainMenu] = mainModuleMenuLinks;
+        //Session[Utils.SessionKey_ModuleMainMenu] = mainModuleMenuLinks;
 
         #endregion Main AND SECURITY MODULE
 
 
-        #region Customers MODULE         
-        string customersModuleMenuLinks = string.Empty;
+        //#region Customers MODULE         
+        //string customersModuleMenuLinks = string.Empty;
 
-        if (allowCustomersModule) customersModuleMenuLinks += "<li>  <a href=\"" + appPath + "/ModuleCustomers/Customer.aspx\">Customers</a> </li> ";
+        //if (allowCustomersModule) customersModuleMenuLinks += "<li>  <a href=\"" + appPath + "/ModuleCustomers/Customers.aspx\">Customers</a> </li> ";
 
-        Session[Utils.SessionKey_ModuleCustomersMenu] = customersModuleMenuLinks;
+        //Session[Utils.SessionKey_ModuleCustomersMenu] = customersModuleMenuLinks;
 
-        #endregion Customers MODULE                 
+        //#endregion Customers MODULE                 
 
     }
 

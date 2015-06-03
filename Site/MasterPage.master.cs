@@ -29,7 +29,7 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        shortNavigation.InnerHtml = GenerateShortNavLinks();
+        currentNavigateMenu.InnerHtml = GenerateShortNavLinks();
     }
 
     void IMasterItems.PerformPreloadActions(string currentModuleId, string pageName)
@@ -59,25 +59,25 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
             #region Create Menu
 
             //// CREATE MODULE SELECTORS
-            navMainMenuDIV.InnerHtml = Session[Utils.SessionKey_HeadModuleSlector] != null ? (string)Session[Utils.SessionKey_HeadModuleSlector] : string.Empty;
+            mainNavigateMenu.InnerHtml = Session[Utils.SessionKey_HeadModuleSlector] != null ? (string)Session[Utils.SessionKey_HeadModuleSlector] : string.Empty;
 
             //// CREATE GENERAL MENU FOR MODULE
-            switch (mCurrentModule)
-            {
-                case Security.MainModule.ID:
-                case Security.Module.ID:
-                    currentNavigateMenu.InnerHtml = Session[Utils.SessionKey_ModuleMainMenu] != null ? (string)Session[Utils.SessionKey_ModuleMainMenu] : string.Empty;
-                    break;
+            //switch (mCurrentModule)
+            //{
+            //    case Security.MainModule.ID:
+            //    case Security.Module.ID:
+            //        currentNavigateMenu.InnerHtml = Session[Utils.SessionKey_ModuleMainMenu] != null ? (string)Session[Utils.SessionKey_ModuleMainMenu] : string.Empty;
+            //        break;
 
-                case Client.Module.ID:
-                    currentNavigateMenu.InnerHtml = Session[Utils.SessionKey_ModuleCustomersMenu] != null ? (string)Session[Utils.SessionKey_ModuleCustomersMenu] : string.Empty;
-                    break;
+            //    case Client.Module.ID:
+            //        currentNavigateMenu.InnerHtml = Session[Utils.SessionKey_ModuleCustomersMenu] != null ? (string)Session[Utils.SessionKey_ModuleCustomersMenu] : string.Empty;
+            //        break;
 
-                default:
-                    currentNavigateMenu.InnerHtml = string.Empty;
-                    break;
+            //    default:
+            //        currentNavigateMenu.InnerHtml = string.Empty;
+            //        break;
 
-            }
+            //}
 
 
             //// LoginLOgout ButtonLink       
@@ -97,7 +97,7 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
             #region CLEAR ALL MENIU
 
             //// CREATE MODULE SELECTORS
-            navMainMenuDIV.InnerHtml = string.Empty;
+            mainNavigateMenu.InnerHtml = string.Empty;
 
             //// CREATE GENERAL MENU FOR MODULE
             currentNavigateMenu.InnerHtml = string.Empty;

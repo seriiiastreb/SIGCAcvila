@@ -1,10 +1,8 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Customers.aspx.cs" Inherits="Customers" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Customers.aspx.cs" Inherits="Customers" EnableEventValidation="false" %>
 <%@ Register TagPrefix="ajax" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit"%>
 
 
-<asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" Runat="Server">   
-
-
+<asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" Runat="Server"> 
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server"> 
@@ -49,108 +47,100 @@
     <asp:Panel runat="server" ID="newClientPanel" CssClass="grid_5 box" style=" width: auto; border:1px solid #000;">
         <h2 style="cursor:move;" runat="server" id="newClientHeader">New Client  <asp:Image ID="users_CancelButton" runat="server" ImageUrl="~/images/dialog_close.png" Width="19px" Height="19px" style="float:right; cursor:default;" /></h2>
         <fieldset>	
-            <asp:UpdatePanel ID="updatePanle1" runat="server" >
-                <ContentTemplate>
-                	<p>
-                        <label>Gender:</label>
-                        <asp:DropDownList ID="newClientGenderListDDL" runat="server" AutoPostBack="true" CausesValidation="false" OnSelectedIndexChanged="newClientGenderList_SelectedIndexChanged"></asp:DropDownList>
-                    </p>
+            <p>
+                <label>Gender:</label>
+                <asp:DropDownList ID="newClientGenderListDDL" runat="server" AutoPostBack="true" CausesValidation="false" OnSelectedIndexChanged="newClientGenderList_SelectedIndexChanged"></asp:DropDownList>
+            </p>
                     
-                    <asp:Panel ID="newCleint_simplePersonPanel" runat="server" Visible="false">
-                        <p>
-                            <label>Firts Name:</label>
-                            <asp:TextBox runat="server" ID="newClientSimple_FirstNameTextBox" ></asp:TextBox>
-                        </p>
-                        <p>
-                            <label>Last Name:</label>
-                            <asp:TextBox runat="server" ID="newClientSimple_LastNameTextBox" ></asp:TextBox>
-                        </p>
-                        <p>
-                            <label>Birth Date:</label>
-                            <asp:TextBox runat="server" ID="newClientSimple_BirthDateTextBox" ></asp:TextBox>
-                            <ajax:CalendarExtender ID="newClientSimple_BirthDateCalendarExtender" runat="server" TargetControlID="newClientSimple_BirthDateTextBox"></ajax:CalendarExtender>
-                        </p>
+            <asp:Panel ID="newCleint_simplePersonPanel" runat="server" Visible="false">
+                <p>
+                    <label>Firts Name:</label>
+                    <asp:TextBox runat="server" ID="newClientSimple_FirstNameTextBox" ></asp:TextBox>
+                </p>
+                <p>
+                    <label>Last Name:</label>
+                    <asp:TextBox runat="server" ID="newClientSimple_LastNameTextBox" ></asp:TextBox>
+                </p>
+                <p>
+                    <label>Birth Date:</label>
+                    <asp:TextBox runat="server" ID="newClientSimple_BirthDateTextBox" ></asp:TextBox>
+                    <ajax:CalendarExtender ID="newClientSimple_BirthDateCalendarExtender" runat="server" TargetControlID="newClientSimple_BirthDateTextBox"></ajax:CalendarExtender>
+                </p>
 
-                        <p>
-                            <label>Personal number (IDNP):</label>
-                            <asp:TextBox runat="server" ID="newClientSimple_IDNPTextBox" ></asp:TextBox>
-                        </p>
-                        <p>
-                            <label>Buletin:</label>
-                            <asp:TextBox runat="server" ID="newClientSimple_BuletinTextBox" ></asp:TextBox>
-                        </p>
+                <p>
+                    <label>Personal number (IDNP):</label>
+                    <asp:TextBox runat="server" ID="newClientSimple_IDNPTextBox" ></asp:TextBox>
+                </p>
+                <p>
+                    <label>Buletin:</label>
+                    <asp:TextBox runat="server" ID="newClientSimple_BuletinTextBox" ></asp:TextBox>
+                </p>
 
-                        <p>
-                            <label>Telefon / Fax:</label>
-                            <asp:TextBox runat="server" ID="newClientSimple_TelefonFixTextBox" ></asp:TextBox>
-                        </p>
-                        <p>
-                            <label>Telefon mobil:</label>
-                            <asp:TextBox runat="server" ID="newClientSimple_TelefonMobilTextBox" ></asp:TextBox>
-                        </p>
-                        <p>
-                            <label>Email:</label>
-                            <asp:TextBox runat="server" ID="newClientSimple_EmailTextBox" ></asp:TextBox>
-                            <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" 
-                                ErrorMessage="Wrong email!" ControlToValidate="newClientSimple_EmailTextBox" 
-                                Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
-                           <ajax:ValidatorCalloutExtender 
-                                runat="Server"
-                                ID="PNReqE"                     
-                                TargetControlID="RegularExpressionValidator1" 
-                                Width="250px"
-                                PopupPosition="Right" />
-                        </p>
-                    </asp:Panel>
+                <p>
+                    <label>Telefon / Fax:</label>
+                    <asp:TextBox runat="server" ID="newClientSimple_TelefonFixTextBox" ></asp:TextBox>
+                </p>
+                <p>
+                    <label>Telefon mobil:</label>
+                    <asp:TextBox runat="server" ID="newClientSimple_TelefonMobilTextBox" ></asp:TextBox>
+                </p>
+                <p>
+                    <label>Email:</label>
+                    <asp:TextBox runat="server" ID="newClientSimple_EmailTextBox" ></asp:TextBox>
+                    <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" 
+                        ErrorMessage="Wrong email!" ControlToValidate="newClientSimple_EmailTextBox" 
+                        Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
+                    <ajax:ValidatorCalloutExtender 
+                        runat="Server"
+                        ID="PNReqE"                     
+                        TargetControlID="RegularExpressionValidator1" 
+                        Width="250px"
+                        PopupPosition="Right" />
+                </p>
+            </asp:Panel>
 
-                     <asp:Panel ID="newCleint_juridPersonPanel" runat="server" Visible="true">
-                        <p>
-                            <label>Full Name:</label>
-                            <asp:TextBox runat="server" ID="newClient_juridFullNameTextBox" ></asp:TextBox>
-                        </p>    
-                        <p>
-                            <label>Registration nr.:</label>
-                            <asp:TextBox runat="server" ID="newClient_juridRegistrationNRTextBox" ></asp:TextBox>
-                        </p>                 
-                        <p>
-                            <label>Contact Person:</label>
-                            <asp:TextBox runat="server" ID="newClient_juridContactPersonTextBox" ></asp:TextBox>
-                        </p>
-                        <p>
-                            <label>Telefon / Fax:</label>
-                            <asp:TextBox runat="server" ID="newClient_juridTelefonFixTextBox" ></asp:TextBox>
-                        </p>
-                        <p>
-                            <label>Telefon mobil:</label>
-                            <asp:TextBox runat="server" ID="newClient_juridTelefonMobilTextBox" ></asp:TextBox>
-                        </p>
-                        <p>
-                            <label>Email:</label>
-                            <asp:TextBox runat="server" ID="newClient_juridEmailTextBox" ></asp:TextBox>
-                            <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" 
-                                ErrorMessage="Wrong email!" ControlToValidate="newClient_juridEmailTextBox" 
-                                Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
-                           <ajax:ValidatorCalloutExtender 
-                                runat="Server"
-                                ID="ValidatorCalloutExtender1"                     
-                                TargetControlID="RegularExpressionValidator2" 
-                                Width="250px"
-                                PopupPosition="Right" />
-                        </p>
-                    </asp:Panel>
-                </ContentTemplate>
-            </asp:UpdatePanel>    
+                <asp:Panel ID="newCleint_juridPersonPanel" runat="server" Visible="true">
+                <p>
+                    <label>Full Name:</label>
+                    <asp:TextBox runat="server" ID="newClient_juridFullNameTextBox" ></asp:TextBox>
+                </p>    
+                <p>
+                    <label>Registration nr.:</label>
+                    <asp:TextBox runat="server" ID="newClient_juridRegistrationNRTextBox" ></asp:TextBox>
+                </p>                 
+                <p>
+                    <label>Contact Person:</label>
+                    <asp:TextBox runat="server" ID="newClient_juridContactPersonTextBox" ></asp:TextBox>
+                </p>
+                <p>
+                    <label>Telefon / Fax:</label>
+                    <asp:TextBox runat="server" ID="newClient_juridTelefonFixTextBox" ></asp:TextBox>
+                </p>
+                <p>
+                    <label>Telefon mobil:</label>
+                    <asp:TextBox runat="server" ID="newClient_juridTelefonMobilTextBox" ></asp:TextBox>
+                </p>
+                <p>
+                    <label>Email:</label>
+                    <asp:TextBox runat="server" ID="newClient_juridEmailTextBox" ></asp:TextBox>
+                    <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" 
+                        ErrorMessage="Wrong email!" ControlToValidate="newClient_juridEmailTextBox" 
+                        Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
+                    <ajax:ValidatorCalloutExtender 
+                        runat="Server"
+                        ID="ValidatorCalloutExtender1"                     
+                        TargetControlID="RegularExpressionValidator2" 
+                        Width="250px"
+                        PopupPosition="Right" />
+                </p>
+            </asp:Panel>
+
             <div style="text-align:right;">
                 <asp:Button runat="server" ID="newClientSaveBurtton" Text="Save" onclick="newClientSaveBurtton_Click"  Width="100px"  />
             </div>
         </fieldset>
     </asp:Panel>
-
-
-
-
-
-
+    
 
     <asp:Panel ID="clientWorkPanel" Visible="false" runat="server">
         <ajax:TabContainer ID="detailsClientTabContainer"  runat="server" 
@@ -174,98 +164,94 @@
                 <ContentTemplate>
                     <asp:Panel runat="server" ID="Panel3" CssClass="grid_5 box" style="border:1px solid #000;">
                         <h2 style="cursor:move;" runat="server" id="H1">Personal data</h2>
-                        <fieldset>	
-                            <asp:UpdatePanel ID="UpdatePanel1" runat="server">
-                                <ContentTemplate>
-                	                <p>
-                                        <label>Gender:</label>
-                                        <asp:DropDownList ID="clientPersDataGenderListDDL" runat="server" AutoPostBack="true" CausesValidation="false" OnSelectedIndexChanged="clientPersDataGenderList_SelectedIndexChanged"></asp:DropDownList>
-                                    </p>
+                        <fieldset>	                          
+                	        <p>
+                                <label>Gender:</label>
+                                <asp:DropDownList ID="clientPersDataGenderListDDL" runat="server" AutoPostBack="true" CausesValidation="false" OnSelectedIndexChanged="clientPersDataGenderList_SelectedIndexChanged"></asp:DropDownList>
+                            </p>
                     
-                                    <asp:Panel ID="clientPersonalDataSimplePanel" runat="server" Visible="false">
-                                        <p>
-                                            <label>Firts Name:</label>
-                                            <asp:TextBox runat="server" ID="clientPersDataSimple_FirstNameTextBox" ></asp:TextBox>
-                                        </p>
-                                        <p>
-                                            <label>Last Name:</label>
-                                            <asp:TextBox runat="server" ID="clientPersDataSimple_LastNameTextBox" ></asp:TextBox>
-                                        </p>
-                                        <p>
-                                            <label>Birth Date:</label>
-                                            <asp:TextBox runat="server" ID="clientPersDataSimple_BirthDateTextBox" ></asp:TextBox>
-                                            <ajax:CalendarExtender ID="clientPersDataSimple_BirthDateCalendarExtender" runat="server" TargetControlID="clientPersDataSimple_BirthDateTextBox"></ajax:CalendarExtender>
-                                        </p>
+                            <asp:Panel ID="clientPersonalDataSimplePanel" runat="server" Visible="false">
+                                <p>
+                                    <label>Firts Name:</label>
+                                    <asp:TextBox runat="server" ID="clientPersDataSimple_FirstNameTextBox" ></asp:TextBox>
+                                </p>
+                                <p>
+                                    <label>Last Name:</label>
+                                    <asp:TextBox runat="server" ID="clientPersDataSimple_LastNameTextBox" ></asp:TextBox>
+                                </p>
+                                <p>
+                                    <label>Birth Date:</label>
+                                    <asp:TextBox runat="server" ID="clientPersDataSimple_BirthDateTextBox" ></asp:TextBox>
+                                    <ajax:CalendarExtender ID="clientPersDataSimple_BirthDateCalendarExtender" runat="server" TargetControlID="clientPersDataSimple_BirthDateTextBox"></ajax:CalendarExtender>
+                                </p>
 
-                                        <p>
-                                            <label>Personal number (IDNP):</label>
-                                            <asp:TextBox runat="server" ID="clientPersDataSimple_IDNPTextBox" ></asp:TextBox>
-                                        </p>
-                                        <p>
-                                            <label>Buletin:</label>
-                                            <asp:TextBox runat="server" ID="clientPersDataSimple_BuletinTextBox" ></asp:TextBox>
-                                        </p>
+                                <p>
+                                    <label>Personal number (IDNP):</label>
+                                    <asp:TextBox runat="server" ID="clientPersDataSimple_IDNPTextBox" ></asp:TextBox>
+                                </p>
+                                <p>
+                                    <label>Buletin:</label>
+                                    <asp:TextBox runat="server" ID="clientPersDataSimple_BuletinTextBox" ></asp:TextBox>
+                                </p>
 
-                                        <p>
-                                            <label>Telefon / Fax:</label>
-                                            <asp:TextBox runat="server" ID="clientPersDataSimple_TelefonFixTextBox" ></asp:TextBox>
-                                        </p>
-                                        <p>
-                                            <label>Telefon mobil:</label>
-                                            <asp:TextBox runat="server" ID="clientPersDataSimple_TelefonMobilTextBox" ></asp:TextBox>
-                                        </p>
-                                        <p>
-                                            <label>Email:</label>
-                                            <asp:TextBox runat="server" ID="clientPersDataSimple_EmailTextBox" ></asp:TextBox>
-                                            <asp:RegularExpressionValidator ID="RegularExpressionValidator3" runat="server" 
-                                                ErrorMessage="Wrong email!" ControlToValidate="clientPersDataSimple_EmailTextBox" 
-                                                Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
-                                           <ajax:ValidatorCalloutExtender 
-                                                runat="Server"
-                                                ID="ValidatorCalloutExtender2"                     
-                                                TargetControlID="RegularExpressionValidator1" 
-                                                Width="250px"
-                                                PopupPosition="Right" />
-                                        </p>
-                                    </asp:Panel>
+                                <p>
+                                    <label>Telefon / Fax:</label>
+                                    <asp:TextBox runat="server" ID="clientPersDataSimple_TelefonFixTextBox" ></asp:TextBox>
+                                </p>
+                                <p>
+                                    <label>Telefon mobil:</label>
+                                    <asp:TextBox runat="server" ID="clientPersDataSimple_TelefonMobilTextBox" ></asp:TextBox>
+                                </p>
+                                <p>
+                                    <label>Email:</label>
+                                    <asp:TextBox runat="server" ID="clientPersDataSimple_EmailTextBox" ></asp:TextBox>
+                                    <asp:RegularExpressionValidator ID="RegularExpressionValidator3" runat="server" 
+                                        ErrorMessage="Wrong email!" ControlToValidate="clientPersDataSimple_EmailTextBox" 
+                                        Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
+                                    <ajax:ValidatorCalloutExtender 
+                                        runat="Server"
+                                        ID="ValidatorCalloutExtender2"                     
+                                        TargetControlID="RegularExpressionValidator1" 
+                                        Width="250px"
+                                        PopupPosition="Right" />
+                                </p>
+                            </asp:Panel>
 
-                                     <asp:Panel ID="clientPersonalDataJuridicPanel" runat="server" Visible="true">
-                                        <p>
-                                            <label>Full Name:</label>
-                                            <asp:TextBox runat="server" ID="clientPersData_juridFullNameTextBox" ></asp:TextBox>
-                                        </p>    
-                                        <p>
-                                            <label>Registration nr.:</label>
-                                            <asp:TextBox runat="server" ID="clientPersData_juridRegistrationNRTextBox" ></asp:TextBox>
-                                        </p>                 
-                                        <p>
-                                            <label>Contact Person:</label>
-                                            <asp:TextBox runat="server" ID="clientPersData_juridContactPersonTextBox" ></asp:TextBox>
-                                        </p>
-                                        <p>
-                                            <label>Telefon / Fax:</label>
-                                            <asp:TextBox runat="server" ID="clientPersData_juridTelefonFixTextBox" ></asp:TextBox>
-                                        </p>
-                                        <p>
-                                            <label>Telefon mobil:</label>
-                                            <asp:TextBox runat="server" ID="clientPersData_juridTelefonMobilTextBox" ></asp:TextBox>
-                                        </p>
-                                        <p>
-                                            <label>Email:</label>
-                                            <asp:TextBox runat="server" ID="clientPersData_juridEmailTextBox" ></asp:TextBox>
-                                            <asp:RegularExpressionValidator ID="RegularExpressionValidator4" runat="server" 
-                                                ErrorMessage="Wrong email!" ControlToValidate="clientPersData_juridEmailTextBox" 
-                                                Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
-                                           <ajax:ValidatorCalloutExtender 
-                                                runat="Server"
-                                                ID="ValidatorCalloutExtender3"                     
-                                                TargetControlID="RegularExpressionValidator2" 
-                                                Width="250px"
-                                                PopupPosition="Right" />
-                                        </p>
-                                    </asp:Panel>
-                                </ContentTemplate>
-                            </asp:UpdatePanel>    
+                                <asp:Panel ID="clientPersonalDataJuridicPanel" runat="server" Visible="true">
+                                <p>
+                                    <label>Full Name:</label>
+                                    <asp:TextBox runat="server" ID="clientPersData_juridFullNameTextBox" ></asp:TextBox>
+                                </p>    
+                                <p>
+                                    <label>Registration nr.:</label>
+                                    <asp:TextBox runat="server" ID="clientPersData_juridRegistrationNRTextBox" ></asp:TextBox>
+                                </p>                 
+                                <p>
+                                    <label>Contact Person:</label>
+                                    <asp:TextBox runat="server" ID="clientPersData_juridContactPersonTextBox" ></asp:TextBox>
+                                </p>
+                                <p>
+                                    <label>Telefon / Fax:</label>
+                                    <asp:TextBox runat="server" ID="clientPersData_juridTelefonFixTextBox" ></asp:TextBox>
+                                </p>
+                                <p>
+                                    <label>Telefon mobil:</label>
+                                    <asp:TextBox runat="server" ID="clientPersData_juridTelefonMobilTextBox" ></asp:TextBox>
+                                </p>
+                                <p>
+                                    <label>Email:</label>
+                                    <asp:TextBox runat="server" ID="clientPersData_juridEmailTextBox" ></asp:TextBox>
+                                    <asp:RegularExpressionValidator ID="RegularExpressionValidator4" runat="server" 
+                                        ErrorMessage="Wrong email!" ControlToValidate="clientPersData_juridEmailTextBox" 
+                                        Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
+                                    <ajax:ValidatorCalloutExtender 
+                                        runat="Server"
+                                        ID="ValidatorCalloutExtender3"                     
+                                        TargetControlID="RegularExpressionValidator2" 
+                                        Width="250px"
+                                        PopupPosition="Right" />
+                                </p>
+                            </asp:Panel>
                             <div style="text-align:right;">
                                 <asp:Button runat="server" ID="clientPersDataSaveBurtton" Text="Save" onclick="clientPersDataSaveBurtton_Click"  Width="100px"  />
                             </div>

@@ -32,7 +32,6 @@ namespace Client
         public bool AddNewClient(ref DataObjects.Client clientObject)
         {
             DateTime EmptyDate = DateTime.MinValue;
-            int newClientID = 0;
 
             bool result = false;
             try
@@ -43,7 +42,7 @@ namespace Client
 
                     string nonQuery = "INSERT INTO Client (gender,FirstName,LastName,           DateOfBirth,                                               personalID,    buletinSeria,                         dataEliberarii,                                                                                 dataExpirarii,                                                  eliberatDe,  telefonFix,  telefonMobil,   viza_country, viza_raion,  viza_urbanRural,  viza_localitatea,   viza_stradaAdresa,  email,  sortGroup)  "
                                 + " OUTPUT INSERTED.ClientID "
-                                + " VALUES (@gender, @FirstName, @LastName, " + (clientObject.BirthDate.Equals(EmptyDate) ? "NULL" : "@DateOfBirth") + ", @personalID, , @buletinSeria, " + (clientObject.DataEliberariiBuletin.Equals(EmptyDate) ? "NULL" : "@dataEliberarii") + ", " + (clientObject.DataExpirariiBuletin.Equals(EmptyDate) ? "NULL" : "@dataExpirarii") + ", @eliberatDe, @telefonFix, @telefonMobil, @viza_country, @viza_raion, @viza_urbanRural, @viza_localitatea, @viza_stradaAdresa, @email, @sortGroup ); ";
+                                + " VALUES (@gender, @FirstName, @LastName, " + (clientObject.BirthDate.Equals(EmptyDate) ? "NULL" : "@DateOfBirth") + ", @personalID, @buletinSeria, " + (clientObject.DataEliberariiBuletin.Equals(EmptyDate) ? "NULL" : "@dataEliberarii") + ", " + (clientObject.DataExpirariiBuletin.Equals(EmptyDate) ? "NULL" : "@dataExpirarii") + ", @eliberatDe, @telefonFix, @telefonMobil, @viza_country, @viza_raion, @viza_urbanRural, @viza_localitatea, @viza_stradaAdresa, @email, @sortGroup ); ";
 
                     Hashtable parameters = new Hashtable();
                     parameters.Add("@FirstName", clientObject.FirstName);
@@ -70,7 +69,7 @@ namespace Client
 
                     if (insertedID != null && !insertedID.ToString().Equals(string.Empty))
                     {
-                        newClientID = (int)insertedID;
+                        clientObject.ClientID = (int)insertedID;
                         result = true;
                     }
                 }
@@ -191,16 +190,17 @@ namespace Client
 
             try
             {
-                string query = "Select * "
-                            + " , coalesce(firstName, '') " + Plus + " coalesce(lastName, '') as \"Client Full Name\" "
-                            + " , (select Name From Classifiers Where Code = gender) as gender_string "
-                            + " , (select Name From Classifiers Where Code = viza_country) as viza_country_string "
-                            + " , (select Name From Classifiers Where Code = viza_raion) as viza_raion_string "
-                            + " , coalesce(telefonMobil, '') " + Plus + " coalesce(telefonFix, '') as telefon "
-                            + " , (select Name From Classifiers Where Code = SortGroup) as SortGroup_string "
+                string query = "Select * \r\n "
+                            + " , coalesce(firstName, '') " + Plus + " coalesce(lastName, '') as \"Client Full Name\"  \r\n "
+                            + " , (select Name From Classifiers Where Code = gender) as gender_string  \r\n "
+                            + " , (select Name From Classifiers Where Code = viza_country) as viza_country_string  \r\n "
+                            + " , (select Name From Classifiers Where Code = viza_raion) as viza_raion_string \r\n  "
+                            + " , coalesce(telefonMobil, '') " + Plus + " coalesce(telefonFix, '') as telefon  \r\n "
+                            + " , (select Name From Classifiers Where Code = SortGroup) as SortGroup_string  \r\n "
+                            + " , @AllowDelete as AllowDelete  \r\n "
                             //+ " , ( CASE WHEN (SELECT COUNT(*) FROM Loans WHERE Loans.clientID = client.ClientID) <> 0 THEN @NotAllowDelete ELSE @AllowDelete END ) as AllowDelete "
 
-                            + " FROM Client \r\n  "                 
+                            + " FROM Client \r\n  \r\n  "                 
 
                             + " WHERE  \r\n  "
                             + " Client.clientID = " + clientID + " \r\n ";
