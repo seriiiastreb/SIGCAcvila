@@ -6,7 +6,7 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server">    
-  <csd:ClientSelectionControl ID="husbandClientSelectionControl" runat="server" ParameterX="200" ParameterY="200"  />
+  <csd:ClientSelectionControl ID="husbandClientSelectionControl" runat="server"  />
   
 </asp:Content>
 

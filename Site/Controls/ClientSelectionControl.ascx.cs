@@ -9,7 +9,8 @@ public partial class ClientSelectionControl : System.Web.UI.UserControl
 {
     int parameterX = 0;
     int parameterY = 0;
-      
+
+    string appPath = string.Empty;
 
     public int ParameterX
     {
@@ -21,114 +22,129 @@ public partial class ClientSelectionControl : System.Web.UI.UserControl
         set { parameterY = value; }
     }
 
+   
 
-    //public int SelectedClientID
-    //{
-    //    get
-    //    {
-    //        int tempInt = 0;
-    //        int.TryParse(selectedClientIDHiddenField.Value, out tempInt);
-    //        return tempInt;
-    //    }
-    //    set 
-    //    {
-    //        selectedClientIDHiddenField.Value = value.ToString();
-    //        //DataTable clientInfo = Utils.ModuleCredits().GetClientByID(value);
+    public int SelectedClientID
+    {
+        get
+        {
+            int tempInt = 0;
+            int.TryParse(selectedClientIDHiddenField.Value, out tempInt);
+            return tempInt;
+        }
+        set
+        {
+            selectedClientIDHiddenField.Value = value.ToString();
+            //DataTable clientInfo = Utils.ModuleCredits().GetClientByID(value);
 
-    //        //if (clientInfo != null && clientInfo.Rows.Count == 1)
-    //        //{
-    //        //    selectedClientFirstNameHiddenField.Value = clientInfo.Rows[0]["FirstName"].ToString();
-    //        //    SelectedClientLastNameHiddenField.Value = clientInfo.Rows[0]["LastName"].ToString();
-    //        //    SelectedClientIDNOHiddenField.Value = clientInfo.Rows[0]["personalID"].ToString();
-    //        //    SelectedClientBirthDateHiddenField.Value = clientInfo.Rows[0]["DateOfBirth"] != System.DBNull.Value ? ((DateTime)clientInfo.Rows[0]["DateOfBirth"]).ToString(Constants.Constants.ISODateBackwardDotsFormat) : string.Empty;
-    //        //}
-    //    }
-    //}
+            //if (clientInfo != null && clientInfo.Rows.Count == 1)
+            //{
+            //    selectedClientFirstNameHiddenField.Value = clientInfo.Rows[0]["FirstName"].ToString();
+            //    SelectedClientLastNameHiddenField.Value = clientInfo.Rows[0]["LastName"].ToString();
+            //    SelectedClientIDNOHiddenField.Value = clientInfo.Rows[0]["personalID"].ToString();
+            //    SelectedClientBirthDateHiddenField.Value = clientInfo.Rows[0]["DateOfBirth"] != System.DBNull.Value ? ((DateTime)clientInfo.Rows[0]["DateOfBirth"]).ToString(Constants.Constants.ISODateBackwardDotsFormat) : string.Empty;
+            //}
+        }
+    }
 
-    //public void BindDataSource()
-    //{
-    //    clientCategoriesTreeView.Nodes[0].ChildNodes.Clear();
-
-    //    DataTable categoriesDT = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.ClientCategories);
-        
-    //    if(categoriesDT != null && categoriesDT.Rows.Count > 0)
-    //    {
-    //        for(int i=0; i< categoriesDT.Rows.Count; i++)
-    //        {
-    //            if ((int)categoriesDT.Rows[i]["Code"] != 0)
-    //            {
-    //                TreeNode rotNode = clientCategoriesTreeView.Nodes[0];
-
-    //                TreeNode newNode = new TreeNode();
-    //                newNode.Text = categoriesDT.Rows[i]["Name"].ToString();
-    //                newNode.Value = categoriesDT.Rows[i]["Code"].ToString();
-
-    //                rotNode.ChildNodes.Add(newNode);
-    //            }
-    //        }
-    //    }
-
-    //    clientCategoriesTreeView.Nodes[0].Selected = true;
-    //    FillClientsGridView();
-    //}
+    private void BindDataSource()
+    {
+        ScriptManager.RegisterStartupScript(programmaticPopup, typeof(string), "GetCustomersList", "GetCustomersList(0);", true);
+    }
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        appPath = Utils.GetApplicationPath(Request);
+
        //// WindowTitleLabel.Text = mTitleWindow;
        // txtSearch.Attributes.Add("onkeyup", "Search('" + txtSearch.ClientID + "','" + clientiGridView.ClientID + "')");
        // clientsListDiv.Attributes.Add("onscroll", "SetDivPosition('" + clientsListDiv.ClientID + "')");
 
-       // if(parameterX != 0) clientModalPopup.X = parameterX;
-       // if(parameterY != 0) clientModalPopup.Y = parameterY;
-       // RegisterAllClientJavaScripts();
+        if (parameterX != 0) clientModalPopup.X = parameterX;
+        if (parameterY != 0) clientModalPopup.Y = parameterY;
+       RegisterAllClientJavaScripts();
     }
 
-    //private void RegisterAllClientJavaScripts()
-    //{
-    //    if (!Page.ClientScript.IsClientScriptBlockRegistered(typeof(Page), "setSelection" + this.ClientID))
-    //    {
-    //        StringBuilder cstext2 = new StringBuilder();
-    //        cstext2.Append("<script type=text/javascript>  \r\n     function setSelection" + this.ClientID + "(gridIndex) { \r\n ");
-    //        cstext2.Append("   var table = document.getElementById('" + clientiGridView.ClientID + "'); \r\n  ");
-    //        cstext2.Append("   var rows = table.getElementsByTagName(\"tr\");  \r\n  ");
-    //        cstext2.Append("    for (i = 0; i < rows.length; i++) {\r\n ");
+    private void RegisterAllClientJavaScripts()
+    {
+        if (Utils.AutentificatedUser)
+        {
+            if (!Page.ClientScript.IsClientScriptBlockRegistered(typeof(Page), "ClientSelecttionControlScript"))
+            {
+                StringBuilder cstext2 = new StringBuilder();
+                cstext2.Append("<script type=text/javascript> \r\n ");
+                cstext2.Append("function GetCustomersList(varcategory) { \r\n ");
+                cstext2.Append("    var varjuridicPerson = document.getElementById('" + juridicPersonRadio.ClientID + "').checked;    \r\n \r\n ");
+                cstext2.Append("    var params = { category: varcategory, juridicPerson: varjuridicPerson, additionalGridID : '" + this.ClientID + "'}; \r\n ");
+                cstext2.Append("             $.ajax({ \r\n ");
+                cstext2.Append("                type: \"POST\", \r\n ");
+                cstext2.Append("                url: \"" + appPath + "/GServices.aspx/GetCustomersListAsHTMLTable\", \r\n ");
+                cstext2.Append("                data: JSON.stringify(params) , \r\n ");
+                cstext2.Append("                contentType: \"application/json; charset=utf-8\", \r\n ");
+                cstext2.Append("                dataType: \"json\", \r\n ");
+                cstext2.Append("                success: OnSuccess, \r\n ");
+                cstext2.Append("                failure: function (response) {    } \r\n ");
+                cstext2.Append("            }); \r\n ");
+                cstext2.Append("        } \r\n\r\n\r\n ");
+                cstext2.Append("       function OnSuccess(response) { \r\n ");
+                cstext2.Append("           var resp = response.d; \r\n ");
+                cstext2.Append("           var divelement = document.getElementById('" + customersDiv .ClientID + "'); \r\n ");
+                cstext2.Append("           divelement.innerHTML = resp;  \r\n ");
+                cstext2.Append("           document.getElementById('" + txtSearch.ClientID + "').value = ''; \r\n ");
+                cstext2.Append("           document.getElementById('" + selectedClientIDHiddenField.ClientID + "').value = ''; \r\n ");
+                cstext2.Append("       }\r\n\r\n");
+                cstext2.Append("</script>  \r\n ");
+                Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "ClientSelecttionControlScript", cstext2.ToString(), false);
+            }
 
-    //        cstext2.Append("        if (gridIndex == i - 1){ \r\n ");
-    //        cstext2.Append("            rows[i].style.backgroundColor = \"#CCCCFF\"; \r\n  ");
-    //        cstext2.Append("            document.getElementById('" + selectedClientIDInCSCHiddenField.ClientID + "').value = rows[i].cells[0].innerHTML; \r\n ");
-    //        cstext2.Append("            document.getElementById('" + selectedClientFirstNameHiddenField.ClientID + "').value = rows[i].cells[1].innerHTML; \r\n ");
-    //        cstext2.Append("            document.getElementById('" + SelectedClientLastNameHiddenField.ClientID + "').value = rows[i].cells[2].innerHTML; \r\n ");
-    //        cstext2.Append("            document.getElementById('" + SelectedClientIDNOHiddenField.ClientID + "').value = rows[i].cells[5].innerHTML; \r\n ");
-    //        cstext2.Append("            document.getElementById('" + SelectedClientBirthDateHiddenField.ClientID + "').value = rows[i].cells[3].getElementsByTagName('span')[0].innerHTML; \r\n ");
-    //        cstext2.Append("            } \r\n ");
+            if (!Page.ClientScript.IsClientScriptBlockRegistered(typeof(Page), "clickGrid"))
+            {
+                StringBuilder cstext1 = new StringBuilder();
 
-    //        cstext2.Append("        else { rows[i].style.backgroundColor = \"\"; } \r\n ");
-    //        cstext2.Append("        } \r\n ");
-    //        cstext2.Append("    } \r\n ");
-    //        cstext2.Append("</script>\r\n ");
+                cstext1.Append("<script type=text/javascript> \r\n ");
+                cstext1.Append("    function clickGrid(ckikedRow) { \r\n ");
+                cstext1.Append("        ResetGridSelection('" + this.ClientID + "customersList'); \r\n ");
+                cstext1.Append("        ckikedRow.className = \"selectedRow\"; \r\n ");
+                cstext1.Append("        document.getElementById('" + selectedClientIDHiddenField.ClientID + "').value = ckikedRow.id; \r\n ");
+                cstext1.Append("   }  \r\n \r\n ");
+                cstext1.Append("</script>  \r\n ");
 
-    //        Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "checkAllScript" + this.ClientID, cstext2.ToString(), false);
-    //    }
-    //}
+                Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "clickGrid", cstext1.ToString(), false);
+            }
+        }
+    }
+    
+    protected void SetScrollOnGrid()
+    {
+        txtSearch.Attributes["onkeyup"] = "Search('" + txtSearch.ClientID + "', '" + this.ClientID + "customersList');";
+        customersDiv.Attributes["onscroll"] = "SetDivPosition('" + customersDiv.ClientID + "');";
+
+        txtSearch.Value = txtSearch.Value;
+        ScriptManager.RegisterStartupScript(programmaticPopup, typeof(string), "Search", "Search('" + txtSearch.ClientID + "', '" + this.ClientID + "customersList');", true);
+        ScriptManager.RegisterStartupScript(programmaticPopup, typeof(string), "Scroll", "SetLastScrollPosition('" + customersDiv.ClientID + "');", true);
+    }
 
     public void Show()
     {
+        BindDataSource();
+        SetScrollOnGrid();
         clientModalPopup.Show();
     }
 
-    //protected void okButton_Click(object sender, EventArgs e)
-    //{
-    //    int selectedClientID = 0;
-    //    int.TryParse(selectedClientIDInCSCHiddenField.Value, out selectedClientID);
+    protected void okButton_Click(object sender, EventArgs e)
+    {
+        int selectedClientID = 0;
+        int.TryParse(selectedClientIDHiddenField.Value, out selectedClientID);
 
-    //    if (selectedClientID != 0)
-    //    {
-    //        FilterWindowEventsArg args = new FilterWindowEventsArg(selectedClientID);
-    //        OnClientSelected(this, args);
-    //    }
-    //    else
-    //    { clientModalPopup.Show(); }
-    //}   
+        if (selectedClientID != 0)
+        {
+            FilterWindowEventsArg args = new FilterWindowEventsArg(selectedClientID);
+            if (OnClientSelected != null)
+                OnClientSelected(this, args);
+        }
+        else
+        { clientModalPopup.Show(); }
+    }   
 
     public class FilterWindowEventsArg : EventArgs
     {
