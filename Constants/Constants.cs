@@ -2,6 +2,8 @@
 
 public class Constants
 {
+    public const int DefaultCountry = 133;
+
     public enum ClassifierTypes
     {
         Undefined = 0,

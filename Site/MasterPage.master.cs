@@ -29,7 +29,7 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        currentNavigateMenu.InnerHtml = GenerateShortNavLinks();
+        
     }
 
     void IMasterItems.PerformPreloadActions(string currentModuleId, string pageName)
@@ -193,14 +193,21 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
             }
             else
             {
-                for (int i = foundIndex + 1; i < navLinksDT.Rows.Count; i++)
+                for (int i = foundIndex; i < navLinksDT.Rows.Count; i++)
                 {
                     navLinksDT.Rows[i].Delete();
                     navLinksDT.AcceptChanges();
                     i--;
                 }
+
+                navLinksDT.Rows.Add();
+                navLinksDT.Rows[navLinksDT.Rows.Count - 1]["linkName"] = linkName;
+                navLinksDT.Rows[navLinksDT.Rows.Count - 1]["linkURL"] = linkURL;
+                navLinksDT.Rows[navLinksDT.Rows.Count - 1]["linkID"] = linkID;
             }
         }
+
+        currentNavigateMenu.InnerHtml = GenerateShortNavLinks();
     }
     
     private string GenerateShortNavLinks()

@@ -25,7 +25,6 @@ public class DataObjects
         string mViza_Country_String = string.Empty;
         int mViza_Raion = 0;
         string mViza_Raion_String = string.Empty;
-        string mViza_UrbanRural = string.Empty;
         string mViza_Localitatea = string.Empty;
         string mViza_StradaAdresa = string.Empty;          
         string mEmail = string.Empty;
@@ -138,12 +137,6 @@ public class DataObjects
             set { mViza_Raion_String = value; }
         }
 
-        public string Viza_UrbanRural
-        {
-            get { return mViza_UrbanRural; }
-            set { mViza_UrbanRural = value; }
-        }
-
         public string Viza_Localitatea
         {
             get { return mViza_Localitatea; }
@@ -249,7 +242,6 @@ public class DataObjects
                 mViza_Country_String = clientInfoRow["viza_country_string"] != System.DBNull.Value ? (string)clientInfoRow["viza_country_string"] : string.Empty;
                 mViza_Raion = clientInfoRow["viza_raion"] != System.DBNull.Value ? (int)clientInfoRow["viza_raion"] : 0;
                 mViza_Raion_String = clientInfoRow["viza_raion_string"] != System.DBNull.Value ? (string)clientInfoRow["viza_raion_string"] : string.Empty;
-                mViza_UrbanRural = clientInfoRow["viza_urbanRural"] != System.DBNull.Value ? (string)clientInfoRow["viza_urbanRural"] : string.Empty;
                 mViza_Localitatea = clientInfoRow["viza_localitatea"] != System.DBNull.Value ? (string)clientInfoRow["viza_localitatea"] : string.Empty;
                 mViza_StradaAdresa = clientInfoRow["viza_stradaAdresa"] != System.DBNull.Value ? (string)clientInfoRow["viza_stradaAdresa"] : string.Empty;
                 mEmail = clientInfoRow["email"] != System.DBNull.Value ? (string)clientInfoRow["email"] : string.Empty;

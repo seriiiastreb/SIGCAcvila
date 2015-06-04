@@ -40,9 +40,9 @@ namespace Client
                 {
 
 
-                    string nonQuery = "INSERT INTO Client (gender,FirstName,LastName,           DateOfBirth,                                               personalID,    buletinSeria,                         dataEliberarii,                                                                                 dataExpirarii,                                                  eliberatDe,  telefonFix,  telefonMobil,   viza_country, viza_raion,  viza_urbanRural,  viza_localitatea,   viza_stradaAdresa,  email,  sortGroup)  "
+                    string nonQuery = "INSERT INTO Client (gender,FirstName,LastName,           DateOfBirth,                                               personalID,    buletinSeria,                         dataEliberarii,                                                                                 dataExpirarii,                                                  eliberatDe,  telefonFix,  telefonMobil,   viza_country, viza_raion,  viza_localitatea,   viza_stradaAdresa,  email,  sortGroup)  "
                                 + " OUTPUT INSERTED.ClientID "
-                                + " VALUES (@gender, @FirstName, @LastName, " + (clientObject.BirthDate.Equals(EmptyDate) ? "NULL" : "@DateOfBirth") + ", @personalID, @buletinSeria, " + (clientObject.DataEliberariiBuletin.Equals(EmptyDate) ? "NULL" : "@dataEliberarii") + ", " + (clientObject.DataExpirariiBuletin.Equals(EmptyDate) ? "NULL" : "@dataExpirarii") + ", @eliberatDe, @telefonFix, @telefonMobil, @viza_country, @viza_raion, @viza_urbanRural, @viza_localitatea, @viza_stradaAdresa, @email, @sortGroup ); ";
+                                + " VALUES (@gender, @FirstName, @LastName, " + (clientObject.BirthDate.Equals(EmptyDate) ? "NULL" : "@DateOfBirth") + ", @personalID, @buletinSeria, " + (clientObject.DataEliberariiBuletin.Equals(EmptyDate) ? "NULL" : "@dataEliberarii") + ", " + (clientObject.DataExpirariiBuletin.Equals(EmptyDate) ? "NULL" : "@dataExpirarii") + ", @eliberatDe, @telefonFix, @telefonMobil, @viza_country, @viza_raion,   @viza_localitatea, @viza_stradaAdresa, @email, @sortGroup ); ";
 
                     Hashtable parameters = new Hashtable();
                     parameters.Add("@FirstName", clientObject.FirstName);
@@ -58,7 +58,6 @@ namespace Client
                     parameters.Add("@telefonMobil", clientObject.TelefonMobil);
                     parameters.Add("@viza_country", clientObject.Viza_Country);
                     parameters.Add("@viza_raion", clientObject.Viza_Raion);
-                    parameters.Add("@viza_urbanRural", clientObject.Viza_UrbanRural);
                     parameters.Add("@viza_localitatea", clientObject.Viza_Localitatea);
                     parameters.Add("@viza_stradaAdresa", clientObject.Viza_StradaAdresa);                    
                     parameters.Add("@email", clientObject.Email);
@@ -106,7 +105,6 @@ namespace Client
                     + "   telefonMobil = @telefonMobil,\r\n "
                     + "   viza_country = @viza_country,\r\n "
                     + "   viza_raion = @viza_raion,\r\n "
-                    + "   viza_urbanRural = @viza_urbanRural,\r\n "
                     + "   viza_localitatea = @viza_localitatea,\r\n "
                     + "   viza_stradaAdresa = @viza_stradaAdresa,\r\n "                   
                     + "   email = @email,\r\n "
@@ -130,7 +128,6 @@ namespace Client
                     parameters.Add("@telefonMobil", clientObject.TelefonMobil);
                     parameters.Add("@viza_country", clientObject.Viza_Country);
                     parameters.Add("@viza_raion", clientObject.Viza_Raion);
-                    parameters.Add("@viza_urbanRural", clientObject.Viza_UrbanRural);
                     parameters.Add("@viza_localitatea", clientObject.Viza_Localitatea);
                     parameters.Add("@viza_stradaAdresa", clientObject.Viza_StradaAdresa);
                     parameters.Add("@email", clientObject.Email);
@@ -148,10 +145,12 @@ namespace Client
             return result;
         }
               
-        public DataTable GetClientList(int clinetCategory)
+        public DataTable GetClientList(int category, List<int> genderList)
         {
             DataTable result = new DataTable();
             mLastError = string.Empty;
+
+            string genderListSTR = Crypt.Utils.ConvertListToString(genderList);
 
             try
             {
@@ -164,8 +163,9 @@ namespace Client
                             + " , (select Name From Classifiers Where Code = SortGroup) as SortGroup_string "
                             //+ " , ( CASE WHEN (SELECT COUNT(*) FROM Loans WHERE Loans.clientID = client.ClientID) <> 0 THEN @NotAllowDelete ELSE @AllowDelete END ) as AllowDelete "
 
-                            + " FROM CLIENT"
-                            + (clinetCategory != 0 ? " WHERE sortGroup = " + clinetCategory : string.Empty)
+                            + " FROM CLIENT \r\n "
+                            + " WHERE gender in (" + genderListSTR + ") "
+                            + (category != 0 ? " AND sortGroup = " + category : string.Empty)
                             + " Order BY FirstName, LastName ";
 
                 Hashtable parameters = new Hashtable();
@@ -304,6 +304,130 @@ namespace Client
         }
  
         #endregion Client Region
+
+        #region ClilentContracts
+
+        public DataTable GetClientContractsList(int clientID)
+        {
+            DataTable result = new DataTable();
+            mLastError = string.Empty;
+
+            try
+            {
+                string query = "SELECT \r\n "
+                        + "   client_id,\r\n "
+                        + "   contract_id,\r\n "
+                        + "   contract_nr,\r\n "
+                        + "   date_from,\r\n "
+                        + "   date_to,\r\n "
+                        + "   active\r\n "
+                        + " FROM ClientContracts \r\n "
+                        + " WHERE client_id = " + clientID;
+
+                result = mDataBridge.ExecuteQuery(query);
+                mLastError = mDataBridge.LastError;
+
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+
+        public bool AddClientContract(int client_id, string contract_nr, DateTime date_from, DateTime date_to, bool active)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {            
+                string nonQuery = "INSERT INTO ClientContracts ( client_id,  contract_nr,  date_from,  date_to, active ) \r\n "
+                    + " VALUES (  @client_id,  @contract_nr,  @date_from,  " + (!date_to.Equals(EmptyDate) ? "@date_to" : "NULL") + ",  @active ); ";
+                           
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@client_id", client_id);
+                parameters.Add("@contract_nr", contract_nr);
+                parameters.Add("@date_from", date_from);
+                if (!date_to.Equals(EmptyDate)) parameters.Add("@date_to", date_to);
+                parameters.Add("@active", active);
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = mDataBridge.LastError;               
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public bool UpdateClientContract(int client_id, int contract_id, string contract_nr, DateTime date_from, DateTime date_to, bool active)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {
+                string nonQuery = "UPDATE ClientContracts SET \r\n "
+                    + " date_from = @date_from \r\n "
+                    + " , date_to = " + (!date_to.Equals(EmptyDate) ? "@date_to" : "NULL") + " \r\n "
+                    + " , active = @active \r\n "
+                    + " WHERE client_id = @client_id \r\n "
+                    + " AND contract_nr = @contract_nr ";
+                           
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@client_id", client_id);
+                parameters.Add("@contract_id", contract_id);
+                parameters.Add("@contract_nr", contract_nr);
+                parameters.Add("@date_from", date_from);
+                if (!date_to.Equals(EmptyDate)) parameters.Add("@date_to", date_to);
+                parameters.Add("@active", active);
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = mDataBridge.LastError;               
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public bool DeleteClientContract(int client_id, int contract_id)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {
+                string nonQuery = "DELETE FROM ClientContracts  WHERE client_id = @client_id AND contract_id = @contract_id ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@client_id", client_id);
+                parameters.Add("@contract_id", contract_id);
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+
+        #endregion ClilentContracts
+
+        #region Customers Orders
+
+        #endregion Customers Orders
     }
 
     namespace Domains

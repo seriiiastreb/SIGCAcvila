@@ -1,0 +1,74 @@
+
+/*  AJAX TAB - PANEL */
+
+.ajax__myTab .ajax__tab_header 
+{  
+    /*font-family: verdana,tahoma,helvetica;  
+    font-size: 20px; */
+    background-color:#333;
+    text-transform:uppercase;
+}  
+  
+.ajax__myTab .ajax__tab_outer 
+{ 
+
+}  
+  
+.ajax__myTab .ajax__tab_inner { }  
+  
+.ajax__myTab .ajax__tab_tab   
+{
+    overflow: inherit !important; 
+    height: 20px;
+    min-width:100px;
+    font-size:13px;    
+    color:White;
+    padding-top:5px;
+    padding-right:5px;
+    padding-left:5px;
+}  
+    
+.ajax__myTab .ajax__tab_hover .ajax__tab_outer { }  
+  
+.ajax__myTab .ajax__tab_hover .ajax__tab_inner { }
+  
+.ajax__myTab .ajax__tab_hover .ajax__tab_tab { }
+  
+.ajax__myTab .ajax__tab_active .ajax__tab_outer   
+{
+    height:20px;   
+}  
+  
+:focus 
+{ 
+    outline: 0; 
+}
+  
+.ajax__myTab .ajax__tab_active .ajax__tab_inner { }  
+  
+.ajax__myTab .ajax__tab_active .ajax__tab_tab   
+{
+    background-color:White;
+    color:Black;
+    border: 0;
+    margin-top: 1px;
+   /* -webkit-border-top-left-radius: 7px;
+    -webkit-border-top-right-radius: 7px;
+    -moz-border-radius-topleft: 7px;
+    -moz-border-radius-topright: 7px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px; */
+    border-left: 1px solid #333;
+    border-right: 1px solid #333;
+}  
+  
+.ajax__myTab .ajax__tab_body {  
+    font-family: verdana,tahoma,helvetica;  
+    font-size: 9pt;  
+    border: 1px solid #999999; 
+    border-top:0; 
+    background-color:White;
+    padding-left:5px;
+    padding-right:5px;
+    padding-top:10px;
+}

@@ -19,6 +19,7 @@ public partial class Customers : System.Web.UI.Page
         set { Session[Utils.SessionKey_ClientObject] = value; }
     }
 
+    string appPath = string.Empty;
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -29,20 +30,93 @@ public partial class Customers : System.Web.UI.Page
 
         try
         {
+            appPath = Utils.GetApplicationPath(Request); 
 
             if (allowView)
             {
                 if (!IsPostBack)
                 {
-                    Utils.GetMaster(this).AddNavlink("Customers", "../ModuleCustomers/Customers.aspx", "ClientsPageID");
+                    Utils.GetMaster(this).AddNavlink("Customers", appPath+  "/ModuleCustomers/Customers.aspx", "ClientsPageID");
 
                     newClientSimple_BirthDateCalendarExtender.Format = Constants.ISODateBackwardDotsFormat;
+                    clientContractDateFromCalendareExtender.Format = Constants.ISODateBackwardDotsFormat;
+                    clientContractDateToCalendareExtender.Format = Constants.ISODateBackwardDotsFormat;
 
                     FillAllComboBox();
                     ShowPanel(clientSelectionPanel.ID);
                 }
                 else
                 {
+                    string eventSource = Request.Params.Get("__EVENTTARGET");
+                    string action = Request.Params.Get("__EVENTARGUMENT");
+
+                    int selectedIndexInContractsGridView = 0;
+                    int.TryParse(clientContracts_SelectedIndex_HiddenValue.Value, out selectedIndexInContractsGridView);
+                    if (!clientContracts_SelectedIndex_HiddenValue.Value.Equals(string.Empty)) clientContractsGridView.SelectedIndex = selectedIndexInContractsGridView;
+                            
+                    switch (eventSource)
+                    {
+
+                        case "clientContractsGridClik":
+
+                            #region Domains Grid Events
+
+                            switch (action.ToLower())
+                            {
+                                case "add":
+                                    {
+                                        ClearContractForm();
+                                        clientContractPopupExtender.Show();
+                                    }
+                                    break;
+
+                                case "edit":
+                                    ClearContractForm();
+
+                                    clientContractActionHiddenField.Value = Crypt.Module.CreateEncodedString("Edit");
+                                    contractSelectedContractIDHiddenField.Value = clientContractsGridView.Rows[selectedIndexInContractsGridView].Cells[1].Text.Replace("&nbsp;", "");
+                                    clientContractNrTextBox.Text = clientContractsGridView.Rows[selectedIndexInContractsGridView].Cells[2].Text.Replace("&nbsp;", "");
+
+                                    Label dateFromLabel = (Label)clientContractsGridView.Rows[selectedIndexInContractsGridView].Cells[3].FindControl("dateFromLabel");
+                                    clientContractDateFromTextBox.Text = dateFromLabel != null ? dateFromLabel.Text : string.Empty;
+
+                                    Label dateToLabel = (Label)clientContractsGridView.Rows[selectedIndexInContractsGridView].Cells[4].FindControl("dateToLabel");
+                                    clientContractDateToTextBox.Text = dateToLabel != null ? dateToLabel.Text : string.Empty;
+
+                                    clientContractActiveCheckBox.Checked = clientContractsGridView.Rows[selectedIndexInContractsGridView].Cells[5].Text.Replace("&nbsp;", "").ToLower().Equals("true");
+
+                                    clientContractPopupExtender.Show();
+                                    break;
+
+                                case "delete":
+                                    if (allowEdit)
+                                    {
+                                        string contractIDSTR = clientContractsGridView.Rows[selectedIndexInContractsGridView].Cells[1].Text.Replace("&nbsp;", "");
+
+                                        int clinetIDInt = this.ClientObject.ClientID;
+
+                                        int contractIDInt = 0;
+                                        int.TryParse(contractIDSTR, out contractIDInt);
+
+                                        if (Utils.ModuleCustomers().DeleteClientContract(clinetIDInt, contractIDInt))
+                                        {
+                                            FIllContractsGridView();
+                                        }
+                                        else
+                                        {
+                                            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Error deleting record.", "Selected contract not deleted. Try again later! " + (Utils.UserObject().IsSysadmin ? Utils.ModuleSecurity().LastError : string.Empty));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
+                                    }
+                                    break;
+                            }
+                            #endregion Domains Grid Events
+
+                            break;
+                    }
                 }
             }
             else
@@ -91,15 +165,48 @@ public partial class Customers : System.Web.UI.Page
     {
         DataTable gendersList = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.GenderList);
         Utils.FillSelector(newClientGenderListDDL, gendersList, "Name", "Code");
+        Utils.FillSelector(clientPersDataGenderListDDL, gendersList, "Name", "Code");
+
+        DataTable countryList = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.CountryList);
+        Utils.FillSelector(vizaClientAddressCountryDDL, countryList, "Name", "Code");
+
+        try
+        {
+            vizaClientAddressCountryDDL.SelectedValue = Constants.DefaultCountry.ToString();
+            FillVizaRaionDDDL();
+        }
+        catch
+        { }
     }
 
+    private void FillVizaRaionDDDL()
+    {
+        if (vizaClientAddressCountryDDL.SelectedValue != null && !vizaClientAddressCountryDDL.SelectedValue.ToString().Equals(string.Empty))
+        {
+            int countruCOde = 0;
+            int.TryParse(vizaClientAddressCountryDDL.SelectedValue.ToString(), out countruCOde);
+
+            DataTable b_provinceList = Utils.ModuleMain().GetProvinceListByCountry(countruCOde);
+            Utils.FillSelector(vizaClientAddressClientRaionDDL, b_provinceList, "Name", "Code");
+        }
+    }
 
     #region ClientSelection Region
-    
+
+    protected void juridicPersonRadioButton_CheckedChanged(object sender, EventArgs e)
+    {
+        FillClientSelectionGrid();
+    }
+
     private void FillClientSelectionGrid()
     {
         int category = 0;
-        DataTable clientsList = Utils.ModuleCustomers().GetClientList(category);
+
+        List<int> juridicPerson = new List<int>(new int[] {(int)Constants.Classifiers.Gender_JuridicPerson});
+        List<int> fizicPerson = new List<int>(new int[] {(int)Constants.Classifiers.Gender_Female, (int)Constants.Classifiers.Gender_Male});
+
+        List<int> genderList = juridicPersonRadioButton.Checked ? juridicPerson : fizicPerson;
+        DataTable clientsList = Utils.ModuleCustomers().GetClientList(category, genderList);
         clientListGridView.DataSource = clientsList;
         clientListGridView.DataBind();
     }
@@ -120,7 +227,7 @@ public partial class Customers : System.Web.UI.Page
 
                 ShowPanel(clientWorkPanel.ID);
 
-                Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName, "../ModuleCredits/Clients.aspx?clid=" + clientID, "clientID");
+                Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName,  appPath + "/ModuleCustomers/Customers.aspx?clid=" + clientID, "clientID");
             }
         }
     }
@@ -249,6 +356,49 @@ public partial class Customers : System.Web.UI.Page
 
     protected void FillClientAllForms(DataObjects.Client clientObject)
     {
+        #region GeneralTab
+        string htmlTags_GeneralInfo = string.Empty;
+
+        if (clientObject.Gender == (int)Constants.Classifiers.Gender_Male || clientObject.Gender == (int)Constants.Classifiers.Gender_Female)
+        {
+            htmlTags_GeneralInfo += "<ul class=\"section menu\"> \r\n ";
+            htmlTags_GeneralInfo += "   <li> \r\n ";
+            htmlTags_GeneralInfo += "       <a class=\"menuitem current\">Personal Info</a>  \r\n  ";
+            htmlTags_GeneralInfo += "           <ul class=\"submenu current\" style=\"padding-top: 0px; border-top-style: none; padding-bottom: 0px; border-bottom-style: none; overflow: hidden; height: 125px;\"> \r\n ";
+            htmlTags_GeneralInfo += "               <li> <a style=\"margin-left: -25px;\">First Name: " + clientObject.FirstName + " </a>	</li> \r\n ";
+            htmlTags_GeneralInfo += "               <li> <a style=\"margin-left: -25px;\">Last Name: " + clientObject.LastName + " </a>	</li> \r\n ";
+            htmlTags_GeneralInfo += "               <li> <a style=\"margin-left: -25px;\">Birth Date: " + clientObject.BirthDate.ToString(Constants.ISODateBackwardDotsFormat) + " </a>	</li> \r\n ";
+            htmlTags_GeneralInfo += "               <li> <a style=\"margin-left: -25px;\">Personal ID: " + clientObject.PersonalID + " </a>	</li> \r\n ";
+            htmlTags_GeneralInfo += "               <li> <a style=\"margin-left: -25px;\">Telefon Fix: " + clientObject.TelefonFix + " </a>	</li> \r\n ";
+            htmlTags_GeneralInfo += "               <li> <a style=\"margin-left: -25px;\">Telefon Mobil: " + clientObject.TelefonMobil + " </a>	</li> \r\n ";
+            htmlTags_GeneralInfo += "               <li> <a style=\"margin-left: -25px;\">Email: " + clientObject.Email + " </a>	</li> \r\n ";
+            htmlTags_GeneralInfo += "           </ul> \r\n ";
+            htmlTags_GeneralInfo += "   </li>  \r\n ";
+            htmlTags_GeneralInfo += "</ul> \r\n ";
+        }
+        else
+        {
+            htmlTags_GeneralInfo += "<ul class=\"section menu\"> \r\n ";
+            htmlTags_GeneralInfo += "   <li> \r\n ";
+            htmlTags_GeneralInfo += "       <a class=\"menuitem current\">Personal Info</a>  \r\n  ";
+            htmlTags_GeneralInfo += "           <ul class=\"submenu current\" style=\"padding-top: 0px; border-top-style: none; padding-bottom: 0px; border-bottom-style: none; overflow: hidden; height: 125px;\"> \r\n ";
+            htmlTags_GeneralInfo += "               <li> <a style=\"margin-left: -25px;\">Legal Entity Name: " + clientObject.FirstName + " </a>	</li> \r\n ";
+            htmlTags_GeneralInfo += "               <li> <a style=\"margin-left: -25px;\">Registration Number: " + clientObject.PersonalID + " </a>	</li> \r\n ";
+            htmlTags_GeneralInfo += "               <li> <a style=\"margin-left: -25px;\">Contact person: " + clientObject.LastName + " </a>	</li> \r\n ";
+            htmlTags_GeneralInfo += "               <li> <a style=\"margin-left: -25px;\">Telefon Fix: " + clientObject.TelefonFix + " </a>	</li> \r\n ";
+            htmlTags_GeneralInfo += "               <li> <a style=\"margin-left: -25px;\">Telefon Mobil: " + clientObject.TelefonMobil + " </a>	</li> \r\n ";
+            htmlTags_GeneralInfo += "               <li> <a style=\"margin-left: -25px;\">Email: " + clientObject.Email + " </a>	</li> \r\n ";
+            htmlTags_GeneralInfo += "       </ul> \r\n ";
+            htmlTags_GeneralInfo += "   </li>  \r\n ";
+            htmlTags_GeneralInfo += "</ul> \r\n ";
+        }
+
+        generalInfo_personal.InnerHtml = htmlTags_GeneralInfo;
+
+        #endregion GeneralTab
+
+        #region PersonalData
+
         clientPersonalDataSimplePanel.Visible = false;
         clientPersonalDataJuridicPanel.Visible = false;
 
@@ -284,6 +434,28 @@ public partial class Customers : System.Web.UI.Page
             clientPersData_juridTelefonMobilTextBox.Text = clientObject.TelefonMobil;
             clientPersData_juridEmailTextBox.Text = clientObject.Email;
         }
+        
+        #endregion PersonalData
+        #region Address
+
+        try
+        {
+            vizaClientAddressCountryDDL.SelectedValue = clientObject.Viza_Country.ToString();
+            FillVizaRaionDDDL();
+        }  catch    { }
+
+        try
+        {
+            vizaClientAddressClientRaionDDL.SelectedValue = clientObject.Viza_Raion.ToString();
+
+        } catch  { }
+
+        vizaClientAddressLocalitateaTextBox.Text = clientObject.Viza_Localitatea;
+        vizaClientAddressAdresaTextBox.Text = clientObject.Viza_Localitatea;
+
+        #endregion Address
+
+        FIllContractsGridView();
     }
 
     protected void clientPersDataGenderList_SelectedIndexChanged(object sender, EventArgs e)
@@ -296,8 +468,7 @@ public partial class Customers : System.Web.UI.Page
 
     protected void ClearPersonalDataClientForm(int gender)
     {
-        newCleint_simplePersonPanel.Visible = false;
-        newCleint_juridPersonPanel.Visible = false;
+        #region Personal Data
 
         clientPersonalDataSimplePanel.Visible = false;
         clientPersonalDataJuridicPanel.Visible = false;
@@ -334,6 +505,28 @@ public partial class Customers : System.Web.UI.Page
             clientPersData_juridTelefonMobilTextBox.Text = string.Empty;
             clientPersData_juridEmailTextBox.Text = string.Empty;
         }
+
+        #endregion
+
+
+        #region Address
+        try
+        {
+            vizaClientAddressCountryDDL.SelectedValue = Constants.DefaultCountry.ToString();
+            FillVizaRaionDDDL();
+            vizaClientAddressClientRaionDDL.SelectedIndex = -1;
+        }
+        catch
+        { }
+
+        vizaClientAddressLocalitateaTextBox.Text = string.Empty;
+        vizaClientAddressAdresaTextBox.Text = string.Empty;
+
+        #endregion
+    }
+    protected void vizaClientCountryDDL_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        FillVizaRaionDDDL();
     }
 
     protected void clientPersDataSaveBurtton_Click(object sender, EventArgs e)
@@ -370,10 +563,21 @@ public partial class Customers : System.Web.UI.Page
                 clientObject.Email = clientPersData_juridEmailTextBox.Text.Trim();
             }
 
+            int country=0;
+            int.TryParse(vizaClientAddressCountryDDL.SelectedValue, out country);
+            clientObject.Viza_Country = country;
+
+            int raion=0;
+            int.TryParse(vizaClientAddressClientRaionDDL.SelectedValue, out raion);
+            clientObject.Viza_Raion = raion;
+
+            clientObject.Viza_Localitatea = vizaClientAddressLocalitateaTextBox.Text.Trim();
+            clientObject.Viza_StradaAdresa = vizaClientAddressAdresaTextBox.Text.Trim();
+
             if (Utils.ModuleCustomers().UpdateClient(clientObject))
             {
                 this.ClientObject = clientObject;
-                //ShowPanel(clientWorkPanel.ID);
+                Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + clientObject.ClientID, "clientID");
             }
         }
         else
@@ -385,7 +589,94 @@ public partial class Customers : System.Web.UI.Page
     #endregion Customers
 
 
+    #region ClientContracts
 
 
-   
+
+    protected void FIllContractsGridView()
+    {
+        DataObjects.Client client = this.ClientObject;
+
+        DataTable contracts  = null;
+
+        if(client != null)
+            contracts = Utils.ModuleCustomers().GetClientContractsList(client.ClientID);
+
+        clientContractsGridView.DataSource = contracts;
+        clientContractsGridView.DataBind();
+    }
+
+
+    protected void ClearContractForm()
+    {
+        clientContractActionHiddenField.Value = Crypt.Module.CreateEncodedString("New");
+        contractSelectedContractIDHiddenField.Value = string.Empty;
+        clientContractNrTextBox.Text = string.Empty;
+        clientContractDateFromTextBox.Text = string.Empty;
+        clientContractDateToTextBox.Text = string.Empty;
+        clientContractActiveCheckBox.Checked = false;
+    }
+
+    protected void clientContractSaveButton_Click(object sender, EventArgs e)
+    {
+        if (allowEdit)
+        {
+            string usersAction = Crypt.Module.DecodeCriptedString(clientContractActionHiddenField.Value);
+            bool actionResult = false;
+
+            int clientID = this.ClientObject.ClientID;
+
+            int contractID = 0;
+            if (usersAction.Equals("Edit")) int.TryParse(contractSelectedContractIDHiddenField.Value, out contractID);
+            
+            string nr = clientContractNrTextBox.Text;
+            DateTime dateFrom = Crypt.Utils.ToDateTime(clientContractDateFromTextBox.Text, Constants.ISODateBackwardDotsFormat);
+            DateTime dateTo = Crypt.Utils.ToDateTime(clientContractDateToTextBox.Text, Constants.ISODateBackwardDotsFormat);
+
+            bool isActive = clientContractActiveCheckBox.Checked;
+
+            if (usersAction.Equals("New"))
+            {
+                actionResult = Utils.ModuleCustomers().AddClientContract(clientID, nr, dateFrom, dateTo, isActive);
+            }
+            else
+            {
+                actionResult = Utils.ModuleCustomers().UpdateClientContract(clientID, contractID, nr, dateFrom, dateTo, isActive);
+            }
+
+            if (actionResult)
+            {
+                ClearContractForm();
+                FIllContractsGridView();
+                clientContractPopupExtender.Hide();
+            }
+            else
+            {
+                clientContractPopupExtender.Show();
+                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Attention", "Unable to save contract, try again later. " + (Utils.UserObject().IsSysadmin ? Utils.ModuleSecurity().LastError : string.Empty));
+            }
+        }
+        else
+        {
+            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
+        }            
+    }
+
+
+    protected void clientContractsGridView_RowCreated(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.Header)
+        { e.Row.TableSection = TableRowSection.TableHeader; }
+
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
+            e.Row.Attributes["onmouseout"] = "this.style.textDecoration='none';";
+        }
+    }
+
+    #endregion ClientContracts
+
+
+
 }

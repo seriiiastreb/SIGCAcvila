@@ -142,6 +142,7 @@ public partial class Login : System.Web.UI.Page
         if (allowCustomersModule)
         {
             modulesMenu += " <li> <a href=\"" + appPath + "/ModuleCustomers/Customers.aspx\">  <img id=\"Img3\" width=\"24\" height=\"24\" alt=\"Customers page\" title=\"Customers page\" src=\"" + appPath + "/Images/man.png\" style=\" cursor:pointer; \"> </a> </li>\r\n ";
+            modulesMenu += " <li> <a href=\"" + appPath + "/ModuleCustomers/Orders.aspx\">  <img id=\"Img3\" width=\"24\" height=\"24\" alt=\"Customer orders page\" title=\"Customer orders page\" src=\"" + appPath + "/Images/order.png\" style=\" cursor:pointer; \"> </a> </li>\r\n ";
         }
 
         if (allowBasicAdministration)

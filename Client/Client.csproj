@@ -45,6 +45,10 @@
       <Project>{78862D13-BE13-4718-9D99-EAEFE1678706}</Project>
       <Name>Config</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Crypt\Crypt.csproj">
+      <Project>{8D6A12A0-4A29-4E79-96CF-20F6D08755F8}</Project>
+      <Name>Crypt</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{F34E2C98-4DF3-4162-9A6C-E4DA530839FD}</Project>
       <Name>DAL</Name>

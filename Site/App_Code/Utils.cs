@@ -350,37 +350,27 @@ public class Utils
     }
     #endregion Email	
 
-    public static void FillSelector(DropDownList destinationDDl, DataTable inputTable, string displayTextField, string valueField)
+    public static void FillSelector(DropDownList destinationSelector, DataTable sourceTable, string dataTextField, string dataValueField)
     {
-        try
+        if (destinationSelector != null)
         {
-            if (inputTable == null)
+            destinationSelector.ClearSelection();
+            destinationSelector.DataSource = null;
+            destinationSelector.DataBind();
+            if (sourceTable != null
+                && sourceTable.Columns.Contains(dataTextField)
+                && sourceTable.Columns.Contains(dataValueField))
             {
-                inputTable = new DataTable();
-                inputTable.Columns.Add(valueField, typeof(string));
-                inputTable.Columns.Add(displayTextField, typeof(string));
-
-                inputTable.NewRow();
-                inputTable.Rows.Add();
-                inputTable.Rows[0][valueField] = "0";
-                inputTable.Rows[0][displayTextField] = "**";
-            }
-
-            if (destinationDDl != null && inputTable != null)
-            {
-                inputTable.Rows.InsertAt(inputTable.NewRow(), 0);
-                inputTable.Rows[0][valueField] = "0";
-                inputTable.Rows[0][displayTextField] = "**";
-                inputTable.AcceptChanges();
-
-                destinationDDl.DataSource = null;
-                destinationDDl.DataSource = inputTable;
-                destinationDDl.DataValueField = valueField;
-                destinationDDl.DataTextField = displayTextField;
-                destinationDDl.DataBind();
+                destinationSelector.DataSource = sourceTable;
+                destinationSelector.DataValueField = dataValueField;
+                destinationSelector.DataTextField = dataTextField;
+                destinationSelector.DataBind();
+                if (sourceTable != null && sourceTable.Rows.Count > 0)
+                {
+                    destinationSelector.SelectedIndex = 0;
+                }
             }
         }
-        catch { }
     }
     
     public static string GetApplicationPath(HttpRequest Request)
