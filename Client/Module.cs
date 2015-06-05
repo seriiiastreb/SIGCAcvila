@@ -571,7 +571,7 @@ namespace Client
             return resultObject;
         }
              
-        public bool AddClientOrder(DataObjects.Order orderObject)
+        public bool AddClientOrder(ref DataObjects.Order orderObject)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
@@ -581,6 +581,7 @@ namespace Client
                 if (orderObject != null)
                 {
                     string nonQuery = "INSERT INTO ClientOrders(state,date,client_id,nr,articol,desen,tip,colorit,latime,lungime,metraj,bucati,festonare,ean13) \r\n"
+                                    + " OUTPUT INSERTED.order_id "
                                     + " VALUES (@state,@date,@client_id,@nr,@articol,@desen,@tip,@colorit,@latime,@lungime,@metraj,@bucati,@festonare,@ean13); ";
 
                     Hashtable parameters = new Hashtable();
@@ -599,8 +600,14 @@ namespace Client
                     parameters.Add("@festonare", orderObject.Festonare);
                     parameters.Add("@ean13", orderObject.EAN13);
 
-                    result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                    object insertedID = mDataBridge.ExecuteScalarQuery(nonQuery, parameters); // PG compliant
                     mLastError = mDataBridge.LastError;
+
+                    if (insertedID != null && !insertedID.ToString().Equals(string.Empty))
+                    {
+                        orderObject.Order_ID = (int)insertedID;
+                        result = true;
+                    }
                 }
             }
             catch (Exception exception)

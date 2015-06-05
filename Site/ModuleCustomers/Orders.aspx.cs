@@ -85,6 +85,7 @@ public partial class Orders : System.Web.UI.Page
                         }
                         else
                         {
+                            ClearNewOrderForm();
                             newOrderPopupExtender.Show();
                         }
                     }
@@ -250,7 +251,7 @@ public partial class Orders : System.Web.UI.Page
                 int.TryParse(newOrderBucatiTextBox.Text, out bucati);
                 orderObject.Bucati = bucati;              
 
-                if (resultAction = Utils.ModuleCustomers().AddClientOrder(orderObject))
+                if (resultAction = Utils.ModuleCustomers().AddClientOrder(ref orderObject))
                 {
                     FIllOrdersGridView();
                  
@@ -264,7 +265,9 @@ public partial class Orders : System.Web.UI.Page
                     }
 
                     Utils.GetMaster(this).AddNavlink(this.ClientObject.FirstName + " " + this.ClientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + this.ClientObject.ClientID, Utils.Customer_HotNavogateKey);
-                    Utils.GetMaster(this).AddNavlink("Order Nr:" + orderObject.Nr, appPath + "/ModuleCustomers/Orders.aspx?ord=" + orderObject.Order_ID, Utils.Orders_HotNavogateKey);             
+                    Utils.GetMaster(this).AddNavlink("Order Nr:" + orderObject.Nr, appPath + "/ModuleCustomers/Orders.aspx?ord=" + orderObject.Order_ID, Utils.Orders_HotNavogateKey);
+
+                    FillMainordersForm(orderObject);
                 }
                 else
                 {
@@ -397,7 +400,7 @@ public partial class Orders : System.Web.UI.Page
 
                 if (orderObject.Order_ID == 0)
                 {
-                    resultAction = Utils.ModuleCustomers().AddClientOrder(orderObject);
+                    resultAction = Utils.ModuleCustomers().AddClientOrder(ref orderObject);
                 }
                 else
                 {

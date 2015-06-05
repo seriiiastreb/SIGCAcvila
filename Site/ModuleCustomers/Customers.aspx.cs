@@ -413,8 +413,6 @@ public partial class Customers : System.Web.UI.Page
 
         #region ActiveOrders
 
-        newOrderButton.OnClientClick = "DoNav('" + appPath + "/ModuleCustomers/Orders.aspx?ord=n'); ";
-
         List<int> orderStates = new List<int>();
         orderStates.Add((int)Constants.Classifiers.OrderState_Solicitat);
         orderStates.Add((int)Constants.Classifiers.OrderState_Confirmat);
@@ -718,5 +716,9 @@ public partial class Customers : System.Web.UI.Page
 
     #endregion ClientContracts
 
-  
+
+    protected void newOrderButton_Click(object sender, ImageClickEventArgs e)
+    {
+        Response.Redirect(appPath + "/ModuleCustomers/Orders.aspx?ord=n");        
+    }
 }

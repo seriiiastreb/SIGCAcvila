@@ -158,25 +158,32 @@
 
                     <div style="float:left; width:74%;"> 
                         <div class="grid_6 box">
-                            <h2> Active Orders <asp:ImageButton ID="newOrderButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Add new Order" ImageUrl="../images/plus.png"  runat="server" AlternateText="Add new order" /></h2>
+                            <h2> Active Orders <asp:ImageButton ID="newOrderButton" BorderWidth="0px" 
+                                    ImageAlign="AbsMiddle" Width="16px" ToolTip="Add new Order" 
+                                    ImageUrl="../images/plus.png"  runat="server" AlternateText="Add new order" 
+                                    onclick="newOrderButton_Click" /></h2>
                                 
                             <asp:GridView ID="clientActiveOrdersGridView" runat="server" 
-                                AutoGenerateColumns="false"
-                                AlternatingRowStyle-CssClass="odd"
-                                OnRowDataBound="clientActiveOrdersGridView_RowDataBound"
-                                AllowPaging="false"  
-                                SelectedRowStyle-CssClass = "selectedRow" >
+                                AutoGenerateColumns="False"
+                                OnRowDataBound="clientActiveOrdersGridView_RowDataBound" >
+                                   <AlternatingRowStyle CssClass="odd" />
                                    <Columns>
-                                        <asp:BoundField DataField="order_id" HeaderText="OrderID" ItemStyle-CssClass="hidden" HeaderStyle-CssClass="hidden" />
-                                        <asp:BoundField DataField="state_name" HeaderText="State" />
-                                        <asp:TemplateField HeaderText="Date">
-                                            <ItemTemplate>
-                                                <asp:Label ID="dateLabel" Width="100px" runat="server" Text='<%# ((Eval("date") != null && Eval("date") is DateTime) ?  ((DateTime)Eval("date")).ToString(Constants.ISODateBackwardDotsFormat) : "") %>'></asp:Label>
-                                            </ItemTemplate>
-                                        </asp:TemplateField>  
-                                        <asp:BoundField DataField="metraj" HeaderText="Metraj" />
-                                        <asp:BoundField DataField="bucati" HeaderText="Bucati"  />                                                 
-                                    </Columns>
+                                       <asp:BoundField DataField="order_id" HeaderText="OrderID">
+                                       <HeaderStyle CssClass="hidden" />
+                                       <ItemStyle CssClass="hidden" />
+                                       </asp:BoundField>
+                                       <asp:BoundField DataField="state_name" HeaderText="State" />
+                                       <asp:TemplateField HeaderText="Date">
+                                           <ItemTemplate>
+                                               <asp:Label ID="dateLabel" runat="server" 
+                                                   Text='<%# ((Eval("date") != null && Eval("date") is DateTime) ?  ((DateTime)Eval("date")).ToString(Constants.ISODateBackwardDotsFormat) : "") %>' 
+                                                   Width="100px"></asp:Label>
+                                           </ItemTemplate>
+                                       </asp:TemplateField>
+                                       <asp:BoundField DataField="metraj" HeaderText="Metraj" />
+                                       <asp:BoundField DataField="bucati" HeaderText="Bucati" />
+                                   </Columns>
+                                   <SelectedRowStyle CssClass="selectedRow" />
                             </asp:GridView>
 
                         </div>
