@@ -17,8 +17,8 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
     {
         Utils.GetMaster(this).PerformPreloadActions(mCurrentModule, mPageName);
 
-        allowEdit = Utils.PermissionAllowed(mCurrentModule, Security.Domains.Administration.Name, Constants.Classifiers.Permissions_Edit);
-        allowView = Utils.PermissionAllowed(mCurrentModule, Security.Domains.Administration.Name, Constants.Classifiers.Permissions_View);
+        allowEdit = Utils.PermissionAllowed(mCurrentModule, Security.Domains.SecurityAdministration.Name, Constants.Classifiers.Permissions_Edit);
+        allowView = Utils.PermissionAllowed(mCurrentModule, Security.Domains.SecurityAdministration.Name, Constants.Classifiers.Permissions_View);
 
         try
         {
@@ -656,6 +656,7 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
             {
                 Security.MainModule.Register();
                 Security.Module.Register();
+                Client.Module.Register();
 
                 FillModulesComboBox();
                 FillDomainsDDL();

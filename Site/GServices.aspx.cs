@@ -35,19 +35,18 @@ public partial class GServices : System.Web.UI.Page
     {
         string result = String.Empty;
 
-        bool allowHere = Utils.PermissionAllowed(Client.Module.ID, Client.Domains.ClientsInputData.Name, Constants.Classifiers.Permissions_View);
+        bool allowHere = Utils.PermissionAllowed(Client.Module.ID, Client.Domains.CustomersPersonalData.Name, Constants.Classifiers.Permissions_View);
 
         if (IsAutentificatedUser() && allowHere)
         {
             List<int> genderList = new List<int>();
             if (juridicPerson)
             {
-                genderList.Add((int)Constants.Classifiers.Gender_JuridicPerson);
+                genderList.Add((int)Constants.Classifiers.ClientType_PersoanaJuridica);
             }
             else
             {
-                genderList.Add((int)Constants.Classifiers.Gender_Female);
-                genderList.Add((int)Constants.Classifiers.Gender_Male);
+                genderList.Add((int)Constants.Classifiers.ClientType_PersoanaFizica);
             }
 
             DataTable clientdt = Utils.ModuleCustomers().GetClientList(category, genderList);

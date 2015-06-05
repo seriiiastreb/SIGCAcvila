@@ -8,8 +8,8 @@ namespace Security
 {
     public class Module
     {
-        public const string ID = "Main Security Module";
-        public const string Description = "Creating And Processing Security Functions";
+        public const string ID = "Module Security";
+        public const string Description = "Creating And Processing Security Functions (Users and Groups)";
         public static readonly string DBConnectionsStringKey = "mainDBConnectionString";
         public static DataBridge DataBridge = new DataBridge(ConfigManager.GetDbConnectionString(Module.DBConnectionsStringKey), ConfigManager.GetProviderName(Module.DBConnectionsStringKey));
 
@@ -24,7 +24,7 @@ namespace Security
         public static void Register()
         {
             Registrar.RegisterModule(ID, Description);
-            Domains.Administration.Register();
+            Domains.SecurityAdministration.Register();
         }
 
         public Module()
@@ -242,8 +242,7 @@ namespace Security
 
             return permissions;
         }
-
-
+        
         public bool UpdatePermissions(string moduleID, string roleID, string domainID, int permission)
         {
             bool result = false;
@@ -572,10 +571,10 @@ namespace Security
         /// <summary>
         /// Default domain. Calculations.
         /// </summary>
-        public class Administration
+        public class SecurityAdministration
         {
-            public static readonly string Name = "Administration";
-            public static readonly string Description = "Administration";
+            public static readonly string Name = "Security Administration";
+            public static readonly string Description = "Security Administration";
 
             public static void Register()
             {

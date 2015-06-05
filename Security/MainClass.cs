@@ -8,8 +8,8 @@ namespace Security
 {
     public class MainModule
     {
-        public const string ID = "Main Module";
-        public const string Description = "Basic data operation (Main Module)";
+        public const string ID = "Module Main";
+        public const string Description = "Basic data operation (Classifiers)";
         public static readonly string DBConnectionsStringKey = "mainDBConnectionString";
         private static readonly string TempDirectoryKey = "TempDirectory";
         public static DataBridge DataBridge = new DataBridge(ConfigManager.GetDbConnectionString(Module.DBConnectionsStringKey), ConfigManager.GetProviderName(Module.DBConnectionsStringKey));
@@ -665,8 +665,8 @@ namespace Security
         /// </summary>
         public class BasicProgramAdministration
         {
-            public static readonly string Name = "Basic Program Administration";
-            public static readonly string Description = "Allow View/Edit Basic Data";
+            public static readonly string Name = "Basic Program Administration ";
+            public static readonly string Description = "Allow View/Edit Basic Data (Classifiers)";
 
             public static void Register()
             {

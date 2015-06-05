@@ -10,11 +10,12 @@ public class Constants
         SystemRoleType = 1,
         PasswordStatus = 2,
         CountryList = 3,
-        GenderList = 4,
+        ClientType_Juridic_Fizic = 4,
         LanguageList = 5,
         SystemUserRecordStatus = 6,
         Province = 7,
         Permissions = 37,
+        OrderSate = 52,
     }
 
     public enum Classifiers
@@ -34,10 +35,13 @@ public class Constants
         Permissions_Edit = 268,
         Permissions_Deny = 269,
 
-        Gender_Male = 208,
-        Gender_Female = 209,
-        Gender_JuridicPerson = 270,
+        ClientType_PersoanaFizica = 209,
+        ClientType_PersoanaJuridica = 270,
 
+        OrderState_Solicitat = 281,
+        OrderState_Confirmat = 282,
+        OrderState_Executat = 283,
+        OrderState_Anulat = 284,
     }
 
     public enum NumberWordMode

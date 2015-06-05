@@ -45,6 +45,10 @@
       <Project>{78862D13-BE13-4718-9D99-EAEFE1678706}</Project>
       <Name>Config</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Constants\Constants.csproj">
+      <Project>{77D06797-37B9-4BAD-81EA-B448A8051784}</Project>
+      <Name>Constants</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Crypt\Crypt.csproj">
       <Project>{8D6A12A0-4A29-4E79-96CF-20F6D08755F8}</Project>
       <Name>Crypt</Name>
@@ -52,6 +56,10 @@
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{F34E2C98-4DF3-4162-9A6C-E4DA530839FD}</Project>
       <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Security\Security.csproj">
+      <Project>{3D672E38-C0DB-4E51-934D-086373A7A925}</Project>
+      <Name>Security</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

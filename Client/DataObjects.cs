@@ -260,5 +260,202 @@ public class DataObjects
 
     }
 
+
+    [Serializable]
+    public class Order
+    {
+        int mOrder_ID = 0;
+        public int Order_ID
+        {
+            get { return mOrder_ID; }
+            set { mOrder_ID = value; }
+        }
+
+        int mState = 0;
+        public int State
+        {
+            get { return mState; }
+            set { mState = value; }
+        }
+
+        string mState_Name = string.Empty;
+        public string State_Name
+        {
+            get { return mState_Name; }
+            set { mState_Name = value; }
+        }
+
+        DateTime mDate = DateTime.MinValue;
+        public DateTime Date
+        {
+            get { return mDate; }
+            set { mDate = value; }
+        }
+
+        int mClient_ID = 0;
+        public int Client_ID
+        {
+            get { return mClient_ID; }
+            set { mClient_ID = value; }
+        }
+
+        int mNr = 0;
+        public int Nr
+        {
+            get { return mNr; }
+            set { mNr = value; }
+        }
+           
+        int mArticol = 0;
+        public int Articol
+        {
+            get { return mArticol; }
+            set { mArticol = value; }
+
+        }   
+        
+        string mArticol_Name = string.Empty;
+        public string Articol_Name
+        {
+            get { return mArticol_Name; }
+            set { mArticol_Name = value; }
+
+        }           
+        
+        
+        int mDesen = 0;
+        public int Desen
+        {
+            get { return mDesen; }
+            set { mDesen = value; }
+
+        }   
+        
+        string mDesen_Name = string.Empty;
+        public string Desen_Name
+        {
+            get { return mDesen_Name; }
+            set { mDesen_Name = value; }
+        }          
+        
+        int mTip = 0;
+        public int Tip
+        {
+            get { return mTip; }
+            set { mTip = value; }
+
+        }   
+        
+        string mTip_Name = string.Empty;
+        public string Tip_Name
+        {
+            get { return mTip_Name; }
+            set { mTip_Name = value; }
+        }     
+
+        int mColorit = 0;
+        public int Colorit
+        {
+            get { return mColorit; }
+            set { mColorit = value; }
+        }   
+        
+        string mColorit_Name = string.Empty;
+        public string Colorit_Name
+        {
+            get { return mColorit_Name; }
+            set { mColorit_Name = value; }
+        }  
+
+        decimal mLatime = 0;
+        public decimal Latime
+        {
+            get { return mLatime; }
+            set { mLatime = value; }
+        }  
+
+        decimal mLungime = 0;
+        public decimal Lungime
+        {
+            get { return mLungime; }
+            set { mLungime = value; }
+        }  
+                        
+        decimal mMetraj = 0;
+        public decimal Metraj
+        {
+            get { return mMetraj; }
+            set { mMetraj = value; }
+        }                      
+        
+        int mBucati = 0;
+        public int Bucati
+        {
+            get { return mBucati; }
+            set { mBucati = value; }
+        }   
+
+        int mFestonare = 0;
+        public int Festonare
+        {
+            get { return mFestonare; }
+            set { mFestonare = value; }
+        }   
+        
+        string mFestonare_Name = string.Empty;
+        public string Festonare_Name
+        {
+            get { return mFestonare_Name; }
+            set { mFestonare_Name = value; }
+        }  
+
+        string mEAN13 = string.Empty;
+        public string EAN13
+        {
+            get { return mEAN13; }
+            set { mEAN13 = value; }
+        }   
+      
+        string mClientDescription = string.Empty;
+        public string ClientDescription
+        {
+            get { return mClientDescription; }
+            set { mClientDescription = value; }
+        }   
+      
+        public Order()
+        {
+        }
+
+        public Order(DataRow orderInfoRow)
+        {
+            if (orderInfoRow != null)
+            {
+                mOrder_ID = orderInfoRow["Order_ID"] != System.DBNull.Value ? (int)orderInfoRow["Order_ID"] : 0;
+                mState = orderInfoRow["State"] != System.DBNull.Value ? (int)orderInfoRow["State"] : 0;
+                mState_Name = orderInfoRow["State_Name"] != System.DBNull.Value ? (string)orderInfoRow["State_Name"] : string.Empty;
+                mDate = orderInfoRow["Date"] != System.DBNull.Value ? (DateTime)orderInfoRow["Date"] : DateTime.MinValue;
+                mClient_ID = orderInfoRow["Client_ID"] != System.DBNull.Value ? (int)orderInfoRow["Client_ID"] : 0;
+                mNr = orderInfoRow["Nr"] != System.DBNull.Value ? (int)orderInfoRow["Nr"] : 0;
+                mArticol = orderInfoRow["Articol"] != System.DBNull.Value ? (int)orderInfoRow["Articol"] : 0;
+                mArticol_Name = orderInfoRow["Articol_Name"] != System.DBNull.Value ? (string)orderInfoRow["Articol_Name"] : string.Empty;
+                mDesen = orderInfoRow["Desen"] != System.DBNull.Value ? (int)orderInfoRow["Desen"] : 0;
+                mDesen_Name = orderInfoRow["Desen_Name"] != System.DBNull.Value ? (string)orderInfoRow["Desen_Name"] : string.Empty;
+                mTip = orderInfoRow["Tip"] != System.DBNull.Value ? (int)orderInfoRow["Tip"] : 0;
+                mTip_Name = orderInfoRow["Tip_Name"] != System.DBNull.Value ? (string)orderInfoRow["Tip_Name"] : string.Empty;
+                mColorit = orderInfoRow["Colorit"] != System.DBNull.Value ? (int)orderInfoRow["Colorit"] : 0;
+                mColorit_Name = orderInfoRow["Colorit_Name"] != System.DBNull.Value ? (string)orderInfoRow["Colorit_Name"] : string.Empty;
+                mLatime = orderInfoRow["Latime"] != System.DBNull.Value ? (decimal)orderInfoRow["Latime"] : 0;
+                mLungime = orderInfoRow["Lungime"] != System.DBNull.Value ? (decimal)orderInfoRow["Lungime"] : 0;
+                mMetraj = orderInfoRow["Metraj"] != System.DBNull.Value ? (decimal)orderInfoRow["Metraj"] : 0;
+                mBucati = orderInfoRow["Bucati"] != System.DBNull.Value ? (int)orderInfoRow["Bucati"] : 0;
+                mFestonare = orderInfoRow["Festonare"] != System.DBNull.Value ? (int)orderInfoRow["Festonare"] : 0;
+                mFestonare_Name = orderInfoRow["Festonare_Name"] != System.DBNull.Value ? (string)orderInfoRow["Festonare_Name"] : string.Empty;
+                mEAN13 = orderInfoRow["EAN13"] != System.DBNull.Value ? (string)orderInfoRow["EAN13"] : string.Empty;
+                mClientDescription = orderInfoRow["client_description"] != System.DBNull.Value ? (string)orderInfoRow["client_description"] : string.Empty;
+            }
+        }
+    }
+
 }
 

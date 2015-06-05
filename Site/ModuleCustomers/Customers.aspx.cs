@@ -25,8 +25,8 @@ public partial class Customers : System.Web.UI.Page
     {
         Utils.GetMaster(this).PerformPreloadActions(mCurrentModule, mPageName);
 
-        allowEdit = Utils.PermissionAllowed(mCurrentModule, Security.Domains.Administration.Name, Constants.Classifiers.Permissions_Edit);
-        allowView = Utils.PermissionAllowed(mCurrentModule, Security.Domains.Administration.Name, Constants.Classifiers.Permissions_View);
+        allowEdit = Utils.PermissionAllowed(mCurrentModule, Client.Domains.CustomersPersonalData.Name, Constants.Classifiers.Permissions_Edit);
+        allowView = Utils.PermissionAllowed(mCurrentModule, Client.Domains.CustomersPersonalData.Name, Constants.Classifiers.Permissions_View);
 
         try
         {
@@ -163,7 +163,7 @@ public partial class Customers : System.Web.UI.Page
 
     protected void FillAllComboBox()
     {
-        DataTable gendersList = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.GenderList);
+        DataTable gendersList = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.ClientType_Juridic_Fizic);
         Utils.FillSelector(newClientGenderListDDL, gendersList, "Name", "Code");
         Utils.FillSelector(clientPersDataGenderListDDL, gendersList, "Name", "Code");
 
@@ -202,8 +202,8 @@ public partial class Customers : System.Web.UI.Page
     {
         int category = 0;
 
-        List<int> juridicPerson = new List<int>(new int[] {(int)Constants.Classifiers.Gender_JuridicPerson});
-        List<int> fizicPerson = new List<int>(new int[] {(int)Constants.Classifiers.Gender_Female, (int)Constants.Classifiers.Gender_Male});
+        List<int> juridicPerson = new List<int>(new int[] {(int)Constants.Classifiers.ClientType_PersoanaJuridica});
+        List<int> fizicPerson = new List<int>(new int[] {(int)Constants.Classifiers.ClientType_PersoanaFizica});
 
         List<int> genderList = juridicPersonRadioButton.Checked ? juridicPerson : fizicPerson;
         DataTable clientsList = Utils.ModuleCustomers().GetClientList(category, genderList);
@@ -267,12 +267,12 @@ public partial class Customers : System.Web.UI.Page
         newCleint_simplePersonPanel.Visible = false;
         newCleint_juridPersonPanel.Visible = false;
 
-        if (gender == (int)Constants.Classifiers.Gender_Male || gender == (int)Constants.Classifiers.Gender_Female)
+        if (gender == (int)Constants.Classifiers.ClientType_PersoanaFizica)
         {
             newCleint_simplePersonPanel.Visible = true;
 
             try
-            { newClientGenderListDDL.SelectedValue = ((int)Constants.Classifiers.Gender_Male).ToString(); }
+            { newClientGenderListDDL.SelectedValue = ((int)Constants.Classifiers.ClientType_PersoanaFizica).ToString(); }
             catch { }
 
             newClientSimple_FirstNameTextBox.Text = string.Empty;            
@@ -289,7 +289,7 @@ public partial class Customers : System.Web.UI.Page
             newCleint_juridPersonPanel.Visible = true;
 
             try
-            { newClientGenderListDDL.SelectedValue = ((int)Constants.Classifiers.Gender_JuridicPerson).ToString(); }
+            { newClientGenderListDDL.SelectedValue = ((int)Constants.Classifiers.ClientType_PersoanaJuridica).ToString(); }
             catch { }
 
             newClient_juridFullNameTextBox.Text = string.Empty;
@@ -303,7 +303,7 @@ public partial class Customers : System.Web.UI.Page
     
     protected void addNewClientButton_Click(object sender, EventArgs e)
     {
-        ClearNewClientForm((int)Constants.Classifiers.Gender_JuridicPerson);
+        ClearNewClientForm((int)Constants.Classifiers.ClientType_PersoanaJuridica);
         newClientPopupExtender.Show();
     }
 
@@ -320,7 +320,7 @@ public partial class Customers : System.Web.UI.Page
             newClientObject.Gender_String = newClientGenderListDDL.SelectedItem.Text;
 
 
-            if (gender == (int)Constants.Classifiers.Gender_Male || gender == (int)Constants.Classifiers.Gender_Female)
+            if (gender == (int)Constants.Classifiers.ClientType_PersoanaFizica)
             {
                 newClientObject.FirstName = newClientSimple_FirstNameTextBox.Text.Trim();
                 newClientObject.LastName = newClientSimple_LastNameTextBox.Text.Trim();
@@ -359,7 +359,7 @@ public partial class Customers : System.Web.UI.Page
         #region GeneralTab
         string htmlTags_GeneralInfo = string.Empty;
 
-        if (clientObject.Gender == (int)Constants.Classifiers.Gender_Male || clientObject.Gender == (int)Constants.Classifiers.Gender_Female)
+        if (clientObject.Gender == (int)Constants.Classifiers.ClientType_PersoanaFizica)
         {
             htmlTags_GeneralInfo += "<ul class=\"section menu\"> \r\n ";
             htmlTags_GeneralInfo += "   <li> \r\n ";
@@ -402,7 +402,7 @@ public partial class Customers : System.Web.UI.Page
         clientPersonalDataSimplePanel.Visible = false;
         clientPersonalDataJuridicPanel.Visible = false;
 
-        if (clientObject.Gender == (int)Constants.Classifiers.Gender_Male || clientObject.Gender == (int)Constants.Classifiers.Gender_Female)
+        if (clientObject.Gender == (int)Constants.Classifiers.ClientType_PersoanaFizica)
         {
             clientPersonalDataSimplePanel.Visible = true;
 
@@ -473,12 +473,12 @@ public partial class Customers : System.Web.UI.Page
         clientPersonalDataSimplePanel.Visible = false;
         clientPersonalDataJuridicPanel.Visible = false;
 
-        if (gender == (int)Constants.Classifiers.Gender_Male || gender == (int)Constants.Classifiers.Gender_Female)
+        if (gender == (int)Constants.Classifiers.ClientType_PersoanaFizica)
         {
             clientPersonalDataSimplePanel.Visible = true;
 
             try
-            { clientPersDataGenderListDDL.SelectedValue = ((int)Constants.Classifiers.Gender_Male).ToString(); }
+            { clientPersDataGenderListDDL.SelectedValue = ((int)Constants.Classifiers.ClientType_PersoanaFizica).ToString(); }
             catch { }
 
             clientPersDataSimple_FirstNameTextBox.Text = string.Empty;
@@ -495,7 +495,7 @@ public partial class Customers : System.Web.UI.Page
             clientPersonalDataJuridicPanel.Visible = true;
 
             try
-            { clientPersDataGenderListDDL.SelectedValue = ((int)Constants.Classifiers.Gender_JuridicPerson).ToString(); }
+            { clientPersDataGenderListDDL.SelectedValue = ((int)Constants.Classifiers.ClientType_PersoanaJuridica).ToString(); }
             catch { }
 
             clientPersData_juridFullNameTextBox.Text = string.Empty;
@@ -542,7 +542,7 @@ public partial class Customers : System.Web.UI.Page
             clientObject.Gender_String = clientPersDataGenderListDDL.SelectedItem.Text;
 
 
-            if (gender == (int)Constants.Classifiers.Gender_Male || gender == (int)Constants.Classifiers.Gender_Female)
+            if (gender == (int)Constants.Classifiers.ClientType_PersoanaFizica)
             {
                 clientObject.FirstName = clientPersDataSimple_FirstNameTextBox.Text.Trim();
                 clientObject.LastName = clientPersDataSimple_LastNameTextBox.Text.Trim();
@@ -587,8 +587,7 @@ public partial class Customers : System.Web.UI.Page
     }
 
     #endregion Customers
-
-
+    
     #region ClientContracts
 
 
@@ -676,7 +675,5 @@ public partial class Customers : System.Web.UI.Page
     }
 
     #endregion ClientContracts
-
-
-
+    
 }

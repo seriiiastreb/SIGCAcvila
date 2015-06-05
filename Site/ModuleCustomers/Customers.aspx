@@ -16,6 +16,7 @@
         <div style="text-align:right; width:40%; float:right;">
             <asp:Button ID="addNewClientButton" runat="server" Text="Add New Client" OnClick="addNewClientButton_Click" />
         </div>
+        <div class="clear"></div>
         <asp:GridView ID="clientListGridView" runat="server" 
                 AutoGenerateColumns="false"
                 AlternatingRowStyle-CssClass="odd"

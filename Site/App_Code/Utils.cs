@@ -22,6 +22,7 @@ public class Utils
     //public const string SessionKey_ModuleCustomersMenu = "ModuleCustomersMenu";
     public const string SessionKey_HeadModuleSlector = "HeadModuleSlector";
     public const string SessionKey_ClientObject = "ClientObject";
+    public const string SessionKey_OrderObject = "OrderObject";
 
 
 	public Utils()
@@ -394,23 +395,23 @@ public class Utils
 
     public static void RedirectIfSslRequired(HttpRequest Request, HttpResponse Response)
     {
-        bool msNoSsl = false;
+        //bool msNoSsl = false;
 
-        if (ConfigurationManager.AppSettings["noSSL"] != null && !string.IsNullOrEmpty(ConfigurationManager.AppSettings["noSSL"]))
-        {
-            bool.TryParse(ConfigurationManager.AppSettings["noSSL"], out msNoSsl);
-        }
+        //if (ConfigurationManager.AppSettings["noSSL"] != null && !string.IsNullOrEmpty(ConfigurationManager.AppSettings["noSSL"]))
+        //{
+        //    bool.TryParse(ConfigurationManager.AppSettings["noSSL"], out msNoSsl);
+        //}
 
-        if (!msNoSsl
-            && Request.IsSecureConnection.Equals(false)
-            && Request.ServerVariables["SERVER_NAME"] != "localhost"
-            && !Request.UserHostAddress.StartsWith("192.168"))
-        {
-            string secureURL = "https://";
-            secureURL += Request.ServerVariables["SERVER_NAME"];
-            secureURL += Request.ServerVariables["URL"];
-            Response.Redirect(secureURL);
-        }
+        //if (!msNoSsl
+        //    && Request.IsSecureConnection.Equals(false)
+        //    && Request.ServerVariables["SERVER_NAME"] != "localhost"
+        //    && !Request.UserHostAddress.StartsWith("192.168"))
+        //{
+        //    string secureURL = "https://";
+        //    secureURL += Request.ServerVariables["SERVER_NAME"];
+        //    secureURL += Request.ServerVariables["URL"];
+        //    Response.Redirect(secureURL);
+        //}
     }
 
     public static bool ContentTypeAllowed(string contentType)

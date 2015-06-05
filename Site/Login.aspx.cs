@@ -127,12 +127,13 @@ public partial class Login : System.Web.UI.Page
         Session[Utils.SessionKey_UserObject] = userObject;
 
         bool allowBasicAdministration = Utils.PermissionAllowed(Security.MainModule.ID, Security.Domains.BasicProgramAdministration.Name, Constants.Classifiers.Permissions_View);
-        bool allowUserManagement = Utils.PermissionAllowed(Security.Module.ID, Security.Domains.Administration.Name, Constants.Classifiers.Permissions_View);
-        bool allowCustomersModule = Utils.PermissionAllowed(Client.Module.ID, Security.Domains.Administration.Name, Constants.Classifiers.Permissions_View);
+        bool allowUserManagement = Utils.PermissionAllowed(Security.Module.ID, Security.Domains.SecurityAdministration.Name, Constants.Classifiers.Permissions_View);
+        bool allowCustomersModule = Utils.PermissionAllowed(Client.Module.ID, Client.Domains.CustomersPersonalData.Name, Constants.Classifiers.Permissions_View);
+        bool allowCustomersOrdersModule = Utils.PermissionAllowed(Client.Module.ID, Client.Domains.CustomersOrders.Name, Constants.Classifiers.Permissions_View);
 
         if (allowBasicAdministration) Session[Utils.SessionKey_ModuleMain] = new Security.MainModule();
-        if (allowUserManagement) Session[Utils.SessionKey_ModuleSecurity] = new Security.Module();        
-        if (allowCustomersModule) Session[Utils.SessionKey_ModuleCustomers] = new Client.Module();
+        if (allowUserManagement) Session[Utils.SessionKey_ModuleSecurity] = new Security.Module();
+        if (allowCustomersModule || allowCustomersOrdersModule) Session[Utils.SessionKey_ModuleCustomers] = new Client.Module();
 
         ////  Generate ModulesLiks
         string modulesMenu = string.Empty;
@@ -142,6 +143,10 @@ public partial class Login : System.Web.UI.Page
         if (allowCustomersModule)
         {
             modulesMenu += " <li> <a href=\"" + appPath + "/ModuleCustomers/Customers.aspx\">  <img id=\"Img3\" width=\"24\" height=\"24\" alt=\"Customers page\" title=\"Customers page\" src=\"" + appPath + "/Images/man.png\" style=\" cursor:pointer; \"> </a> </li>\r\n ";
+        }
+
+        if(allowCustomersOrdersModule)
+        {
             modulesMenu += " <li> <a href=\"" + appPath + "/ModuleCustomers/Orders.aspx\">  <img id=\"Img3\" width=\"24\" height=\"24\" alt=\"Customer orders page\" title=\"Customer orders page\" src=\"" + appPath + "/Images/order.png\" style=\" cursor:pointer; \"> </a> </li>\r\n ";
         }
 
@@ -157,8 +162,7 @@ public partial class Login : System.Web.UI.Page
             modulesMenu += "</li>\r\n ";
         }     
         
-        Session[Utils.SessionKey_HeadModuleSlector] = modulesMenu;              
-
+        Session[Utils.SessionKey_HeadModuleSlector] = modulesMenu;
     }
 
 }

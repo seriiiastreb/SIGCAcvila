@@ -10,7 +10,7 @@ namespace Client
     public class Module
     {
         public const string ID = "Module Customers";
-        public const string Description = "Processing data customer related";
+        public const string Description = "Processing data customer related (Personal Data; Orders)";
         public static readonly string DBConnectionsStringKey = "mainDBConnectionString";
         public static DataBridge mDataBridge = new DataBridge(ConfigManager.GetDbConnectionString(Module.DBConnectionsStringKey), ConfigManager.GetProviderName(Module.DBConnectionsStringKey));
 
@@ -20,6 +20,13 @@ namespace Client
         public string LastError
         {
             get { return mLastError; }
+        }
+
+        public static void Register()
+        {
+            Security.Registrar.RegisterModule(ID, Description);
+            Domains.CustomersPersonalData.Register();
+            Domains.CustomersOrders.Register();
         }
 
         public Module()
@@ -335,8 +342,7 @@ namespace Client
 
             return result;
         }
-
-
+        
         public bool AddClientContract(int client_id, string contract_nr, DateTime date_from, DateTime date_to, bool active)
         {
             DateTime EmptyDate = DateTime.MinValue;
@@ -421,24 +427,249 @@ namespace Client
 
             return result;
         }
-
-
+        
         #endregion ClilentContracts
 
         #region Customers Orders
+
+        public DataTable GetClientOrdersList(int clientID)
+        {
+            DataTable result = new DataTable();
+            mLastError = string.Empty;
+
+            try
+            {
+                string query = "SELECT \r\n "
+                        + "  order_id, \r\n "
+                        + "  state, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
+                        + "  date, \r\n "
+                        + "  client_id, \r\n "
+                        + "  nr, \r\n "
+                        + "  articol, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "
+                        + "  desen, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = desen) as desen_name , "
+                        + "  tip, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = tip) as tip_name , "
+                        + "  colorit, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = colorit) as colorit_name , "
+                        + "  latime, \r\n "
+                        + "  lungime, \r\n "
+                        + "  metraj, \r\n "
+                        + "  bucati, \r\n "
+                        + "  festonare, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = colorit) as festonare_name , "
+                        + "  ean13 \r\n "
+                        + "  FROM  \r\n "
+                        + "  ClientOrders \r\n "
+                        + " WHERE client_id = " + clientID;
+
+                result = mDataBridge.ExecuteQuery(query);
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public DataObjects.Order GetOrderObjectByID(int orderID)
+        {
+            DataObjects.Order resultObject = null;
+
+            try
+            {
+                string query = "SELECT \r\n "
+                        + "  order_id, \r\n "
+                        + "  state, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
+                        + "  date, \r\n "
+                        + "  client_id, \r\n "
+                        + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + Constants.Classifiers.ClientType_PersoanaFizica + " THEN Client.LastName ELSE '' END) + ' (' + Client.BirthDate + ')' From Client WHERE Client.client_id = ClientOrders.client_id  ) as client_description "
+                        + "  nr, \r\n "
+                        + "  articol, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "
+                        + "  desen, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = desen) as desen_name , "
+                        + "  tip, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = tip) as tip_name , "
+                        + "  colorit, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = colorit) as colorit_name , "
+                        + "  latime, \r\n "
+                        + "  lungime, \r\n "
+                        + "  metraj, \r\n "
+                        + "  bucati, \r\n "
+                        + "  festonare, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = colorit) as festonare_name , "
+                        + "  ean13 \r\n "
+                        + "  FROM  \r\n "
+                        + "  ClientOrders \r\n "
+                        + " WHERE order_id = " + orderID;
+
+                DataTable result = mDataBridge.ExecuteQuery(query);
+                mLastError = mDataBridge.LastError;
+
+                if (result != null && result.Rows.Count == 1)
+                    resultObject = new DataObjects.Order(result.Rows[0]);
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return resultObject;
+        }
+             
+        public bool AddClientOrder(DataObjects.Order orderObject)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {
+                if (orderObject != null)
+                {
+                    string nonQuery = "INSERT INTO ClientOrders(state,date,client_id,nr,articol,desen,tip,colorit,latime,lungime,metraj,bucati,festonare,ean13) \r\n"
+                                    + " VALUES (@state,@date,@client_id,@nr,@articol,@desen,@tip,@colorit,@latime,@lungime,@metraj,@bucati,@festonare,@ean13); ";
+
+                    Hashtable parameters = new Hashtable();
+                    parameters.Add("@state", orderObject.State);
+                    parameters.Add("@date", orderObject.Date);
+                    parameters.Add("@client_id", orderObject.Client_ID);
+                    parameters.Add("@nr", orderObject.Nr);
+                    parameters.Add("@articol", orderObject.Articol);
+                    parameters.Add("@desen", orderObject.Desen);
+                    parameters.Add("@tip", orderObject.Tip);
+                    parameters.Add("@colorit", orderObject.Colorit);
+                    parameters.Add("@latime", orderObject.Latime);
+                    parameters.Add("@lungime", orderObject.Lungime);
+                    parameters.Add("@metraj", orderObject.Metraj);
+                    parameters.Add("@bucati", orderObject.Bucati);
+                    parameters.Add("@festonare", orderObject.Festonare);
+                    parameters.Add("@ean13", orderObject.EAN13);
+
+                    result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                    mLastError = mDataBridge.LastError;
+                }
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public bool UpdateClientOrder(DataObjects.Order orderObject)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {
+                if (orderObject != null)
+                {
+                    string nonQuery = @"UPDATE 
+                                          ClientOrders  
+                                        SET 
+                                          state = @state,
+                                          date = @date,
+                                          client_id = @client_id,
+                                          nr = @nr,
+                                          articol = @articol,
+                                          desen = @desen,
+                                          tip = @tip,
+                                          colorit = @colorit,
+                                          latime = @latime,
+                                          lungime = @lungime,
+                                          metraj = @metraj,
+                                          bucati = @bucati,
+                                          festonare = @festonare,
+                                          ean13 = @ean13 
+                                        WHERE 
+                                          order_id = @order_id; ";
+
+                    Hashtable parameters = new Hashtable();
+                    parameters.Add("@order_id", orderObject.Order_ID);
+                    parameters.Add("@state", orderObject.State);
+                    parameters.Add("@date", orderObject.Date);
+                    parameters.Add("@client_id", orderObject.Client_ID);
+                    parameters.Add("@nr", orderObject.Nr);
+                    parameters.Add("@articol", orderObject.Articol);
+                    parameters.Add("@desen", orderObject.Desen);
+                    parameters.Add("@tip", orderObject.Tip);
+                    parameters.Add("@colorit", orderObject.Colorit);
+                    parameters.Add("@latime", orderObject.Latime);
+                    parameters.Add("@lungime", orderObject.Lungime);
+                    parameters.Add("@metraj", orderObject.Metraj);
+                    parameters.Add("@bucati", orderObject.Bucati);
+                    parameters.Add("@festonare", orderObject.Festonare);
+                    parameters.Add("@ean13", orderObject.EAN13);
+
+                    result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                    mLastError = mDataBridge.LastError;
+                }
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public bool DeleteClientOrder(int orderID)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {
+                string nonQuery = @"DELETE FROM ClientOrders  WHERE order_id = " + orderID + "; ";                
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery); // PG compliant
+                mLastError = mDataBridge.LastError;              
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+
 
         #endregion Customers Orders
     }
 
     namespace Domains
     {
-        /// <summary>
-        /// Default domain. Calculations.
-        /// </summary>
-        public class ClientsInputData
+        public class CustomersPersonalData
         {
-            public static readonly string Name = "Customers Input Data";
+            public static readonly string Name = "Customers Personal Data";
+            public static readonly string Description = "Allow View/Edit Customers Personal Data";
+
+            public static void Register()
+            {
+                Security.Registrar.RegisterDomain(Client.Module.ID, Name, Description);
+            }
         }
+
+        public class CustomersOrders
+        {
+            public static readonly string Name = "Customers Orders";
+            public static readonly string Description = "Allow View/Edit Customers Orders";
+
+            public static void Register()
+            {
+                Security.Registrar.RegisterDomain(Client.Module.ID, Name, Description);
+            }
+        }
+
     }
 
 }
