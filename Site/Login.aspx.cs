@@ -5,6 +5,17 @@ using System.Web.Security;
 
 public partial class Login : System.Web.UI.Page
 {
+    protected void ClearSessionObject()
+    {
+        Session[Utils.SessionKey_UserObject] = null;
+        Session[Utils.SessionKey_ModuleSecurity] = null;
+        Session[Utils.SessionKey_ModuleMain] = null;
+        Session[Utils.SessionKey_ModuleCustomers] = null;
+        Session[Utils.SessionKey_HeadModuleSlector] = null;
+        Session[Utils.SessionKey_ClientObject] = null;
+        Session[Utils.SessionKey_OrderObject] = null;
+    }
+
     protected void Page_Load(object sender, EventArgs e)
     {
         Utils.RedirectIfSslRequired(Request, Response);
@@ -18,10 +29,7 @@ public partial class Login : System.Web.UI.Page
             switch (action)
             {
                 case "logout":
-                    Session[Utils.SessionKey_UserObject] = null;
-                    Session[Utils.SessionKey_ModuleSecurity] = null;
-                    Session[Utils.SessionKey_ModuleMain] = null;
-
+                    ClearSessionObject();
                     break;
 
                 default:
@@ -112,7 +120,9 @@ public partial class Login : System.Web.UI.Page
         if (userObject == null) throw new Exception("Null user object received");
 
         Logger.WriteInfo("Login attempt.  " + userObject.UserLogin + " - UserObject created. Creating modules...");
-        
+
+        ClearSessionObject();
+
         CreateModulesByRole(userObject);
 
         result = true;

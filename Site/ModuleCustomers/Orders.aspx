@@ -54,7 +54,14 @@
                }
            });
        });
-           
+
+       $(function () {
+           $("#ordersDIV").mousedown(function (e) {
+               if (e.which == 3) {
+                   $(".context-menu-orders").contextMenu({ x: e.pageX, y: e.pageY });
+               }
+           });
+       });        
 
     </script>
 
@@ -62,6 +69,8 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server">   
 
+<div id="ordersDIV" class="box context-menu-orders" style="min-height:200px;">
+<h2>registered orders list</h2>
     <asp:HiddenField ID="selectedOrdersListGridViewIndexHiddenField" runat="server"></asp:HiddenField>
     <asp:GridView ID="ordersListGridView" runat="server" 
         AutoGenerateColumns="false"
@@ -81,9 +90,11 @@
             <asp:BoundField DataField="bucati" HeaderText="Bucati"  />                                                 
         </Columns>
     </asp:GridView>
+</div>
 
-    <asp:Panel ID="ordersWorkPanel" runat="server" Visible="false" >
-        <div class="grid_16 box"> 
+<div class="clear"></div>
+<asp:Panel ID="ordersWorkPanel" runat="server" CssClass="grid_16 box" Visible="false">
+
             <h2>Order description</h2>
 
             <div class="grid_5">
@@ -153,14 +164,16 @@
                     </p>   
 	            </fieldset>
             </div>	
-                    
-        </div>
+               
     </asp:Panel>
 
     <div class="clear"></div>
     <div style="margin:auto; width:200px;">
         <asp:Button ID="saveOrderDetailsButton" runat="server" Width="200px" Text="Save Order details" OnClick="saveOrderDetailsButton_Click" />
     </div>
+
+
+ 
 
     <asp:HyperLink ID="newOrderHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
 
@@ -203,9 +216,7 @@
         </fieldset>
     </asp:Panel>
 
-  
-  
+  <csd:ClientSelectionControl ID="customerSelectionControl" runat="server" OnOnClientSelected="customerSelectionControl_ClientSelected"  />
 
-  <csd:ClientSelectionControl ID="customerSelectionControl" runat="server"  />
 </asp:Content>
 

@@ -46,23 +46,16 @@ public partial class Orders : System.Web.UI.Page
 
                 if (!IsPostBack)
                 {
-                    Utils.GetMaster(this).ClearNavLinks();
-
+                    FillAllComboBox();
+                    
                     if (this.ClientObject == null || this.ClientObject.ClientID == 0)
                     {
                         customerSelectionControl.Show();
-                        
                     }
                     else
                     {
-                        //DataObjects.Client clientObject = this.ClientObject;
-
-                        //Utils.GetMaster(this).AddNavlink("Customers", appPath + "/ModuleCustomers/Customers.aspx", "ClientsPageID");
-                        //Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + clientObject.ClientID, "clientID");
-
-
-                    }
-                
+                        FIllOrdersGridView();
+                    }                
                 }
                 else
                 {
@@ -91,7 +84,7 @@ public partial class Orders : System.Web.UI.Page
                                 case "edit":
                                 case "select":
                                     {
-                                        ClearNewOrderForm();
+                                        ClearOrderDetailsForm();
 
                                         int orderID = 0;
                                         int.TryParse(ordersListGridView.Rows[selectedIndexInOrdersGrid].Cells[0].Text, out orderID);
@@ -136,14 +129,52 @@ public partial class Orders : System.Web.UI.Page
     
     protected void FillAllComboBox()
     {
-       //DataTable 
+        DataTable orderState = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.OrderSate);
+        Utils.FillSelector(newOrderStateDDL, orderState, "Name", "Code");
+        Utils.FillSelector(orderStateDDL, orderState, "Name", "Code");
+
+        DataTable articolList = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.Articol);
+        Utils.FillSelector(orderArticolDDL, articolList, "Name", "Code");
+
+        DataTable desene = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.Desen);
+        Utils.FillSelector(orderDesenDDL, desene, "Name", "Code");
+
+        DataTable tips = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.Tip);
+        Utils.FillSelector(orderTipDDL, tips, "Name", "Code");
+
+        DataTable colorit = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.Colorit);
+        Utils.FillSelector(orderColoritDDL, colorit, "Name", "Code");
+
+        DataTable festonare = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.Festonare);
+        Utils.FillSelector(orderFestonareDDL, festonare, "Name", "Code");
+
+    }
+
+    protected void customerSelectionControl_ClientSelected(object sender, ClientSelectionControl.FilterWindowEventsArg e)
+    {
+        if (e.SelectedItem != 0)
+        {
+            DataObjects.Client clienObject = Utils.ModuleCustomers().GetCleintObjectByID(e.SelectedItem );
+
+            this.ClientObject = clienObject;
+
+            Utils.GetMaster(this).ClearNavLinks();
+
+            Utils.GetMaster(this).AddNavlink("Customers", appPath + "/ModuleCustomers/Customers.aspx", Utils.CustomerPage_HotNavogateKey);
+            Utils.GetMaster(this).AddNavlink(clienObject.FirstName + " " + clienObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + clienObject.ClientID, Utils.Customer_HotNavogateKey);
+            
+            FIllOrdersGridView();
+        }
     }
 
     #region new orders
 
     private void ClearNewOrderForm()
     {
-        newOrderClientInfoTextBox.Text = string.Empty;
+        DataObjects.Client clientObject = this.ClientObject;
+        string part2Descr = clientObject != null && clientObject.Gender == (int)Constants.Classifiers.ClientType_PersoanaFizica ? clientObject.LastName + " (" + clientObject.BirthDate.ToString(Constants.ISODateBackwardDotsFormat) + ")" : string.Empty;
+
+        newOrderClientInfoTextBox.Text = clientObject != null ? clientObject.FirstName + " " + part2Descr  : string.Empty;
         newOrderDateTextBox.Text = string.Empty;
 
         try
@@ -156,6 +187,44 @@ public partial class Orders : System.Web.UI.Page
 
     protected void newOrderSaveBurtton_Click(object sender, EventArgs e)
     {
+        if (allowEdit)
+        {
+            try
+            {
+                bool resultAction = false;
+
+                DataObjects.Order orderObject = new DataObjects.Order();
+
+                int state = 0;
+                int.TryParse(newOrderStateDDL.SelectedValue, out state);
+                orderObject.State = state;
+
+                orderObject.Date = Crypt.Utils.ToDateTime(newOrderDateTextBox.Text, Constants.ISODateBackwardDotsFormat);
+                orderObject.Client_ID = this.ClientObject.ClientID;
+                orderObject.Metraj = Crypt.Utils.MyDecimalParce(newOrderMetrajTextBox.Text);
+
+                int bucati = 0;
+                int.TryParse(newOrderBucatiTextBox.Text, out bucati);
+                orderObject.Bucati = bucati;              
+
+                if (resultAction = Utils.ModuleCustomers().AddClientOrder(orderObject))
+                {
+                    FIllOrdersGridView();                   
+                }
+                else
+                {
+                    Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Attention!", "Order was not saved. Try again later.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Attention! Error in system!", ex.Message);
+            }
+        }
+        else
+        {
+            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
+        }
     }
 
     #endregion new orders
@@ -188,6 +257,8 @@ public partial class Orders : System.Web.UI.Page
 
     protected void ClearOrderDetailsForm()
     {
+        ordersWorkPanel.Visible = false;
+
         try
         { orderStateDDL.SelectedValue = ((int)Constants.Classifiers.OrderState_Solicitat).ToString(); }
         catch { }
@@ -222,7 +293,80 @@ public partial class Orders : System.Web.UI.Page
 
     protected void saveOrderDetailsButton_Click(object sender, EventArgs e)
     {
+        if (allowEdit)
+        {
+            try
+            {
+                bool resultAction = false;
 
+                DataObjects.Order orderObject = this.OrderObject;
+
+                int orderState = 0;
+                int.TryParse(orderStateDDL.SelectedValue, out orderState);
+                orderObject.State = orderState;
+
+                orderObject.Date = Crypt.Utils.ToDateTime(orderDateTextBox.Text, Constants.ISODateBackwardDotsFormat);
+
+                int nr = 0;
+                int.TryParse(orderNrTextBox.Text.Trim(), out nr);
+                orderObject.State = orderState;
+
+                orderObject.Nr = nr;
+                
+                int articol = 0;
+                int.TryParse(orderArticolDDL.SelectedValue, out articol);
+                orderObject.Articol = articol;
+
+                int tip = 0;
+                int.TryParse(orderTipDDL.SelectedValue, out tip);
+                orderObject.Tip = tip;
+
+                int colorit = 0;
+                int.TryParse(orderColoritDDL.SelectedValue, out colorit);
+                orderObject.Colorit = colorit;
+
+                orderObject.Latime = Crypt.Utils.MyDecimalParce(orderLatimeTextBox.Text);
+                orderObject.Lungime = Crypt.Utils.MyDecimalParce(orderLungimeTextBox.Text);
+
+                int bucati = 0;
+                int.TryParse(orderBucatiTextBox.Text, out bucati);
+                orderObject.Bucati = bucati;            
+
+                orderObject.Metraj = Crypt.Utils.MyDecimalParce(orderMetrajTextBox.Text);
+    
+                int festonare = 0;
+                int.TryParse(orderFestonareDDL.SelectedValue, out festonare);
+                orderObject.Festonare = festonare;
+
+                orderObject.EAN13 =  orderEAN13TextBox.Text.Trim();
+
+                if (orderObject.Order_ID == 0)
+                {
+                    resultAction = Utils.ModuleCustomers().AddClientOrder(orderObject);
+                }
+                else
+                {
+                    resultAction = Utils.ModuleCustomers().UpdateClientOrder(orderObject);
+                }
+
+                if (resultAction)
+                {
+                    FIllOrdersGridView();
+                }
+                else
+                {
+                    Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Attention!", "Order was not saved. Try again later.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Attention! Error in system!", ex.Message);
+            }
+        }
+        else
+        {
+            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
+        }        
     }
 
 
@@ -230,6 +374,8 @@ public partial class Orders : System.Web.UI.Page
     {
         if (orderObject != null)
         {
+            ordersWorkPanel.Visible = true;
+
             try
             { orderStateDDL.SelectedValue = orderObject.State.ToString(); }
             catch { }
@@ -260,6 +406,9 @@ public partial class Orders : System.Web.UI.Page
             catch { }
 
             orderEAN13TextBox.Text = orderObject.EAN13;
+
+            Utils.GetMaster(this).AddNavlink("Order Nr:" + orderObject.Nr, appPath + "/ModuleCustomers/Orders.aspx?ord=" + orderObject.Order_ID, Utils.Orders_HotNavogateKey);
+
         }
     }
 

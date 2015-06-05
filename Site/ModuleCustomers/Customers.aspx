@@ -149,7 +149,8 @@
     
 
     <asp:Panel ID="clientWorkPanel" Visible="false" runat="server">
-        <ajax:TabContainer ID="detailsClientTabContainer"  runat="server" cssclass="ajax__myTab"  ActiveTabIndex="0" >  
+        <ajax:TabContainer ID="detailsClientTabContainer"  runat="server" 
+            cssclass="ajax__myTab"  ActiveTabIndex="2" >  
             <ajax:TabPanel ID="generalInfoTabPanel" runat="server">                
                 <HeaderTemplate>&nbsp; General Info&nbsp; </HeaderTemplate>                	
                 <ContentTemplate>
@@ -157,7 +158,29 @@
                     </div>
 
                     <div style="float:left; width:74%;"> 
-                      
+                        <div class="grid_6 box">
+                            <h2> Active Orders </h2>
+
+                            <asp:GridView ID="clientActiveOrdersGridView" runat="server" 
+                                AutoGenerateColumns="false"
+                                AlternatingRowStyle-CssClass="odd"
+                                OnRowCreated="clientActiveOrdersGridView_RowCreated"
+                                AllowPaging="false"  
+                                SelectedRowStyle-CssClass = "selectedRow" >
+                                   <Columns>
+                                        <asp:BoundField DataField="order_id" HeaderText="OrderID" ItemStyle-CssClass="hidden" HeaderStyle-CssClass="hidden" />
+                                        <asp:BoundField DataField="state_name" HeaderText="State" />
+                                        <asp:TemplateField HeaderText="Date">
+                                            <ItemTemplate>
+                                                <asp:Label ID="dateLabel" Width="100px" runat="server" Text='<%# ((Eval("date") != null && Eval("date") is DateTime) ?  ((DateTime)Eval("date")).ToString(Constants.ISODateBackwardDotsFormat) : "") %>'></asp:Label>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>  
+                                        <asp:BoundField DataField="metraj" HeaderText="Metraj" />
+                                        <asp:BoundField DataField="bucati" HeaderText="Bucati"  />                                                 
+                                    </Columns>
+                            </asp:GridView>
+
+                        </div>
                     </div>
                 </ContentTemplate>
             </ajax:TabPanel>
@@ -376,8 +399,6 @@
                     </div>
 
                   
-
-
                     <asp:HyperLink ID="clientContractsHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
 
                     <ajax:ModalPopupExtender ID="clientContractPopupExtender" runat="server"     
@@ -422,166 +443,9 @@
 
                 </ContentTemplate>
             </ajax:TabPanel>
-
+            
 
         </ajax:TabContainer>
-
-
-
-<%--        <ajax:TabContainer ID="detailsClientTabContainer"  runat="server" cssclass="ajax__myTab"  Width="100%" ActiveTabIndex="0" Height="24px">  
-
-            <ajax:TabPanel ID="generalInfoTabPanel" runat="server">                
-                <HeaderTemplate>&nbsp; Generalizari&nbsp; </HeaderTemplate>                	
-                <ContentTemplate>
-                    <div style="float:left; width:20%;"> 
-                        <table>
-                            <tr>
-                                <td>Activation date:</td>
-                                <td><asp:Label ID="genInfoActivationDateLabel" runat="server"></asp:Label></td>
-                            </tr>
-                            <tr>
-                                <td>Nr. de lefenon:</td>
-                                <td><asp:Label ID="genInfoMobileNumberLabel" runat="server"></asp:Label></td>
-                            </tr>
-                            <tr>
-                                <td>Manager creditare:</td>
-                                <td><asp:Label ID="genInfoManagerCreditareLabel" runat="server"></asp:Label></td>
-                            </tr>
-                            <tr>
-                                <td colspan="2">Performance History:</td>
-                            </tr>
-                            <tr>
-                                <td> Nr. de Imprumuturi:</td>
-                                <td><asp:Label ID="genInfoTotalLoansNumberLabel" runat="server"></asp:Label></td>
-                            </tr>
-                            <tr>
-                                <td>Summa ultimul imprumut:</td>
-                                <td> <asp:Label ID="genInfoLastLoanAmountLabel" runat="server"></asp:Label>   </td>
-                            </tr>
-                            <tr>
-                                <td>Imprumuturi active:</td>
-                                <td><asp:Label ID="genInfoActiveLoansLabel" runat="server"></asp:Label></td>
-                            </tr>
-                            <tr>
-                                <td>Total savings:</td>
-                                <td><asp:Label ID="genInfoTotalSavingsLabel" runat="server"></asp:Label></td>
-                            </tr>
-                            <tr>
-                                <td>Active savings:</td>
-                                <td><asp:Label ID="genInfoActiveSavingsLabel" runat="server"></asp:Label></td>
-                            </tr>
-                        </table>                        
-                    </div>
-                    <div style="float:left; width:79%;"> 
-                    </div>
-                </ContentTemplate>
-            </ajax:TabPanel>
-
-            <ajax:TabPanel ID="personalDataInfoTabPanel" runat="server">                
-                <HeaderTemplate>&nbsp; Date personale&nbsp; </HeaderTemplate>                	
-                <ContentTemplate>
-
-                </ContentTemplate>                
-            </ajax:TabPanel>
-
-            <ajax:TabPanel ID="bankInfoTabPanel" runat="server">
-                <HeaderTemplate>  Banca  </HeaderTemplate>	
-                <ContentTemplate>  
-                    <div class="TreeLeftColumn groupDataPanel" >
-                        <fieldset>
-                            <legend>DATELE BANCARE</legend>                                
-                            <dl> 
-                                <dt class="part">Banca Selectata: </dt>
-                                <dd class="part"><asp:DropDownList ID="clientBankDDL" runat="server" AutoPostBack="true" OnSelectedIndexChanged="clientBankDDL_SelectedIndexChanged" ></asp:DropDownList></dd>
-                                                                        
-                                <dt class="inpart">IBAN: </dt>
-                                <dd class="inpart"><asp:TextBox ID="clientBankIBANTextBox" runat="server" ReadOnly="True" CssClass="microElement"/></dd>
-
-                                <dt class="part">Contul bancar: </dt>
-                                <dd class="part"><asp:TextBox ID="clientBankContBancarTextBox" runat="server" CssClass="microElement"/></dd>
-                            </dl>                             
-                        </fieldset>
-                    </div>    
-                    <br />
-                    <div class="centerBox" style="width:255px">
-                            <asp:Button ID="Button3"  runat="server" Text="Save Personal Data" onclick="clientPersonalDataSaveButton_Click" Width="150px"  />
-                            <asp:Button ID="Button4" runat="server" Text="Cancel"  onclick="clientPersonalDataCancelButton_Click" Width="100px"  />
-                    </div>                
-                </ContentTemplate>
-            </ajax:TabPanel>
-
-            <ajax:TabPanel ID="AddressInfoTabPanel" runat="server">
-                <HeaderTemplate>&nbsp;Adrese&nbsp;</HeaderTemplate>	
-                <ContentTemplate>  
-                         <div class="TreeCenterColumn">
-                                <asp:Panel ID="adresaPanel" runat="server" GroupingText="ADRESA" CssClass="groupDataPanel">                               
-                                    <asp:Label ID="Label9" runat="server" Text="Viza de resedinta"></asp:Label>
-                                    <dl>         
-                                        <dt class="part">Tara: </dt>
-                                        <dd class="part"><asp:DropDownList ID="vizaClientAddressCountryDDL" runat="server"  AutoPostBack="True"  onselectedindexchanged="vizaClientCountryDDL_SelectedIndexChanged" CssClass="microDDL"/></dd>
-
-                                        <dt class="inpart">Raionul: </dt>
-                                        <dd class="inpart"> <asp:DropDownList ID="vizaClientAddressClientRaionDDL" runat="server" CssClass="microDDL"/></dd>
-
-                                        <dt class="part">Urban / Rural : </dt>
-                                        <dd class="part"> <asp:DropDownList ID="vizaUrbanRuralDDL" runat="server" CssClass="microDDL">
-                                                <asp:ListItem Text="**"/>
-                                                <asp:ListItem Text="Rural"  Value="Rural"/>
-                                                <asp:ListItem Text="Urban"  Value="Urban"/>
-                                            </asp:DropDownList>
-                                        </dd>
-
-                                        <dt class="inpart">Localitatea:  </dt>
-                                        <dd class="inpart"><asp:TextBox ID="vizaClientAddressLocalitateaTextBox" runat="server" CssClass="microElement"/></dd>
-
-                                        <dt class="part">Adresa/Strada:  </dt>
-                                        <dd class="part"><asp:TextBox ID="vizaClientAddressAdresaTextBox" runat="server" CssClass="microElement"/></dd>
-                                    </dl>
-
-                                    <br /><br />
-                                        Adresa reala de locuinta
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <asp:Button ID="copyInfoFromVizaAddress" runat="server" OnClick="copyInfoFromVizaAddress_Click" Text="Copie de la viza de resedinta" />
-                                    <dl>
-                                        <dt class="part">Tara:</dt>
-                                        <dd class="part"><asp:DropDownList ID="rAddressClientCountryDDL" runat="server"  AutoPostBack="True"  onselectedindexchanged="rAddressClientCountryDDL_SelectedIndexChanged" CssClass="microDDL"/></dd>
-
-                                        <dt class="inpart">Raionul: </dt>
-                                        <dd class="inpart"><asp:DropDownList ID="rAddressClientRaionDDL" runat="server" CssClass="microDDL"/></dd>
-
-                                        <dt class="part">Urban / Rural : </dt>
-                                        <dd class="part"> <asp:DropDownList ID="rAddressUrbanRuralDDL" runat="server" CssClass="microDDL">
-                                                <asp:ListItem Text="**"/>
-                                                <asp:ListItem Text="Rural"  Value="Rural"/>
-                                                <asp:ListItem Text="Urban"  Value="Urban"/>
-                                            </asp:DropDownList>
-                                        </dd>
-
-                                        <dt class="inpart">Localitatea: </dt>
-                                        <dd class="inpart"><asp:TextBox ID="rAddressClientLocalitateaTextBox" runat="server" CssClass="microElement"/></dd>
-
-                                        <dt class="part">Adresa/Strada: </dt>
-                                        <dd class="part"><asp:TextBox ID="rAddressAddresaStradaTextBox" runat="server" CssClass="microElement"/></dd>
-                                    </dl>        
-                                    
-                                    <br />
-                                    <div class="centerBox" style="width:255px">
-                                            <asp:Button ID="Button5"  runat="server" Text="Save Personal Data" onclick="clientPersonalDataSaveButton_Click" Width="150px"  />
-                                            <asp:Button ID="Button6" runat="server" Text="Cancel"  onclick="clientPersonalDataCancelButton_Click" Width="100px"  />
-                                    </div>        
-                                </asp:Panel>
-                            </div>
-                </ContentTemplate>
-            </ajax:TabPanel>
-
-            <ajax:TabPanel ID="BussnessInformationTabPanel" runat="server">
-                <HeaderTemplate>&nbsp;Descriere Afacere&nbsp;</HeaderTemplate>				    
-                    <ContentTemplate>
-  
-                    </ContentTemplate>			    
-                </ajax:TabPanel>   
-                     
-        </ajax:TabContainer>    --%>   
 
     </asp:Panel>
 

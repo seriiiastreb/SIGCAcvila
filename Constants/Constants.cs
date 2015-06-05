@@ -15,7 +15,14 @@ public class Constants
         SystemUserRecordStatus = 6,
         Province = 7,
         Permissions = 37,
+        Articol = 51,
         OrderSate = 52,
+        Tip = 53,
+        Desen = 54,
+        Colorit = 55,
+        Culori = 56,
+        Festonare = 57,
+        Depozite = 58,
     }
 
     public enum Classifiers

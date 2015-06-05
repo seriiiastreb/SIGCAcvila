@@ -476,6 +476,54 @@ namespace Client
             return result;
         }
 
+        public DataTable GetClientOrdersList(int clientID, List<int> ordersState)
+        {
+            DataTable result = new DataTable();
+            mLastError = string.Empty;
+
+            string ordersStatesSTR = Crypt.Utils.ConvertListToString(ordersState);
+
+            try
+            {
+                string query = "SELECT \r\n "
+                        + "  order_id, \r\n "
+                        + "  state, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
+                        + "  date, \r\n "
+                        + "  client_id, \r\n "
+                        + "  nr, \r\n "
+                        + "  articol, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "
+                        + "  desen, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = desen) as desen_name , "
+                        + "  tip, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = tip) as tip_name , "
+                        + "  colorit, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = colorit) as colorit_name , "
+                        + "  latime, \r\n "
+                        + "  lungime, \r\n "
+                        + "  metraj, \r\n "
+                        + "  bucati, \r\n "
+                        + "  festonare, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = colorit) as festonare_name , "
+                        + "  ean13 \r\n "
+                        + "  FROM  \r\n "
+                        + "  ClientOrders \r\n "
+                        + " WHERE client_id = " + clientID
+                        + " AND state in (" + ordersStatesSTR + ")";
+
+                result = mDataBridge.ExecuteQuery(query);
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+
         public DataObjects.Order GetOrderObjectByID(int orderID)
         {
             DataObjects.Order resultObject = null;
@@ -487,8 +535,8 @@ namespace Client
                         + "  state, \r\n "
                         + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
                         + "  date, \r\n "
-                        + "  client_id, \r\n "
-                        + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + Constants.Classifiers.ClientType_PersoanaFizica + " THEN Client.LastName ELSE '' END) + ' (' + Client.BirthDate + ')' From Client WHERE Client.client_id = ClientOrders.client_id  ) as client_description "
+                        + "  client_id, \r\n "                        
+                        + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN Client.LastName ELSE '' END) From Client WHERE Client.clientid = ClientOrders.client_id ) as client_description, "
                         + "  nr, \r\n "
                         + "  articol, \r\n "
                         + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "

@@ -58,7 +58,7 @@
 			</div>
 			<div class="clear"></div>
 
-            <div style="padding-top:5px; min-height:655px;  width:98%; margin: auto;">          
+            <div class="grid_16">          
 			    <asp:ContentPlaceHolder id="MainPlaceHolder" runat="server">        
                 </asp:ContentPlaceHolder>
             </div>

@@ -36,7 +36,7 @@ public partial class Customers : System.Web.UI.Page
             {
                 if (!IsPostBack)
                 {
-                    Utils.GetMaster(this).AddNavlink("Customers", appPath+  "/ModuleCustomers/Customers.aspx", "ClientsPageID");
+                    Utils.GetMaster(this).AddNavlink("Customers", appPath+  "/ModuleCustomers/Customers.aspx", Utils.CustomerPage_HotNavogateKey);
 
                     newClientSimple_BirthDateCalendarExtender.Format = Constants.ISODateBackwardDotsFormat;
                     clientContractDateFromCalendareExtender.Format = Constants.ISODateBackwardDotsFormat;
@@ -227,7 +227,7 @@ public partial class Customers : System.Web.UI.Page
 
                 ShowPanel(clientWorkPanel.ID);
 
-                Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName,  appPath + "/ModuleCustomers/Customers.aspx?clid=" + clientID, "clientID");
+                Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName,  appPath + "/ModuleCustomers/Customers.aspx?clid=" + clientID, Utils.Customer_HotNavogateKey);
             }
         }
     }
@@ -397,6 +397,19 @@ public partial class Customers : System.Web.UI.Page
 
         #endregion GeneralTab
 
+        #region ActiveOrders
+
+        List<int> orderStates = new List<int>();
+        orderStates.Add((int)Constants.Classifiers.OrderState_Solicitat);
+        orderStates.Add((int)Constants.Classifiers.OrderState_Confirmat);
+        orderStates.Add((int)Constants.Classifiers.OrderState_Anulat);
+
+        DataTable acctiveOrders = Utils.ModuleCustomers().GetClientOrdersList(clientObject.ClientID, orderStates);
+        clientActiveOrdersGridView.DataSource = acctiveOrders;
+        clientActiveOrdersGridView.DataBind();
+
+        #endregion ActiveOrders
+
         #region PersonalData
 
         clientPersonalDataSimplePanel.Visible = false;
@@ -436,6 +449,7 @@ public partial class Customers : System.Web.UI.Page
         }
         
         #endregion PersonalData
+
         #region Address
 
         try
@@ -457,6 +471,21 @@ public partial class Customers : System.Web.UI.Page
 
         FIllContractsGridView();
     }
+
+    protected void clientActiveOrdersGridView_RowCreated(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.Header)
+        { e.Row.TableSection = TableRowSection.TableHeader; }
+
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
+            e.Row.Attributes["onmouseout"] = "this.style.textDecoration='none';";
+            e.Row.Attributes["click"] = appPath + "/ModuleCustomers/Orders.aspx?ord=" + e.Row.Cells[0].Text;
+        }
+    }
+
+
 
     protected void clientPersDataGenderList_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -577,7 +606,7 @@ public partial class Customers : System.Web.UI.Page
             if (Utils.ModuleCustomers().UpdateClient(clientObject))
             {
                 this.ClientObject = clientObject;
-                Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + clientObject.ClientID, "clientID");
+                Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + clientObject.ClientID, Utils.Customer_HotNavogateKey);
             }
         }
         else

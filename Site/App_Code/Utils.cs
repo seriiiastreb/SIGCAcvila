@@ -24,6 +24,10 @@ public class Utils
     public const string SessionKey_ClientObject = "ClientObject";
     public const string SessionKey_OrderObject = "OrderObject";
 
+    public const string Orders_HotNavogateKey = "Orders";
+    public const string Customer_HotNavogateKey = "clientID";
+    public const string CustomerPage_HotNavogateKey = "ClientsPageID";
+
 
 	public Utils()
 	{
