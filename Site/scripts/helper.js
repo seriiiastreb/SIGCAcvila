@@ -141,3 +141,7 @@ function removeEntryValue(inptValue, hiddenFieldID) {
     { if (totalValues[i] != inptValue) { if (newText.length > 0) { newText += ';'; } newText += totalValues[i]; } }
     document.getElementById(hiddenFieldID).value = newText;
 };
+
+function DoNav(url) {
+    document.location.href = url;
+};

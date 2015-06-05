@@ -47,15 +47,58 @@ public partial class Orders : System.Web.UI.Page
                 if (!IsPostBack)
                 {
                     FillAllComboBox();
-                    
-                    if (this.ClientObject == null || this.ClientObject.ClientID == 0)
+
+                    if (Request["ord"] != null && !Request["ord"].ToString().Equals(string.Empty))
                     {
-                        customerSelectionControl.Show();
+                        string stringORDID = Request["ord"].ToString();
+
+                        if (!stringORDID.Equals("n"))
+                        {
+                            int orderID = 0;
+                            int.TryParse(stringORDID, out orderID);
+
+                            DataObjects.Order orderObject = Utils.ModuleCustomers().GetOrderObjectByID(orderID);
+                            this.OrderObject = orderObject;
+
+                            FillMainordersForm(orderObject);
+
+                            if (this.ClientObject == null || this.ClientObject.ClientID == 0 && this.ClientObject.ClientID != orderObject.Client_ID)
+                            {
+                                this.ClientObject = Utils.ModuleCustomers().GetCleintObjectByID(orderObject.Client_ID);
+                            }
+
+                            FIllOrdersGridView();
+
+                            for (int i = 0; i < ordersListGridView.Rows.Count; i++)
+                            {
+                                if (ordersListGridView.Rows[i].Cells[0].Text == stringORDID)
+                                {
+                                    ordersListGridView.SelectedIndex = i;
+                                    i = ordersListGridView.Rows.Count;
+                                }
+                            }
+
+                            Utils.GetMaster(this).ClearNavLinks();
+                            Utils.GetMaster(this).AddNavlink("Customers", appPath + "/ModuleCustomers/Customers.aspx", Utils.CustomerPage_HotNavogateKey);
+                            Utils.GetMaster(this).AddNavlink(this.ClientObject.FirstName + " " + this.ClientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + this.ClientObject.ClientID, Utils.Customer_HotNavogateKey);
+                            Utils.GetMaster(this).AddNavlink("Order Nr:" + orderObject.Nr, appPath + "/ModuleCustomers/Orders.aspx?ord=" + orderObject.Order_ID, Utils.Orders_HotNavogateKey);
+                        }
+                        else
+                        {
+                            newOrderPopupExtender.Show();
+                        }
                     }
                     else
                     {
-                        FIllOrdersGridView();
-                    }                
+                        if (this.ClientObject == null || this.ClientObject.ClientID == 0)
+                        {
+                            customerSelectionControl.Show();
+                        }
+                        else
+                        {
+                            FIllOrdersGridView();
+                        }
+                    }
                 }
                 else
                 {
@@ -209,7 +252,19 @@ public partial class Orders : System.Web.UI.Page
 
                 if (resultAction = Utils.ModuleCustomers().AddClientOrder(orderObject))
                 {
-                    FIllOrdersGridView();                   
+                    FIllOrdersGridView();
+                 
+                    for (int i = 0; i < ordersListGridView.Rows.Count; i++)
+                    {
+                        if (ordersListGridView.Rows[i].Cells[0].Text == orderObject.Order_ID.ToString())
+                        {
+                            ordersListGridView.SelectedIndex = i;
+                            i = ordersListGridView.Rows.Count;
+                        }
+                    }
+
+                    Utils.GetMaster(this).AddNavlink(this.ClientObject.FirstName + " " + this.ClientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + this.ClientObject.ClientID, Utils.Customer_HotNavogateKey);
+                    Utils.GetMaster(this).AddNavlink("Order Nr:" + orderObject.Nr, appPath + "/ModuleCustomers/Orders.aspx?ord=" + orderObject.Order_ID, Utils.Orders_HotNavogateKey);             
                 }
                 else
                 {

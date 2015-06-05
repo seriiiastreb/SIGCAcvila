@@ -30,20 +30,35 @@ public partial class Customers : System.Web.UI.Page
 
         try
         {
-            appPath = Utils.GetApplicationPath(Request); 
+            appPath = Utils.GetApplicationPath(Request);                     
+            
+            newClientSimple_BirthDateCalendarExtender.Format = Constants.ISODateBackwardDotsFormat;
+            clientContractDateFromCalendareExtender.Format = Constants.ISODateBackwardDotsFormat;
+            clientContractDateToCalendareExtender.Format = Constants.ISODateBackwardDotsFormat;
 
             if (allowView)
             {
                 if (!IsPostBack)
                 {
-                    Utils.GetMaster(this).AddNavlink("Customers", appPath+  "/ModuleCustomers/Customers.aspx", Utils.CustomerPage_HotNavogateKey);
-
-                    newClientSimple_BirthDateCalendarExtender.Format = Constants.ISODateBackwardDotsFormat;
-                    clientContractDateFromCalendareExtender.Format = Constants.ISODateBackwardDotsFormat;
-                    clientContractDateToCalendareExtender.Format = Constants.ISODateBackwardDotsFormat;
+                    Utils.GetMaster(this).ClearNavLinks();
+                    Utils.GetMaster(this).AddNavlink("Customers", appPath + "/ModuleCustomers/Customers.aspx", Utils.CustomerPage_HotNavogateKey);
 
                     FillAllComboBox();
-                    ShowPanel(clientSelectionPanel.ID);
+
+                    if (Request["clid"] != null && !Request["clid"].ToString().Equals(string.Empty))
+                    {
+                        string clid = Request["clid"].ToString();
+                        int orderID = 0;
+                        int.TryParse(clid, out orderID);
+
+                        this.ClientObject = Utils.ModuleCustomers().GetCleintObjectByID(orderID);
+                        Utils.GetMaster(this).AddNavlink(this.ClientObject.FirstName + " " + this.ClientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + this.ClientObject.ClientID, Utils.Customer_HotNavogateKey);
+                        ShowPanel(clientWorkPanel.ID);
+                    }
+                    else
+                    {
+                        ShowPanel(clientSelectionPanel.ID);
+                    }
                 }
                 else
                 {
@@ -56,7 +71,6 @@ public partial class Customers : System.Web.UI.Page
                             
                     switch (eventSource)
                     {
-
                         case "clientContractsGridClik":
 
                             #region Domains Grid Events
@@ -399,6 +413,8 @@ public partial class Customers : System.Web.UI.Page
 
         #region ActiveOrders
 
+        newOrderButton.OnClientClick = "DoNav('" + appPath + "/ModuleCustomers/Orders.aspx?ord=n'); ";
+
         List<int> orderStates = new List<int>();
         orderStates.Add((int)Constants.Classifiers.OrderState_Solicitat);
         orderStates.Add((int)Constants.Classifiers.OrderState_Confirmat);
@@ -472,7 +488,7 @@ public partial class Customers : System.Web.UI.Page
         FIllContractsGridView();
     }
 
-    protected void clientActiveOrdersGridView_RowCreated(object sender, GridViewRowEventArgs e)
+    protected void clientActiveOrdersGridView_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.Header)
         { e.Row.TableSection = TableRowSection.TableHeader; }
@@ -481,11 +497,9 @@ public partial class Customers : System.Web.UI.Page
         {
             e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
             e.Row.Attributes["onmouseout"] = "this.style.textDecoration='none';";
-            e.Row.Attributes["click"] = appPath + "/ModuleCustomers/Orders.aspx?ord=" + e.Row.Cells[0].Text;
+            e.Row.Attributes["OnClick"] = "DoNav('" + appPath + "/ModuleCustomers/Orders.aspx?ord=" + e.Row.Cells[0].Text + "'); ";
         }
     }
-
-
 
     protected void clientPersDataGenderList_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -536,8 +550,7 @@ public partial class Customers : System.Web.UI.Page
         }
 
         #endregion
-
-
+        
         #region Address
         try
         {
@@ -704,5 +717,6 @@ public partial class Customers : System.Web.UI.Page
     }
 
     #endregion ClientContracts
-    
+
+  
 }

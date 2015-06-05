@@ -69,7 +69,7 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server">   
 
-<div id="ordersDIV" class="box context-menu-orders" style="min-height:200px;">
+<div id="ordersDIV" class="box context-menu-orders" style="min-height:100px;">
 <h2>registered orders list</h2>
     <asp:HiddenField ID="selectedOrdersListGridViewIndexHiddenField" runat="server"></asp:HiddenField>
     <asp:GridView ID="ordersListGridView" runat="server" 

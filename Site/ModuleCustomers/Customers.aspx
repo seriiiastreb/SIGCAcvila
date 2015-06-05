@@ -149,8 +149,7 @@
     
 
     <asp:Panel ID="clientWorkPanel" Visible="false" runat="server">
-        <ajax:TabContainer ID="detailsClientTabContainer"  runat="server" 
-            cssclass="ajax__myTab"  ActiveTabIndex="2" >  
+        <ajax:TabContainer ID="detailsClientTabContainer"  runat="server" cssclass="ajax__myTab"  ActiveTabIndex="0" >  
             <ajax:TabPanel ID="generalInfoTabPanel" runat="server">                
                 <HeaderTemplate>&nbsp; General Info&nbsp; </HeaderTemplate>                	
                 <ContentTemplate>
@@ -159,12 +158,12 @@
 
                     <div style="float:left; width:74%;"> 
                         <div class="grid_6 box">
-                            <h2> Active Orders </h2>
-
+                            <h2> Active Orders <asp:ImageButton ID="newOrderButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Add new Order" ImageUrl="../images/plus.png"  runat="server" AlternateText="Add new order" /></h2>
+                                
                             <asp:GridView ID="clientActiveOrdersGridView" runat="server" 
                                 AutoGenerateColumns="false"
                                 AlternatingRowStyle-CssClass="odd"
-                                OnRowCreated="clientActiveOrdersGridView_RowCreated"
+                                OnRowDataBound="clientActiveOrdersGridView_RowDataBound"
                                 AllowPaging="false"  
                                 SelectedRowStyle-CssClass = "selectedRow" >
                                    <Columns>
@@ -431,8 +430,6 @@
 			                </p>
                             
 				              <asp:CheckBox ID="clientContractActiveCheckBox" runat="server" Text="Is Active:" TextAlign="Left"/>
-                                                   
-			                			   
                 
                             <div style="text-align:right;">
                                 <asp:Button ID="clientContractSaveButton" runat="server" Text="Save" Width="100px"  CausesValidation="false" onclick="clientContractSaveButton_Click"  />  
