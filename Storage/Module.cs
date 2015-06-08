@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using DAL;
 
-namespace Storage
+namespace Store
 {
     public class Module
     {
-        public const string ID = "Module Storage";
+        public const string ID = "Module Store";
         public const string Description = "Warehouse management";
         public static readonly string DBConnectionsStringKey = "mainDBConnectionString";
         public static DataBridge mDataBridge = new DataBridge(ConfigManager.GetDbConnectionString(Module.DBConnectionsStringKey), ConfigManager.GetProviderName(Module.DBConnectionsStringKey));
@@ -42,7 +42,7 @@ namespace Storage
 
             public static void Register()
             {
-                Security.Registrar.RegisterDomain(Storage.Module.ID, Name, Description);
+                Security.Registrar.RegisterDomain(Store.Module.ID, Name, Description);
             }
         }
 

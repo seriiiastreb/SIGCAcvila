@@ -80,6 +80,7 @@
         SelectedRowStyle-CssClass = "selectedRow" >
         <Columns>
             <asp:BoundField DataField="order_id" HeaderText="OrderID" ItemStyle-CssClass="hidden" HeaderStyle-CssClass="hidden" />
+            <asp:BoundField DataField="nr" HeaderText="Nr." />
             <asp:BoundField DataField="state_name" HeaderText="State" />
             <asp:TemplateField HeaderText="Date">
                 <ItemTemplate>

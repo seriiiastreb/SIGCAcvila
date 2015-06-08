@@ -411,18 +411,30 @@ public partial class Customers : System.Web.UI.Page
 
         #endregion GeneralTab
 
-        #region ActiveOrders
+        #region ComandedOrders
 
         List<int> orderStates = new List<int>();
         orderStates.Add((int)Constants.Classifiers.OrderState_Solicitat);
+        //orderStates.Add((int)Constants.Classifiers.OrderState_Confirmat);
+        //orderStates.Add((int)Constants.Classifiers.OrderState_Anulat);
+
+        DataTable comandedOrders = Utils.ModuleCustomers().GetClientOrdersList(clientObject.ClientID, orderStates);
+        clientComandedOrdersGridView.DataSource = comandedOrders;
+        clientComandedOrdersGridView.DataBind();
+
+        #endregion ComandedOrders
+
+        #region ComandedOrders
+
+        orderStates.Clear();
         orderStates.Add((int)Constants.Classifiers.OrderState_Confirmat);
-        orderStates.Add((int)Constants.Classifiers.OrderState_Anulat);
 
         DataTable acctiveOrders = Utils.ModuleCustomers().GetClientOrdersList(clientObject.ClientID, orderStates);
         clientActiveOrdersGridView.DataSource = acctiveOrders;
         clientActiveOrdersGridView.DataBind();
 
-        #endregion ActiveOrders
+        #endregion ComandedOrders
+
 
         #region PersonalData
 
@@ -486,6 +498,19 @@ public partial class Customers : System.Web.UI.Page
         FIllContractsGridView();
     }
 
+    protected void clientComandedOrdersGridView_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.Header)
+        { e.Row.TableSection = TableRowSection.TableHeader; }
+
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
+            e.Row.Attributes["onmouseout"] = "this.style.textDecoration='none';";
+            e.Row.Attributes["OnClick"] = "DoNav('" + appPath + "/ModuleCustomers/Orders.aspx?ord=" + e.Row.Cells[0].Text + "'); ";
+        }
+    }
+
     protected void clientActiveOrdersGridView_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.Header)
@@ -498,6 +523,7 @@ public partial class Customers : System.Web.UI.Page
             e.Row.Attributes["OnClick"] = "DoNav('" + appPath + "/ModuleCustomers/Orders.aspx?ord=" + e.Row.Cells[0].Text + "'); ";
         }
     }
+
 
     protected void clientPersDataGenderList_SelectedIndexChanged(object sender, EventArgs e)
     {

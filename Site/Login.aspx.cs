@@ -11,6 +11,7 @@ public partial class Login : System.Web.UI.Page
         Session[Utils.SessionKey_ModuleSecurity] = null;
         Session[Utils.SessionKey_ModuleMain] = null;
         Session[Utils.SessionKey_ModuleCustomers] = null;
+        Session[Utils.SessionKey_ModuleStore] = null;
         Session[Utils.SessionKey_HeadModuleSlector] = null;
         Session[Utils.SessionKey_ClientObject] = null;
         Session[Utils.SessionKey_OrderObject] = null;
@@ -141,9 +142,13 @@ public partial class Login : System.Web.UI.Page
         bool allowCustomersModule = Utils.PermissionAllowed(Client.Module.ID, Client.Domains.CustomersPersonalData.Name, Constants.Classifiers.Permissions_View);
         bool allowCustomersOrdersModule = Utils.PermissionAllowed(Client.Module.ID, Client.Domains.CustomersOrders.Name, Constants.Classifiers.Permissions_View);
 
+        bool allowModuleStore = Utils.PermissionAllowed(Store.Module.ID, Store.Domains.WarehouseManagement.Name, Constants.Classifiers.Permissions_View);
+
         if (allowBasicAdministration) Session[Utils.SessionKey_ModuleMain] = new Security.MainModule();
         if (allowUserManagement) Session[Utils.SessionKey_ModuleSecurity] = new Security.Module();
         if (allowCustomersModule || allowCustomersOrdersModule) Session[Utils.SessionKey_ModuleCustomers] = new Client.Module();
+        if (allowModuleStore) Session[Utils.SessionKey_ModuleStore] = new Store.Module();
+
 
         ////  Generate ModulesLiks
         string modulesMenu = string.Empty;
@@ -157,8 +162,15 @@ public partial class Login : System.Web.UI.Page
 
         if(allowCustomersOrdersModule)
         {
-            modulesMenu += " <li> <a href=\"" + appPath + "/ModuleCustomers/Orders.aspx\">  <img id=\"Img3\" width=\"24\" height=\"24\" alt=\"Customer orders page\" title=\"Customer orders page\" src=\"" + appPath + "/Images/order.png\" style=\" cursor:pointer; \"> </a> </li>\r\n ";
+            modulesMenu += " <li> <a href=\"" + appPath + "/ModuleCustomers/Orders.aspx\">  <img id=\"Img5\" width=\"24\" height=\"24\" alt=\"Customer orders page\" title=\"Customer orders page\" src=\"" + appPath + "/Images/order.png\" style=\" cursor:pointer; \"> </a> </li>\r\n ";
         }
+
+        if (allowModuleStore)
+        {
+            modulesMenu += " <li> <a href=\"" + appPath + "/ModuleStore/StorePage.aspx\">  <img id=\"Img6\" width=\"24\" height=\"24\" alt=\"Warehouse management page\" title=\"Warehouse management page\" src=\"" + appPath + "/Images/shopping_cart.png\" style=\" cursor:pointer; \"> </a> </li>\r\n ";
+        }
+
+
 
         if (allowBasicAdministration)
         {
