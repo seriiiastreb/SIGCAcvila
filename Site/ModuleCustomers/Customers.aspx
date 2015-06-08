@@ -1,45 +1,12 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Customers.aspx.cs" Inherits="Customers" EnableEventValidation="false" %>
 <%@ Register TagPrefix="ajax" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit"%>
-
+<%@ Register TagPrefix="csd" TagName="ClientSelectionControl" Src="~/Controls/ClientSelectionControl.ascx" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" Runat="Server"> 
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server"> 
     
-    <asp:Panel ID="clientSelectionPanel" runat="server" Visible="false">
-        <div style="text-align:left; width:40%; float:left;">
-            <asp:RadioButton ID="juridicPersonRadioButton" runat="server" GroupName="personType" Checked="true" Text="Legal Entity"  AutoPostBack="true" OnCheckedChanged="juridicPersonRadioButton_CheckedChanged" />
-            <asp:RadioButton ID="fizicPerson" runat="server" GroupName="personType" Checked="false" Text="Individual" AutoPostBack="true" OnCheckedChanged="juridicPersonRadioButton_CheckedChanged"/>
-
-        </div>
-        <div style="text-align:right; width:40%; float:right;">
-            <asp:Button ID="addNewClientButton" runat="server" Text="Add New Client" OnClick="addNewClientButton_Click" />
-        </div>
-        <div class="clear"></div>
-        <asp:GridView ID="clientListGridView" runat="server" 
-                AutoGenerateColumns="false"
-                AlternatingRowStyle-CssClass="odd"
-                OnRowCreated="usersGrid_RowCreated"
-                OnSelectedIndexChanged="clientListGridView_SelectedIndexChanged"
-                AllowPaging="false"  
-                SelectedRowStyle-CssClass = "selectedRow" >
-                <Columns>
-                    <asp:BoundField DataField="clientID" ItemStyle-CssClass="hidden" HeaderStyle-CssClass="hidden" />
-                    <asp:BoundField DataField="FirstName" HeaderText="FirstName" />
-                    <asp:BoundField DataField="LastName" HeaderText="LastName"  />                
-                    <asp:TemplateField HeaderText="Data Nastere">
-                        <ItemTemplate>
-                            <asp:Label ID="dateOfBirthLabel" Width="100px" runat="server" Text='<%# ((Eval("DateOfBirth") != null && Eval("DateOfBirth") is DateTime) ?  ((DateTime)Eval("DateOfBirth")).ToString(Constants.ISODateBackwardDotsFormat) : "") %>'></asp:Label>
-                        </ItemTemplate>
-                    </asp:TemplateField>                    
-                    <asp:BoundField DataField="buletinSeria" HeaderText="Buletin"  />
-                    <asp:BoundField DataField="personalID" HeaderText="Personal ID"  /> 
-                    <asp:BoundField DataField="telefon" HeaderText="Telefon"  />                                                  
-                </Columns>
-            </asp:GridView>
-    </asp:Panel>
-
     <asp:HyperLink ID="newClientHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
 
     <ajax:ModalPopupExtender ID="newClientPopupExtender" runat="server"     
@@ -172,7 +139,7 @@
                                        <HeaderStyle CssClass="hidden" />
                                        <ItemStyle CssClass="hidden" />
                                        </asp:BoundField>
-                                       <asp:BoundField DataField="state_name" HeaderText="State" />
+                                       <asp:BoundField DataField="nr" HeaderText="Nr." />
                                        <asp:TemplateField HeaderText="Date">
                                            <ItemTemplate>
                                                <asp:Label ID="dateLabel" runat="server" 
@@ -188,31 +155,8 @@
 
                         </div>
 
-                        <div class="grid_6 box">
-                            <h2> Comenzi Confirmate</h2>
-                                
-                            <asp:GridView ID="clientActiveOrdersGridView" runat="server" 
-                                AutoGenerateColumns="False"
-                                OnRowDataBound="clientActiveOrdersGridView_RowDataBound" >
-                                   <AlternatingRowStyle CssClass="odd" />
-                                   <Columns>
-                                       <asp:BoundField DataField="order_id" HeaderText="OrderID">
-                                       <HeaderStyle CssClass="hidden" />
-                                       <ItemStyle CssClass="hidden" />
-                                       </asp:BoundField>
-                                       <asp:BoundField DataField="state_name" HeaderText="State" />
-                                       <asp:TemplateField HeaderText="Date">
-                                           <ItemTemplate>
-                                               <asp:Label ID="dateLabel" runat="server" 
-                                                   Text='<%# ((Eval("date") != null && Eval("date") is DateTime) ?  ((DateTime)Eval("date")).ToString(Constants.ISODateBackwardDotsFormat) : "") %>' 
-                                                   Width="100px"></asp:Label>
-                                           </ItemTemplate>
-                                       </asp:TemplateField>
-                                       <asp:BoundField DataField="metraj" HeaderText="Metraj" />
-                                       <asp:BoundField DataField="bucati" HeaderText="Bucati" />
-                                   </Columns>
-                                   <SelectedRowStyle CssClass="selectedRow" />
-                            </asp:GridView>
+                        <div class="grid_6 box" id="activeOrdersDIV" runat="server">
+                            <h2> Comenzi Confirmate (in executie)</h2>
 
                         </div>
                     </div>
@@ -339,7 +283,6 @@
                             </fieldset>
                         </asp:Panel>        
 
-                    <div class="clear"></div>
 
                     <div style="text-align:center; margin:auto; width:100%;">
                         <asp:Button runat="server" ID="clientPersDataSaveBurtton" Text="Save personal data" onclick="clientPersDataSaveBurtton_Click"  Width="200px"  />
@@ -481,5 +424,7 @@
 
     </asp:Panel>
 
+    <csd:ClientSelectionControl ID="customerSelectionControl" runat="server" OnOnClientSelected="customerSelectionControl_ClientSelected"  />
+    
 </asp:Content>
 

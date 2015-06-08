@@ -57,7 +57,7 @@ public partial class Customers : System.Web.UI.Page
                     }
                     else
                     {
-                        ShowPanel(clientSelectionPanel.ID);
+                        customerSelectionControl.Show();
                     }
                 }
                 else
@@ -142,10 +142,32 @@ public partial class Customers : System.Web.UI.Page
         { Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Attention! Error in system!", ex.Message); }
     }
 
+    
+    protected void customerSelectionControl_ClientSelected(object sender, ClientSelectionControl.FilterWindowEventsArg e)
+    {
+        if (e.SelectedItem != 0)
+        {
+            DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(e.SelectedItem);
+            this.ClientObject = clientObject;
+
+            ShowPanel(clientWorkPanel.ID);
+
+            Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + e.SelectedItem, Utils.Customer_HotNavogateKey);
+
+        }
+        else
+        {
+            ClearNewClientForm((int)Constants.Classifiers.ClientType_PersoanaJuridica);
+            newClientPopupExtender.Show();
+        }
+    }
+
+
+
     private void ShowPanel(string panelName)
     {
         #region Hide panels
-        clientSelectionPanel.Visible = false;
+        //clientSelectionPanel.Visible = false;
         clientWorkPanel.Visible = false;
         #endregion Hide panels
 
@@ -156,8 +178,9 @@ public partial class Customers : System.Web.UI.Page
             switch (panelName)
             {
                 case "clientSelectionPanel":
-                    clientSelectionPanel.Visible = true;
-                    FillClientSelectionGrid();
+                    //clientSelectionPanel.Visible = true;
+                    //FillClientSelectionGrid();
+                    customerSelectionControl.Show();
                     break;
 
                 case "clientWorkPanel":
@@ -207,61 +230,61 @@ public partial class Customers : System.Web.UI.Page
 
     #region ClientSelection Region
 
-    protected void juridicPersonRadioButton_CheckedChanged(object sender, EventArgs e)
-    {
-        FillClientSelectionGrid();
-    }
+    //protected void juridicPersonRadioButton_CheckedChanged(object sender, EventArgs e)
+    //{
+    //    FillClientSelectionGrid();
+    //}
 
-    private void FillClientSelectionGrid()
-    {
-        int category = 0;
+    //private void FillClientSelectionGrid()
+    //{
+    //    int category = 0;
 
-        List<int> juridicPerson = new List<int>(new int[] {(int)Constants.Classifiers.ClientType_PersoanaJuridica});
-        List<int> fizicPerson = new List<int>(new int[] {(int)Constants.Classifiers.ClientType_PersoanaFizica});
+    //    List<int> juridicPerson = new List<int>(new int[] {(int)Constants.Classifiers.ClientType_PersoanaJuridica});
+    //    List<int> fizicPerson = new List<int>(new int[] {(int)Constants.Classifiers.ClientType_PersoanaFizica});
 
-        List<int> genderList = juridicPersonRadioButton.Checked ? juridicPerson : fizicPerson;
-        DataTable clientsList = Utils.ModuleCustomers().GetClientList(category, genderList);
-        clientListGridView.DataSource = clientsList;
-        clientListGridView.DataBind();
-    }
+    //    List<int> genderList = juridicPersonRadioButton.Checked ? juridicPerson : fizicPerson;
+    //    DataTable clientsList = Utils.ModuleCustomers().GetClientList(category, genderList);
+    //    clientListGridView.DataSource = clientsList;
+    //    clientListGridView.DataBind();
+    //}
 
-    protected void clientListGridView_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        if (clientListGridView.SelectedRow != null)
-        {
-            GridViewRow row = clientListGridView.SelectedRow;
+    //protected void clientListGridView_SelectedIndexChanged(object sender, EventArgs e)
+    //{
+    //    if (clientListGridView.SelectedRow != null)
+    //    {
+    //        GridViewRow row = clientListGridView.SelectedRow;
 
-            int clientID = 0;
-            int.TryParse(row.Cells[0].Text, out clientID);
+    //        int clientID = 0;
+    //        int.TryParse(row.Cells[0].Text, out clientID);
 
-            if (clientID > 0)
-            {
-                DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(clientID);
-                this.ClientObject = clientObject;
+    //        if (clientID > 0)
+    //        {
+    //            DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(clientID);
+    //            this.ClientObject = clientObject;
 
-                ShowPanel(clientWorkPanel.ID);
+    //            ShowPanel(clientWorkPanel.ID);
 
-                Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName,  appPath + "/ModuleCustomers/Customers.aspx?clid=" + clientID, Utils.Customer_HotNavogateKey);
-            }
-        }
-    }
+    //            Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName,  appPath + "/ModuleCustomers/Customers.aspx?clid=" + clientID, Utils.Customer_HotNavogateKey);
+    //        }
+    //    }
+    //}
 
-    protected void usersGrid_RowCreated(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-        { e.Row.TableSection = TableRowSection.TableHeader; }
+    //protected void usersGrid_RowCreated(object sender, GridViewRowEventArgs e)
+    //{
+    //    if (e.Row.RowType == DataControlRowType.Header)
+    //    { e.Row.TableSection = TableRowSection.TableHeader; }
 
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
-            e.Row.Attributes["onmouseout"] = "this.style.textDecoration='none';";
+    //    if (e.Row.RowType == DataControlRowType.DataRow)
+    //    {
+    //        e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
+    //        e.Row.Attributes["onmouseout"] = "this.style.textDecoration='none';";
 
-            for (int i = 0; i < e.Row.Cells.Count; i++)
-            {
-                e.Row.Cells[i].Attributes["onclick"] = ClientScript.GetPostBackClientHyperlink(this.clientListGridView, "Select$" + e.Row.RowIndex);
-            }
-        }
-    }
+    //        for (int i = 0; i < e.Row.Cells.Count; i++)
+    //        {
+    //            e.Row.Cells[i].Attributes["onclick"] = ClientScript.GetPostBackClientHyperlink(this.clientListGridView, "Select$" + e.Row.RowIndex);
+    //        }
+    //    }
+    //}
 
     #endregion ClientSelection Region
 
@@ -426,12 +449,12 @@ public partial class Customers : System.Web.UI.Page
 
         #region ComandedOrders
 
-        orderStates.Clear();
-        orderStates.Add((int)Constants.Classifiers.OrderState_Confirmat);
+        //orderStates.Clear();
+        //orderStates.Add((int)Constants.Classifiers.OrderState_Confirmat);
 
-        DataTable acctiveOrders = Utils.ModuleCustomers().GetClientOrdersList(clientObject.ClientID, orderStates);
-        clientActiveOrdersGridView.DataSource = acctiveOrders;
-        clientActiveOrdersGridView.DataBind();
+        //DataTable acctiveOrders = Utils.ModuleCustomers().GetClientOrdersList(clientObject.ClientID, orderStates);
+        //clientActiveOrdersGridView.DataSource = acctiveOrders;
+        //clientActiveOrdersGridView.DataBind();
 
         #endregion ComandedOrders
 
@@ -498,6 +521,31 @@ public partial class Customers : System.Web.UI.Page
         FIllContractsGridView();
     }
 
+                            //    <asp:GridView ID="clientActiveOrdersGridView" runat="server" 
+                            //    AutoGenerateColumns="False"
+                            //    OnRowDataBound="clientActiveOrdersGridView_RowDataBound" >
+                            //       <AlternatingRowStyle CssClass="odd" />
+                            //       <Columns>
+                            //           <asp:BoundField DataField="order_id" HeaderText="OrderID">
+                            //           <HeaderStyle CssClass="hidden" />
+                            //           <ItemStyle CssClass="hidden" />
+                            //           </asp:BoundField>
+                            //           <asp:TemplateField HeaderText="Date">
+                            //               <ItemTemplate>
+                            //                   <asp:Label ID="dateLabel" runat="server" 
+                            //                       Text='<%# ((Eval("date") != null && Eval("date") is DateTime) ?  ((DateTime)Eval("date")).ToString(Constants.ISODateBackwardDotsFormat) : "") %>' 
+                            //                       Width="100px"></asp:Label>
+                            //               </ItemTemplate>
+                            //           </asp:TemplateField>
+                            //           <asp:BoundField DataField="nr" HeaderText="Nr." />
+                            //           <asp:BoundField DataField="metraj" HeaderText="Metraj" />
+                            //           <asp:BoundField DataField="bucati" HeaderText="Bucati" />
+                            //           <asp:BoundField DataField="diferenta" HeaderText="Diferenta" />
+                            //       </Columns>
+                            //       <SelectedRowStyle CssClass="selectedRow" />
+                            //</asp:GridView>
+
+
     protected void clientComandedOrdersGridView_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.Header)
@@ -511,18 +559,18 @@ public partial class Customers : System.Web.UI.Page
         }
     }
 
-    protected void clientActiveOrdersGridView_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-        { e.Row.TableSection = TableRowSection.TableHeader; }
+    //protected void clientActiveOrdersGridView_RowDataBound(object sender, GridViewRowEventArgs e)
+    //{
+    //    if (e.Row.RowType == DataControlRowType.Header)
+    //    { e.Row.TableSection = TableRowSection.TableHeader; }
 
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
-            e.Row.Attributes["onmouseout"] = "this.style.textDecoration='none';";
-            e.Row.Attributes["OnClick"] = "DoNav('" + appPath + "/ModuleCustomers/Orders.aspx?ord=" + e.Row.Cells[0].Text + "'); ";
-        }
-    }
+    //    if (e.Row.RowType == DataControlRowType.DataRow)
+    //    {
+    //        e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
+    //        e.Row.Attributes["onmouseout"] = "this.style.textDecoration='none';";
+    //        e.Row.Attributes["OnClick"] = "DoNav('" + appPath + "/ModuleCustomers/Orders.aspx?ord=" + e.Row.Cells[0].Text + "'); ";
+    //    }
+    //}
 
 
     protected void clientPersDataGenderList_SelectedIndexChanged(object sender, EventArgs e)

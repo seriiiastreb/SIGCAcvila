@@ -301,6 +301,14 @@ public partial class Orders : System.Web.UI.Page
         ordersListGridView.DataBind();
     }
 
+    protected void FIllLivrariGridView()
+    {        
+        DataTable ordersList = Utils.ModuleCustomers().GetOrdersDeliveryListDetailed(this.OrderObject.Order_ID);
+
+        livrariGridView.DataSource = ordersList;
+        livrariGridView.DataBind();
+    }
+
     protected void ordersListGridView_RowCreated(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.Header)
@@ -466,10 +474,18 @@ public partial class Orders : System.Web.UI.Page
             orderEAN13TextBox.Text = orderObject.EAN13;
 
             Utils.GetMaster(this).AddNavlink("Order Nr:" + orderObject.Nr, appPath + "/ModuleCustomers/Orders.aspx?ord=" + orderObject.Order_ID, Utils.Orders_HotNavogateKey);
-
+            
+            FIllLivrariGridView();
         }
     }
 
 
-   
+
+    protected void livrariGridView_RowCreated(object sender, GridViewRowEventArgs e)
+    {
+
+    }
+
+
+
 }

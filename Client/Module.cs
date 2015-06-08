@@ -522,8 +522,7 @@ namespace Client
 
             return result;
         }
-
-
+        
         public DataObjects.Order GetOrderObjectByID(int orderID)
         {
             DataObjects.Order resultObject = null;
@@ -695,10 +694,155 @@ namespace Client
 
             return result;
         }
-
-
-
+        
         #endregion Customers Orders
+
+
+        #region Customers Delivery Orders
+
+        public DataTable GetOrdersDeliveryList(int orderID)
+        {
+            DataTable result = new DataTable();
+            mLastError = string.Empty;
+
+            try
+            {
+                string query = "SELECT \r\n "
+                    + "  delivery_id,  \r\n "
+                    + "  [date], \r\n "
+                    + "  order_id, \r\n "
+                    + "  quantity, \r\n "
+                    + "  delivery_doc \r\n "
+                    + "FROM OrdersDelivery  \r\n "
+                    + " WHERE order_id = " + orderID;
+
+                result = mDataBridge.ExecuteQuery(query);
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public DataTable GetOrdersDeliveryListDetailed(int orderID)
+        {
+            DataTable result = new DataTable();
+            mLastError = string.Empty;
+
+            try
+            {
+                string query = "SELECT delivery_id, date FROM OrdersDelivery WHERE order_id = " + orderID;
+                DataTable dates = mDataBridge.ExecuteQuery(query);
+                mLastError = mDataBridge.LastError;
+
+                string sql = string.Empty;
+
+                if (dates != null && dates.Rows.Count > 0)
+                {
+                    sql = " WITH MainTBL as (SELECT " + orderID + " as order_id) \r\n "
+                         + "   SELECT MainTBL.order_id, \r\n "
+                         + "     CO.nr,  \r\n "
+                         + "     (SELECT NAME From Classifiers WHERE Code = CO.articol) as articol_name ,  \r\n "
+                         + "     (SELECT NAME From Classifiers WHERE Code = CO.desen) as desen_name ,  \r\n "
+                         + "     (SELECT NAME From Classifiers WHERE Code = CO.tip) as tip_name ,  \r\n "
+                         + "     (SELECT NAME From Classifiers WHERE Code = CO.colorit) as colorit_name ,  \r\n "
+                         + "     cast(CO.lungime as varchar) + ' x ' + cast(CO.latime as varchar) as Dimensiuni,   \r\n ";
+
+                        for (int i = 0; i < dates.Rows.Count; i++)
+                        {
+                            sql += "   OD" + i + ".date, \r\n ";
+                        }
+
+                        sql += "     CO.client_id, \r\n "
+                            + "     Cl.FirstName + CASE WHEN Cl.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN ' ' + Cl.LastName ELSE '' END  as client_description \r\n "
+                            + " FROM MainTBL  \r\n ";
+
+                    for (int i = 0; i < dates.Rows.Count; i++)
+                    {
+                        sql += " LEFT JOIN OrdersDelivery as OD" + i + " ON OD" + i + ".order_id = MainTBL.order_id \r\n ";
+                    }
+
+                    sql += "   LEFT JOIN ClientOrders as CO ON CO.order_id = MainTBL.order_id  \r\n "
+                         + "   LEFT JOIN Client as CL ON CO.client_id = Cl.Clientid  \r\n ";
+                }
+
+                result = mDataBridge.ExecuteQuery(sql);
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public bool AddOrderDelivery(DateTime date, int orderID, int quantity, string deliveriry_doc_descr)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {
+                string nonQuery = "INSERT INTO  OrdersDelivery([date],  order_id,  quantity,  delivery_doc) \r\n "
+                            + " VALUES (@date,  @order_id,  @quantity,  @delivery_doc); ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@date", date);
+                parameters.Add("@order_id", orderID);
+                parameters.Add("@quantity", quantity);
+                parameters.Add("@delivery_doc", deliveriry_doc_descr);
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+        
+        public bool UpdateOrderDelivery(int deliveryID, DateTime date, int orderID, int quantity, string deliveriry_doc_descr)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {
+                string nonQuery = @"UPDATE 
+                              dbo.OrdersDelivery  
+                            SET 
+                              [date] = @date,
+                              order_id = @order_id,
+                              quantity = @quantity,
+                              delivery_doc = @delivery_doc 
+                            WHERE delivery_id = @delivery_id ; ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@delivery_id", deliveryID);
+                parameters.Add("@date", date);
+                parameters.Add("@order_id", orderID);
+                parameters.Add("@quantity", quantity);
+                parameters.Add("@delivery_doc", deliveriry_doc_descr);
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+
+        #endregion Customers Delivery Orders
     }
 
     namespace Domains

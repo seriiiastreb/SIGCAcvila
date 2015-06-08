@@ -13,7 +13,7 @@
     RepositionMode="RepositionOnWindowScroll">
 </ajax:ModalPopupExtender>
 
-<asp:Panel runat="server" ID="programmaticPopup" CssClass="box" style="width:750px; border:1px solid #000;">
+<asp:Panel runat="server" ID="programmaticPopup" CssClass="box" style="display:none; width:750px; border:1px solid #000;">
     <h2 style="cursor:move;" runat="server" id="programmaticPopupDragHandle">Client List  <asp:Image ID="cancelButton" runat="server" ImageUrl="~/images/dialog_close.png"  Width="23px" Height="23px" style="float:right; cursor:default; margin-top: -5px;" /></h2>
     <fieldset>	
         <div style="height:270px; width:150px; overflow:auto; float:left;">
@@ -48,6 +48,7 @@
         <div style="text-align:center;">        
             <asp:HiddenField ID="selectedClientIDHiddenField" runat="server" />   
             <asp:Button ID="okButton" runat="server" Text="Ok" onclick="okButton_Click" Width="100px" CausesValidation="false" />
+            <asp:Button ID="addNewClientButton" runat="server" Text="Add new client" Width="100px" CausesValidation="false" OnClick="addNewClientButton_Click" />
         </div>
     </fieldset>  
 </asp:Panel>

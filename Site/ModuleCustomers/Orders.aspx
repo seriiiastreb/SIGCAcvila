@@ -69,7 +69,7 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server">   
 
-<div id="ordersDIV" class="box context-menu-orders" style="min-height:100px;">
+<div id="ordersDIV" class="grid_5 box context-menu-orders" style="min-height:100px;">
 <h2>registered orders list</h2>
     <asp:HiddenField ID="selectedOrdersListGridViewIndexHiddenField" runat="server"></asp:HiddenField>
     <asp:GridView ID="ordersListGridView" runat="server" 
@@ -93,88 +93,99 @@
     </asp:GridView>
 </div>
 
-<div class="clear"></div>
-<asp:Panel ID="ordersWorkPanel" runat="server" CssClass="grid_16 box" Visible="false">
+<asp:Panel ID="ordersWorkPanel" runat="server" CssClass="grid_10 box" Visible="false">
+    <h2>Order description</h2>
 
-            <h2>Order description</h2>
-
-            <div class="grid_5">
-                <fieldset >
+        <div class="grid_5">
+            <fieldset >
+                <p>
+                    <label>State:</label>
+                    <asp:DropDownList ID="orderStateDDL" runat="server"></asp:DropDownList>
+                </p> 
+                <p>
+                    <label>Date:</label>
+                    <asp:TextBox ID="orderDateTextBox" runat="server"></asp:TextBox>                        
+                    <ajax:CalendarExtender ID="orderDateCalendarExtender" runat="server" TargetControlID="orderDateTextBox"></ajax:CalendarExtender>
+                </p> 
+                <p>
+                    <label>Solicitant:</label>
+                    <asp:TextBox ID="orderSolicitantDescriptionTextBox" runat="server" Enabled="false" ReadOnly="true"></asp:TextBox>
+                </p>
+		        <p>
+                    <label>Nr:</label>
+                    <asp:TextBox ID="orderNrTextBox" runat="server"></asp:TextBox>
+                </p>
+                <p>
+                    <label>Articol:</label>
+                    <asp:DropDownList ID="orderArticolDDL" runat="server"></asp:DropDownList>
+                </p>   
+	        </fieldset>
+        </div>	
+        <div class="grid_5">
+            <fieldset >                  
+                <p>
+                    <label>Desen:</label>
+                    <asp:DropDownList ID="orderDesenDDL" runat="server"></asp:DropDownList>
+                </p>   
+                <p>
+                    <label>Tip:</label>
+                    <asp:DropDownList ID="orderTipDDL" runat="server"></asp:DropDownList>
+                </p>            
                     <p>
-                        <label>State:</label>
-                        <asp:DropDownList ID="orderStateDDL" runat="server"></asp:DropDownList>
-                    </p> 
-                    <p>
-                        <label>Date:</label>
-                        <asp:TextBox ID="orderDateTextBox" runat="server"></asp:TextBox>                        
-                        <ajax:CalendarExtender ID="orderDateCalendarExtender" runat="server" TargetControlID="orderDateTextBox"></ajax:CalendarExtender>
-                    </p> 
-                    <p>
-                        <label>Solicitant:</label>
-                        <asp:TextBox ID="orderSolicitantDescriptionTextBox" runat="server" Enabled="false" ReadOnly="true"></asp:TextBox>
-                    </p>
-		            <p>
-                        <label>Nr:</label>
-                        <asp:TextBox ID="orderNrTextBox" runat="server"></asp:TextBox>
-                    </p>
-                    <p>
-                        <label>Articol:</label>
-                        <asp:DropDownList ID="orderArticolDDL" runat="server"></asp:DropDownList>
-                    </p>
-                    <p>
-                        <label>Desen:</label>
-                        <asp:DropDownList ID="orderDesenDDL" runat="server"></asp:DropDownList>
-                    </p>           
-                    <p>
-                        <label>Tip:</label>
-                        <asp:DropDownList ID="orderTipDDL" runat="server"></asp:DropDownList>
-                    </p>            
-
-	            </fieldset>
-            </div>	
+                    <label>Colorit:</label>
+                    <asp:DropDownList ID="orderColoritDDL" runat="server"></asp:DropDownList>
+                </p>    
+                <p>
+                    <label>Latime:</label>
+                    <asp:TextBox ID="orderLatimeTextBox" runat="server"></asp:TextBox>
+                </p>    
+                <p>
+                    <label>Lungime:</label>
+                    <asp:TextBox ID="orderLungimeTextBox" runat="server"></asp:TextBox>
+                </p>     
+	        </fieldset>
+        </div>	
             
-            <div class="grid_5">
-                <fieldset >
-                    <p>
-                        <label>Colorit:</label>
-                        <asp:DropDownList ID="orderColoritDDL" runat="server"></asp:DropDownList>
-                    </p>    
-                    <p>
-                        <label>Latime:</label>
-                        <asp:TextBox ID="orderLatimeTextBox" runat="server"></asp:TextBox>
-                    </p>    
-                    <p>
-                        <label>Lungime:</label>
-                        <asp:TextBox ID="orderLungimeTextBox" runat="server"></asp:TextBox>
-                    </p>    
-                    <p>
-                        <label>Bucati:</label>
-                        <asp:TextBox ID="orderBucatiTextBox" runat="server"></asp:TextBox>
-                    </p>    
-                    <p>
-                        <label>Metraj:</label>
-                        <asp:TextBox ID="orderMetrajTextBox" runat="server"></asp:TextBox>
-                    </p>   
-		            <p>
-                        <label>Festonare:</label>
-                        <asp:DropDownList ID="orderFestonareDDL" runat="server"></asp:DropDownList>
-                    </p>   
-                    <p>
-                        <label>EAN13:</label>
-                        <asp:TextBox ID="orderEAN13TextBox" runat="server"></asp:TextBox>
-                    </p>   
-	            </fieldset>
-            </div>	
-               
-    </asp:Panel>
+        <div class="grid_5">
+            <fieldset >      
+                <p>
+                    <label>Bucati:</label>
+                    <asp:TextBox ID="orderBucatiTextBox" runat="server"></asp:TextBox>
+                </p>    
+                <p>
+                    <label>Metraj:</label>
+                    <asp:TextBox ID="orderMetrajTextBox" runat="server"></asp:TextBox>
+                </p>              
+		        <p>
+                    <label>Festonare:</label>
+                    <asp:DropDownList ID="orderFestonareDDL" runat="server"></asp:DropDownList>
+                </p>   
+                <p>
+                    <label>EAN13:</label>
+                    <asp:TextBox ID="orderEAN13TextBox" runat="server"></asp:TextBox>
+                </p>   
+                <div style="margin:auto; width:200px;">
+                    <asp:Button ID="saveOrderDetailsButton" runat="server" Width="200px" Text="Save Order details" OnClick="saveOrderDetailsButton_Click" />
+                </div>
+	        </fieldset>
+        </div>	               
+    </asp:Panel>  
 
-    <div class="clear"></div>
-    <div style="margin:auto; width:200px;">
-        <asp:Button ID="saveOrderDetailsButton" runat="server" Width="200px" Text="Save Order details" OnClick="saveOrderDetailsButton_Click" />
+
+    <div class="grid_5 box">
+        <h2>Livrari</h2>       
+        <asp:HiddenField ID="selectedIndexInLivrariGridViewHiddenField" runat="server"></asp:HiddenField>
+        <asp:GridView ID="livrariGridView" runat="server" 
+            AutoGenerateColumns="true"
+            AlternatingRowStyle-CssClass="odd"
+            OnRowCreated="livrariGridView_RowCreated"
+            AllowPaging="false"  
+            SelectedRowStyle-CssClass = "selectedRow" >           
+        </asp:GridView>
     </div>
 
-
- 
+    <div class="grid_5 box">
+    </div>
 
     <asp:HyperLink ID="newOrderHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
 
