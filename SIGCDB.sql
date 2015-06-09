@@ -1,45 +1,27 @@
 ﻿-- SQL Manager 2008 for SQL Server 3.3.0.1
 -- ---------------------------------------
--- Host      : 192.168.2.222\SQLEXPRESS
--- Database  : sigc
--- Version   : Microsoft SQL Server  10.50.1600.1
+-- Host      : SQL5013.Smarterasp.net
+-- Database  : DB_9CAC4C_sigc
+-- Version   : Microsoft SQL Server  11.0.5058.0
 
 
-CREATE DATABASE [sigc]
+CREATE DATABASE [DB_9CAC4C_sigc]
 ON PRIMARY
-  ( NAME = [sigc],
-    FILENAME = 'c:\Program Files\Microsoft SQL Server\MSSQL10_50.SQLEXPRESS\MSSQL\DATA\sigc.mdf',
-    SIZE = 2 MB,
-    MAXSIZE = UNLIMITED,
-    FILEGROWTH = 1 MB )
+  ( NAME = [DB_9CAC4C_sigc_Data],
+    FILENAME = 'H:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\DB_9CAC4C_sigc_DATA.mdf',
+    SIZE = 4 MB,
+    MAXSIZE = 500 MB,
+    FILEGROWTH = 10 % )
 LOG ON
-  ( NAME = [sigc_log],
-    FILENAME = 'c:\Program Files\Microsoft SQL Server\MSSQL10_50.SQLEXPRESS\MSSQL\DATA\sigc_log.ldf',
-    SIZE = 1 MB,
+  ( NAME = [DB_9CAC4C_sigc_Log],
+    FILENAME = 'H:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\DB_9CAC4C_sigc_Log.LDF',
+    SIZE = 3 MB,
     MAXSIZE = 0 MB,
     FILEGROWTH = 10 % )
 COLLATE SQL_Latin1_General_CP1_CI_AS
 GO
 
-USE [sigc]
-GO
-
---
--- Definition for user dbuser : 
---
-
-CREATE USER [dbuser]
-  WITHOUT LOGIN 
-  WITH DEFAULT_SCHEMA = [dbo]
-GO
-
---
--- Definition for user sigc : 
---
-
-CREATE USER [sigc]
-  FOR LOGIN  [sigc]
-  WITH DEFAULT_SCHEMA = [dbo]
+USE [DB_9CAC4C_sigc]
 GO
 
 --
@@ -88,11 +70,49 @@ CREATE TABLE [dbo].[Client] (
   [telefonMobil] nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
   [viza_country] int NULL,
   [viza_raion] int NULL,
-  [viza_urbanRural] nvarchar(5) COLLATE Cyrillic_General_CI_AS NULL,
   [viza_localitatea] nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
   [viza_stradaAdresa] nvarchar(150) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
   [email] nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
   [sortGroup] int NOT NULL
+)
+ON [PRIMARY]
+GO
+
+--
+-- Definition for table ClientContracts : 
+--
+
+CREATE TABLE [dbo].[ClientContracts] (
+  [client_id] int NOT NULL,
+  [contract_id] int IDENTITY(1, 1) NOT NULL,
+  [contract_nr] nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+  [date_from] date NOT NULL,
+  [date_to] date NULL,
+  [active] bit NOT NULL
+)
+ON [PRIMARY]
+GO
+
+--
+-- Definition for table ClientOrders : 
+--
+
+CREATE TABLE [dbo].[ClientOrders] (
+  [order_id] int IDENTITY(1, 1) NOT NULL,
+  [state] int NOT NULL,
+  [date] date NOT NULL,
+  [client_id] int NOT NULL,
+  [nr] int NULL,
+  [articol] int NULL,
+  [desen] int NULL,
+  [tip] int NULL,
+  [colorit] int NULL,
+  [latime] decimal(18, 2) NULL,
+  [lungime] decimal(18, 2) NULL,
+  [metraj] decimal(18, 2) NOT NULL,
+  [bucati] int NOT NULL,
+  [festonare] int NULL,
+  [ean13] nvarchar(250) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 )
 ON [PRIMARY]
 GO
@@ -113,13 +133,28 @@ TEXTIMAGE_ON [PRIMARY]
 GO
 
 --
+-- Definition for table OrdersDelivery : 
+--
+
+CREATE TABLE [dbo].[OrdersDelivery] (
+  [delivery_id] int IDENTITY(1, 1) NOT NULL,
+  [date] date NOT NULL,
+  [order_id] int NOT NULL,
+  [quantity] int NOT NULL,
+  [delivery_doc] text COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL
+)
+ON [PRIMARY]
+TEXTIMAGE_ON [PRIMARY]
+GO
+
+--
 -- Definition for table st_domains : 
 --
 
 CREATE TABLE [dbo].[st_domains] (
   [module_id] nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
   [domain_id] nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-  [description] nvarchar(256) COLLATE Cyrillic_General_CI_AS NOT NULL
+  [description] nvarchar(256) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 )
 ON [PRIMARY]
 GO
@@ -202,476 +237,6 @@ GO
 INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
 VALUES 
   (5, 1, N'RO', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 182, N'Suedia', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 183, N'Surinam', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 184, N'Swaziland', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 185, N'Tadjikistan', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 186, N'Tanzania', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 187, N'Thailanda', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 188, N'Timorul de Est', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 189, N'Togo', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 190, N'Tonga', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 191, N'Trinidad Tobago', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 192, N'Tunisia', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 193, N'Turcia', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 194, N'Turkmenistan', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 195, N'Tuvalu', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 196, N'Ucraina', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 197, N'Uganda', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 198, N'Ungaria', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 199, N'Uruguay', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 200, N'Uzbekistan', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 201, N'Vanuatu', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 202, N'Vatican', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 203, N'Venezuela', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 204, N'Vietnam', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 205, N'Yemen', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 206, N'Zambia', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 207, N'Zimbabwe', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (4, 208, N'Masculin', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (4, 209, N'Feminin', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 210, N'Balti', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 211, N'Anenii Noi', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 212, N'Basarabeasca', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 213, N'Briceni', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 214, N'Cahul', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 215, N'Cantemir', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 216, N'Calarasi', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 217, N'Causeni', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 218, N'Cimislia', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 219, N'Criuleni', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 220, N'Donduseni', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 221, N'Drochia', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 222, N'Dubasari', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 223, N'Edinet', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 224, N'Falesti', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 225, N'Floresti', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 226, N'Glodeni', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 227, N'Hincesti', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 228, N'Ialoveni', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 229, N'Leova', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 230, N'Nisporeni', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 231, N'Ocnita', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 232, N'Orhei', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 233, N'Rezina', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 234, N'Riscani', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 235, N'Singerei', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 236, N'Soroca', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 237, N'Straseni', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 238, N'Soldanesti', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 239, N'Stefan Voda', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 240, N'Taraclia', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 241, N'Telenesti', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 242, N'Ungheni', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 260, N'Ciadir Lunga', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 261, N'Comrat', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 262, N'Lipcani', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 263, N'Ribnita', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 264, N'Vulcanesti', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 265, N'Tiraspol', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (8, 266, N'Bender', NULL, 133)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (37, 267, N'View', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (37, 268, N'Edit', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (37, 269, N'Deny', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (4, 270, N'Persoana juridica', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 127, N'Maroc', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 128, N'Insulele Marshall', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 129, N'Mauritania', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 130, N'Mauritius', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 131, N'Mexic', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 132, N'Statele Federate ale Microneziei', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 133, N'Republica Moldova', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 134, N'Monaco', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 135, N'Mongolia', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 136, N'Mozambic', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 137, N'Muntenegru', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 138, N'Namibia', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 139, N'Nauru', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 140, N'Nepal', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 141, N'Nicaragua', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 142, N'Niger', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 143, N'Nigeria', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 144, N'Norvegia', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 145, N'Noua Zeelanda', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 146, N'Olanda', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 147, N'Oman', NULL, NULL)
-GO
-
-INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
-VALUES 
-  (3, 148, N'Pakistan', NULL, NULL)
 GO
 
 INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
@@ -1564,6 +1129,696 @@ VALUES
   (3, 181, N'Sudanul de Sud', NULL, NULL)
 GO
 
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 182, N'Suedia', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 183, N'Surinam', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 184, N'Swaziland', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 185, N'Tadjikistan', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 186, N'Tanzania', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 187, N'Thailanda', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 188, N'Timorul de Est', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 189, N'Togo', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 190, N'Tonga', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 191, N'Trinidad Tobago', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 192, N'Tunisia', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 193, N'Turcia', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 194, N'Turkmenistan', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 195, N'Tuvalu', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 196, N'Ucraina', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 197, N'Uganda', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 198, N'Ungaria', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 199, N'Uruguay', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 200, N'Uzbekistan', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 201, N'Vanuatu', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 202, N'Vatican', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 203, N'Venezuela', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 204, N'Vietnam', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 205, N'Yemen', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 206, N'Zambia', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (3, 207, N'Zimbabwe', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (4, 209, N'Persoana fizica', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 210, N'Balti', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 211, N'Anenii Noi', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 212, N'Basarabeasca', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 213, N'Briceni', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 214, N'Cahul', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 215, N'Cantemir', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 216, N'Calarasi', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 217, N'Causeni', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 218, N'Cimislia', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 219, N'Criuleni', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 220, N'Donduseni', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 221, N'Drochia', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 222, N'Dubasari', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 223, N'Edinet', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 224, N'Falesti', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 225, N'Floresti', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 226, N'Glodeni', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 227, N'Hincesti', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 228, N'Ialoveni', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 229, N'Leova', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 230, N'Nisporeni', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 231, N'Ocnita', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 232, N'Orhei', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 233, N'Rezina', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 234, N'Riscani', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 235, N'Singerei', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 236, N'Soroca', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 237, N'Straseni', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 238, N'Soldanesti', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 239, N'Stefan Voda', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 240, N'Taraclia', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 241, N'Telenesti', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 242, N'Ungheni', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 260, N'Ciadir Lunga', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 261, N'Comrat', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 262, N'Lipcani', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 263, N'Ribnita', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 264, N'Vulcanesti', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 265, N'Tiraspol', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (8, 266, N'Bender', NULL, 133)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (37, 267, N'View', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (37, 268, N'Edit', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (37, 269, N'Deny', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (4, 270, N'Persoana juridica', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (51, 271, N'*High Weave*', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (51, 272, N'Afshar', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (51, 273, N'Angora-I', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (51, 274, N'Aquarelle', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (51, 275, N'Aquarelle 8', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (51, 276, N'Arabesque', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (51, 277, N'Astoria', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (51, 278, N'Bella', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (51, 279, N'Berber', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (51, 280, N'Blues', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (52, 281, N'Solicitat', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (52, 282, N'Confirmat', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (52, 283, N'Executat', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (52, 284, N'Anulat', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (53, 285, N'Covor', NULL, 1)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (53, 286, N'Covor oval', NULL, 2)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (53, 287, N'Covor cerc', NULL, 3)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (53, 288, N'Traversa', NULL, 4)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (53, 289, N'Covor forma neregulata', NULL, 5)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (53, 290, N'Covor poliedru', NULL, 6)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (53, 291, N'Mostre', NULL, 7)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (53, 292, N'Mocheta', NULL, 8)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (53, 293, N'Traversa nestandarta', NULL, 9)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (54, 294, N'0312', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (54, 295, N'1039', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (54, 296, N'0449', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (54, 297, N'0884', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (54, 298, N'4316', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (54, 299, N'2679', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (54, 300, N'0467', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (54, 301, N'2901', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (54, 302, N'0115', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (54, 303, N'4329', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (55, 304, N'31408', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (55, 305, N'20533', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (55, 306, N'20223', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (55, 307, N'91722', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (55, 308, N'20900', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (55, 309, N'21142', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (55, 310, N'01442', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (55, 311, N'00211', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (55, 312, N'59955', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (55, 313, N'41100', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (56, 314, N'Beige', NULL, 1)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (56, 315, N'Black', NULL, 2)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (56, 316, N'Blue', NULL, 3)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (56, 317, N'Bordo', NULL, 4)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (56, 318, N'Brick', NULL, 5)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (56, 319, N'Brown', NULL, 6)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (56, 320, N'Gold', NULL, 7)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (56, 321, N'Green', NULL, 8)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (56, 322, N'Grey', NULL, 9)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (56, 323, N'Grey', NULL, 10)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (57, 324, N'cu banda textila', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (57, 325, N'Fara feston', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (57, 326, N'franjuri tip 1', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (57, 327, N'franjuri tip 2', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (57, 328, N'lungime', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (57, 329, N'lungime + latime', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (57, 330, N'lungime + protex', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (57, 331, N'pe 3 laturi + protex', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (57, 332, N'piele + franjuri tip 2', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (57, 333, N'termolux', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (57, 334, N'termolux + protex', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (58, 335, N'Covoare stoc rest', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (58, 336, N'Covoare bufer', NULL, NULL)
+GO
+
+INSERT INTO [dbo].[Classifiers] ([TypeID], [Code], [Name], [Description], [GroupCode])
+VALUES 
+  (58, 337, N'Covoare defecte', NULL, NULL)
+GO
+
 SET IDENTITY_INSERT [dbo].[Classifiers] OFF
 GO
 
@@ -1591,7 +1846,7 @@ GO
 
 INSERT INTO [dbo].[ClassifierType] ([TypeID], [Name], [ParentID], [system])
 VALUES 
-  (4, N'Gender', 0, 0)
+  (4, N'Tip persoana', 0, 0)
 GO
 
 INSERT INTO [dbo].[ClassifierType] ([TypeID], [Name], [ParentID], [system])
@@ -1629,26 +1884,202 @@ VALUES
   (50, N'Sort Group', 0, 0)
 GO
 
+INSERT INTO [dbo].[ClassifierType] ([TypeID], [Name], [ParentID], [system])
+VALUES 
+  (51, N'Articol', 0, 0)
+GO
+
+INSERT INTO [dbo].[ClassifierType] ([TypeID], [Name], [ParentID], [system])
+VALUES 
+  (52, N'Order State', 0, 0)
+GO
+
+INSERT INTO [dbo].[ClassifierType] ([TypeID], [Name], [ParentID], [system])
+VALUES 
+  (53, N'Tip', 0, 0)
+GO
+
+INSERT INTO [dbo].[ClassifierType] ([TypeID], [Name], [ParentID], [system])
+VALUES 
+  (54, N'Desen', 0, 0)
+GO
+
+INSERT INTO [dbo].[ClassifierType] ([TypeID], [Name], [ParentID], [system])
+VALUES 
+  (55, N'Colorit', 0, 0)
+GO
+
+INSERT INTO [dbo].[ClassifierType] ([TypeID], [Name], [ParentID], [system])
+VALUES 
+  (56, N'Culori', 0, 0)
+GO
+
+INSERT INTO [dbo].[ClassifierType] ([TypeID], [Name], [ParentID], [system])
+VALUES 
+  (57, N'Festonare', 0, 0)
+GO
+
+INSERT INTO [dbo].[ClassifierType] ([TypeID], [Name], [ParentID], [system])
+VALUES 
+  (58, N'Depozite', 0, 0)
+GO
+
 SET IDENTITY_INSERT [dbo].[ClassifierType] OFF
 GO
 
 --
--- Data for table dbo.st_domains  (LIMIT 0,5000)
+-- Data for table dbo.Client  (LIMIT 0,5000)
 --
 
-INSERT INTO [dbo].[st_domains] ([module_id], [domain_id], [description])
-VALUES 
-  (N'Main Module', N'Basic Program Administration', N'Allow View/Edit Basic Data')
+SET IDENTITY_INSERT [dbo].[Client] ON
 GO
 
-INSERT INTO [dbo].[st_domains] ([module_id], [domain_id], [description])
+INSERT INTO [dbo].[Client] ([clientID], [gender], [FirstName], [LastName], [DateOfBirth], [personalID], [buletinSeria], [dataEliberarii], [dataExpirarii], [eliberatDe], [telefonFix], [telefonMobil], [viza_country], [viza_raion], [viza_localitatea], [viza_stradaAdresa], [email], [sortGroup])
 VALUES 
-  (N'Main Module', N'Emailing', N'Allow View/Create Emails and send it.')
+  (1, 270, N'Sergiu Juridic Test', N'Vasile Cipoi', NULL, N'235464567', N'', NULL, NULL, N'', N'456456', N'4546', 133, 213, N'Chsisinau', N'Chsisinau', N'xcngcn@mail.md', 0)
 GO
 
-INSERT INTO [dbo].[st_domains] ([module_id], [domain_id], [description])
+INSERT INTO [dbo].[Client] ([clientID], [gender], [FirstName], [LastName], [DateOfBirth], [personalID], [buletinSeria], [dataEliberarii], [dataExpirarii], [eliberatDe], [telefonFix], [telefonMobil], [viza_country], [viza_raion], [viza_localitatea], [viza_stradaAdresa], [email], [sortGroup])
 VALUES 
-  (N'Main Security Module', N'Administration', N'Administration')
+  (2, 270, N'Juridica 2', N'22222', NULL, N'222222', N'', NULL, NULL, N'', N'343242342', N'23432432', 0, 0, N'', N'', N'', 0)
+GO
+
+INSERT INTO [dbo].[Client] ([clientID], [gender], [FirstName], [LastName], [DateOfBirth], [personalID], [buletinSeria], [dataEliberarii], [dataExpirarii], [eliberatDe], [telefonFix], [telefonMobil], [viza_country], [viza_raion], [viza_localitatea], [viza_stradaAdresa], [email], [sortGroup])
+VALUES 
+  (3, 270, N'Juridica 3', N'343434dfafrf', NULL, N'33333333', N'', NULL, NULL, N'', N'43545543543', N'43q55356t5', 0, 0, N'', N'', N'', 0)
+GO
+
+INSERT INTO [dbo].[Client] ([clientID], [gender], [FirstName], [LastName], [DateOfBirth], [personalID], [buletinSeria], [dataEliberarii], [dataExpirarii], [eliberatDe], [telefonFix], [telefonMobil], [viza_country], [viza_raion], [viza_localitatea], [viza_stradaAdresa], [email], [sortGroup])
+VALUES 
+  (4, 270, N'lica', N'vasile', NULL, N'4325', N'', NULL, NULL, N'', N'0421492', N'9432108', 134, 0, N'', N'', N'test@test.com', 0)
+GO
+
+INSERT INTO [dbo].[Client] ([clientID], [gender], [FirstName], [LastName], [DateOfBirth], [personalID], [buletinSeria], [dataEliberarii], [dataExpirarii], [eliberatDe], [telefonFix], [telefonMobil], [viza_country], [viza_raion], [viza_localitatea], [viza_stradaAdresa], [email], [sortGroup])
+VALUES 
+  (5, 270, N'dfdsf', N'dgsdfgh', NULL, N'dfdfd', N'', NULL, NULL, N'', N'yjdutju', N'duiud', 0, 0, N'', N'', N'', 0)
+GO
+
+SET IDENTITY_INSERT [dbo].[Client] OFF
+GO
+
+--
+-- Data for table dbo.ClientContracts  (LIMIT 0,5000)
+--
+
+SET IDENTITY_INSERT [dbo].[ClientContracts] ON
+GO
+
+INSERT INTO [dbo].[ClientContracts] ([client_id], [contract_id], [contract_nr], [date_from], [date_to], [active])
+VALUES 
+  (0, 1, N'32434', N'2015-06-17', NULL, 1)
+GO
+
+INSERT INTO [dbo].[ClientContracts] ([client_id], [contract_id], [contract_nr], [date_from], [date_to], [active])
+VALUES 
+  (1, 2, N'32434', N'2015-06-04', N'2015-07-11', 0)
+GO
+
+INSERT INTO [dbo].[ClientContracts] ([client_id], [contract_id], [contract_nr], [date_from], [date_to], [active])
+VALUES 
+  (2, 3, N'xxx-1-www', N'2015-06-05', N'2015-06-30', 1)
+GO
+
+SET IDENTITY_INSERT [dbo].[ClientContracts] OFF
+GO
+
+--
+-- Data for table dbo.ClientOrders  (LIMIT 0,5000)
+--
+
+SET IDENTITY_INSERT [dbo].[ClientOrders] ON
+GO
+
+INSERT INTO [dbo].[ClientOrders] ([order_id], [state], [date], [client_id], [nr], [articol], [desen], [tip], [colorit], [latime], [lungime], [metraj], [bucati], [festonare], [ean13])
+VALUES 
+  (1, 281, N'2015-06-12', 1, 777, 274, 0, 286, 308, 0, 0, 100, 122, 324, N'')
+GO
+
+INSERT INTO [dbo].[ClientOrders] ([order_id], [state], [date], [client_id], [nr], [articol], [desen], [tip], [colorit], [latime], [lungime], [metraj], [bucati], [festonare], [ean13])
+VALUES 
+  (2, 281, N'2015-06-09', 1, 454, 271, 0, 285, 311, 2, 3, 345, 65, 324, N'')
+GO
+
+INSERT INTO [dbo].[ClientOrders] ([order_id], [state], [date], [client_id], [nr], [articol], [desen], [tip], [colorit], [latime], [lungime], [metraj], [bucati], [festonare], [ean13])
+VALUES 
+  (3, 282, N'2015-06-26', 1, 74856, 271, 0, 285, 311, 0, 0, 787, 55, 324, N'')
+GO
+
+INSERT INTO [dbo].[ClientOrders] ([order_id], [state], [date], [client_id], [nr], [articol], [desen], [tip], [colorit], [latime], [lungime], [metraj], [bucati], [festonare], [ean13])
+VALUES 
+  (4, 281, N'2015-07-11', 1, 56535, 271, 0, 285, 311, 1, 2, 23, 10, 324, N'')
+GO
+
+INSERT INTO [dbo].[ClientOrders] ([order_id], [state], [date], [client_id], [nr], [articol], [desen], [tip], [colorit], [latime], [lungime], [metraj], [bucati], [festonare], [ean13])
+VALUES 
+  (6, 281, N'2015-06-08', 4, 0, 0, 0, 0, 0, 0, 0, 400, 40, 0, N'')
+GO
+
+INSERT INTO [dbo].[ClientOrders] ([order_id], [state], [date], [client_id], [nr], [articol], [desen], [tip], [colorit], [latime], [lungime], [metraj], [bucati], [festonare], [ean13])
+VALUES 
+  (7, 281, N'2015-06-08', 0, 0, 271, 0, 285, 311, 0, 0, 400, 40, 324, N'45214367678879009-')
+GO
+
+INSERT INTO [dbo].[ClientOrders] ([order_id], [state], [date], [client_id], [nr], [articol], [desen], [tip], [colorit], [latime], [lungime], [metraj], [bucati], [festonare], [ean13])
+VALUES 
+  (8, 281, N'2015-06-08', 0, 0, 271, 0, 285, 311, 0, 0, 400, 40, 324, N'45214367678879009-')
+GO
+
+INSERT INTO [dbo].[ClientOrders] ([order_id], [state], [date], [client_id], [nr], [articol], [desen], [tip], [colorit], [latime], [lungime], [metraj], [bucati], [festonare], [ean13])
+VALUES 
+  (9, 281, N'2015-06-08', 0, 0, 271, 0, 285, 311, 0, 0, 400, 40, 324, N'45214367678879009')
+GO
+
+INSERT INTO [dbo].[ClientOrders] ([order_id], [state], [date], [client_id], [nr], [articol], [desen], [tip], [colorit], [latime], [lungime], [metraj], [bucati], [festonare], [ean13])
+VALUES 
+  (10, 282, N'2015-06-08', 3, 0, 271, 0, 285, 311, 0, 0, 200, 20, 324, N'')
+GO
+
+INSERT INTO [dbo].[ClientOrders] ([order_id], [state], [date], [client_id], [nr], [articol], [desen], [tip], [colorit], [latime], [lungime], [metraj], [bucati], [festonare], [ean13])
+VALUES 
+  (11, 282, N'2015-06-08', 0, 0, 271, 0, 285, 311, 0, 0, 200, 20, 324, N'')
+GO
+
+INSERT INTO [dbo].[ClientOrders] ([order_id], [state], [date], [client_id], [nr], [articol], [desen], [tip], [colorit], [latime], [lungime], [metraj], [bucati], [festonare], [ean13])
+VALUES 
+  (12, 281, N'2015-06-13', 3, 0, 0, 0, 0, 0, 0, 0, 67, 7, 0, N'')
+GO
+
+INSERT INTO [dbo].[ClientOrders] ([order_id], [state], [date], [client_id], [nr], [articol], [desen], [tip], [colorit], [latime], [lungime], [metraj], [bucati], [festonare], [ean13])
+VALUES 
+  (13, 281, N'2015-06-18', 1, 0, 0, 0, 0, 0, 0, 0, 5656, 565, 0, N'')
+GO
+
+SET IDENTITY_INSERT [dbo].[ClientOrders] OFF
+GO
+
+--
+-- Data for table dbo.OrdersDelivery  (LIMIT 0,5000)
+--
+
+SET IDENTITY_INSERT [dbo].[OrdersDelivery] ON
+GO
+
+INSERT INTO [dbo].[OrdersDelivery] ([delivery_id], [date], [order_id], [quantity], [delivery_doc])
+VALUES 
+  (2, N'1981-01-20', 1, 5, N'sdvfbgf')
+GO
+
+INSERT INTO [dbo].[OrdersDelivery] ([delivery_id], [date], [order_id], [quantity], [delivery_doc])
+VALUES 
+  (3, N'2017-01-20', 1, 2, N'666666')
+GO
+
+INSERT INTO [dbo].[OrdersDelivery] ([delivery_id], [date], [order_id], [quantity], [delivery_doc])
+VALUES 
+  (6, N'2015-06-01', 1, 2, N'3')
+GO
+
+SET IDENTITY_INSERT [dbo].[OrdersDelivery] OFF
 GO
 
 --
@@ -1657,12 +2088,17 @@ GO
 
 INSERT INTO [dbo].[st_modules] ([module_id], [description])
 VALUES 
-  (N'Main Module', N'Basic data operation (Main Module)')
+  (N'Module Customers', N'Processing data customer related (Personal Data; Orders)')
 GO
 
 INSERT INTO [dbo].[st_modules] ([module_id], [description])
 VALUES 
-  (N'Main Security Module', N'Creating And Processing Security Functions')
+  (N'Module Main', N'Basic data operation (Classifiers)')
+GO
+
+INSERT INTO [dbo].[st_modules] ([module_id], [description])
+VALUES 
+  (N'Module Security', N'Creating And Processing Security Functions (Users and Groups)')
 GO
 
 --
@@ -1676,26 +2112,12 @@ GO
 
 INSERT INTO [dbo].[st_roles] ([role_id])
 VALUES 
-  (N'Vinzatori')
+  (N'Sef Directie')
 GO
 
 INSERT INTO [dbo].[st_roles] ([role_id])
 VALUES 
-  (N'Sef Directie')
-GO
-
---
--- Data for table dbo.st_roles_permissions  (LIMIT 0,5000)
---
-
-INSERT INTO [dbo].[st_roles_permissions] ([module_id], [role_id], [domain_id], [permissions])
-VALUES 
-  (N'Main Module', N'Contabili', N'Basic Program Administration', 268)
-GO
-
-INSERT INTO [dbo].[st_roles_permissions] ([module_id], [role_id], [domain_id], [permissions])
-VALUES 
-  (N'Main Security Module', N'Sef Directie', N'Administration', 268)
+  (N'Vinzatori')
 GO
 
 --
@@ -1710,6 +2132,16 @@ GO
 INSERT INTO [dbo].[st_users_roles] ([user_id], [role_id])
 VALUES 
   (5, N'Vinzatori')
+GO
+
+INSERT INTO [dbo].[st_users_roles] ([user_id], [role_id])
+VALUES 
+  (6, N'Contabili')
+GO
+
+INSERT INTO [dbo].[st_users_roles] ([user_id], [role_id])
+VALUES 
+  (7, N'Vinzatori')
 GO
 
 --
@@ -1729,6 +2161,16 @@ VALUES
   (5, N'test', N'user22', N'test', N'sVVt6jLp0M2/7QOP13hydXdepAk5wUamTiBbyzSa0C8=', NULL, 8, N'email@mail.md', 0)
 GO
 
+INSERT INTO [dbo].[users] ([userid], [Nume], [Prenume], [login], [password], [passwordstatus], [recordstatus], [email], [sysadmin])
+VALUES 
+  (6, N'dima', N'tkacenko', N'dtkacenko', N'MRISyxHTT8K+nwsP6sZefcNTl7UHtJ+0vt1jpuyIh7k=', NULL, 8, N'dtkacenko@yahoo.com', 1)
+GO
+
+INSERT INTO [dbo].[users] ([userid], [Nume], [Prenume], [login], [password], [passwordstatus], [recordstatus], [email], [sysadmin])
+VALUES 
+  (7, N'test1', N'tester', N'test1', N'G08OmFGXGZjnMgeFRMlrNsPQHO33yqMyNZ1vHYNWcBQ=', NULL, 8, N'dtkacenko@yahoo.com', 0)
+GO
+
 SET IDENTITY_INSERT [dbo].[users] OFF
 GO
 
@@ -1736,9 +2178,57 @@ GO
 -- Definition for indices : 
 --
 
+ALTER TABLE [dbo].[Classifiers]
+ADD CONSTRAINT [Classifiers_pk] 
+PRIMARY KEY CLUSTERED ([Code])
+WITH (
+  PAD_INDEX = OFF,
+  IGNORE_DUP_KEY = OFF,
+  STATISTICS_NORECOMPUTE = OFF,
+  ALLOW_ROW_LOCKS = ON,
+  ALLOW_PAGE_LOCKS = ON)
+ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[ClassifierType]
+ADD CONSTRAINT [ClassifierType_pk] 
+PRIMARY KEY CLUSTERED ([TypeID])
+WITH (
+  PAD_INDEX = OFF,
+  IGNORE_DUP_KEY = OFF,
+  STATISTICS_NORECOMPUTE = OFF,
+  ALLOW_ROW_LOCKS = ON,
+  ALLOW_PAGE_LOCKS = ON)
+ON [PRIMARY]
+GO
+
 ALTER TABLE [dbo].[Client]
 ADD CONSTRAINT [Client_pk] 
 PRIMARY KEY CLUSTERED ([clientID])
+WITH (
+  PAD_INDEX = OFF,
+  IGNORE_DUP_KEY = OFF,
+  STATISTICS_NORECOMPUTE = OFF,
+  ALLOW_ROW_LOCKS = ON,
+  ALLOW_PAGE_LOCKS = ON)
+ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[ClientContracts]
+ADD CONSTRAINT [PK__ClientCo__90ACC2661273C1CD] 
+PRIMARY KEY CLUSTERED ([client_id], [contract_id])
+WITH (
+  PAD_INDEX = OFF,
+  IGNORE_DUP_KEY = OFF,
+  STATISTICS_NORECOMPUTE = OFF,
+  ALLOW_ROW_LOCKS = ON,
+  ALLOW_PAGE_LOCKS = ON)
+ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[ClientOrders]
+ADD CONSTRAINT [PK__ClientOr__46596229164452B1] 
+PRIMARY KEY CLUSTERED ([order_id])
 WITH (
   PAD_INDEX = OFF,
   IGNORE_DUP_KEY = OFF,
@@ -1760,6 +2250,66 @@ WITH (
 ON [PRIMARY]
 GO
 
+ALTER TABLE [dbo].[OrdersDelivery]
+ADD CONSTRAINT [PK__OrdersDe__1C5CF4F5D49E98C9] 
+PRIMARY KEY CLUSTERED ([delivery_id])
+WITH (
+  PAD_INDEX = OFF,
+  IGNORE_DUP_KEY = OFF,
+  STATISTICS_NORECOMPUTE = OFF,
+  ALLOW_ROW_LOCKS = ON,
+  ALLOW_PAGE_LOCKS = ON)
+ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[st_domains]
+ADD CONSTRAINT [PK__st_domai__645FBA25E25B2FF5] 
+PRIMARY KEY CLUSTERED ([module_id], [domain_id])
+WITH (
+  PAD_INDEX = OFF,
+  IGNORE_DUP_KEY = OFF,
+  STATISTICS_NORECOMPUTE = OFF,
+  ALLOW_ROW_LOCKS = ON,
+  ALLOW_PAGE_LOCKS = ON)
+ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[st_modules]
+ADD CONSTRAINT [st_modules_pk] 
+PRIMARY KEY CLUSTERED ([module_id])
+WITH (
+  PAD_INDEX = OFF,
+  IGNORE_DUP_KEY = OFF,
+  STATISTICS_NORECOMPUTE = OFF,
+  ALLOW_ROW_LOCKS = ON,
+  ALLOW_PAGE_LOCKS = ON)
+ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[st_roles]
+ADD CONSTRAINT [st_roles_pk] 
+PRIMARY KEY CLUSTERED ([role_id])
+WITH (
+  PAD_INDEX = OFF,
+  IGNORE_DUP_KEY = OFF,
+  STATISTICS_NORECOMPUTE = OFF,
+  ALLOW_ROW_LOCKS = ON,
+  ALLOW_PAGE_LOCKS = ON)
+ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[st_roles_permissions]
+ADD CONSTRAINT [PK__st_roles__6085B4526FB0EDAB] 
+PRIMARY KEY CLUSTERED ([module_id], [role_id], [domain_id], [permissions])
+WITH (
+  PAD_INDEX = OFF,
+  IGNORE_DUP_KEY = OFF,
+  STATISTICS_NORECOMPUTE = OFF,
+  ALLOW_ROW_LOCKS = ON,
+  ALLOW_PAGE_LOCKS = ON)
+ON [PRIMARY]
+GO
+
 ALTER TABLE [dbo].[st_users_roles]
 ADD CONSTRAINT [PK__st_users__6EDEA1530CBAE877] 
 PRIMARY KEY CLUSTERED ([user_id], [role_id])
@@ -1770,5 +2320,28 @@ WITH (
   ALLOW_ROW_LOCKS = ON,
   ALLOW_PAGE_LOCKS = ON)
 ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[users]
+ADD CONSTRAINT [users_pk] 
+PRIMARY KEY CLUSTERED ([userid])
+WITH (
+  PAD_INDEX = OFF,
+  IGNORE_DUP_KEY = OFF,
+  STATISTICS_NORECOMPUTE = OFF,
+  ALLOW_ROW_LOCKS = ON,
+  ALLOW_PAGE_LOCKS = ON)
+ON [PRIMARY]
+GO
+
+--
+-- Definition for foreign keys : 
+--
+
+ALTER TABLE [dbo].[Classifiers]
+ADD CONSTRAINT [Classifiers_typeID_fk] FOREIGN KEY ([TypeID]) 
+  REFERENCES [dbo].[ClassifierType] ([TypeID]) 
+  ON UPDATE CASCADE
+  ON DELETE CASCADE
 GO
 
