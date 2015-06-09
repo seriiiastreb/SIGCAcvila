@@ -191,6 +191,42 @@ namespace Client
             return result;
         }
         
+        public DataTable GetClientList(int category)
+        {
+            DataTable result = new DataTable();
+            mLastError = string.Empty;
+            
+            try
+            {
+                string query = "Select * "
+                            + " , coalesce(firstName, '') " + Plus + " (CASE WHEN gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN LastName ELSE '' END) as \"Client Full Name\" "                            
+                            + " , (select Name From Classifiers Where Code = gender) as gender_string "
+                            + " , (select Name From Classifiers Where Code = viza_country) as viza_country_string "
+                            + " , (select Name From Classifiers Where Code = viza_raion) as viza_raion_string "
+                            + " , coalesce(telefonMobil, '') " + Plus + " coalesce(telefonFix, '') as telefon "
+                            + " , (select Name From Classifiers Where Code = SortGroup) as SortGroup_string "
+                    //+ " , ( CASE WHEN (SELECT COUNT(*) FROM Loans WHERE Loans.clientID = client.ClientID) <> 0 THEN @NotAllowDelete ELSE @AllowDelete END ) as AllowDelete "
+
+                            + " FROM CLIENT \r\n "
+                            + (category != 0 ? " WHERE sortGroup = " + category : string.Empty)
+                            + " Order BY FirstName, LastName ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@AllowDelete", true);
+                parameters.Add("@NotAllowDelete", false);
+
+                result = mDataBridge.ExecuteQuery(query, parameters);
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+    
+
         public DataObjects.Client GetCleintObjectByID(int clientID)
         {
             DataObjects.Client clientObject = null;
@@ -432,6 +468,86 @@ namespace Client
 
         #region Customers Orders
 
+        public DataTable GetClientOrdersShortDetails()
+        {
+            DataTable result = new DataTable();
+            mLastError = string.Empty;
+
+            try
+            {
+                string query = " WITH MainTBL as (Select order_id from ClientOrders) \r\n "
+                    + "   SELECT \r\n "
+                    + "     CO.client_id, \r\n "
+                    + "     MainTBL.order_id, \r\n "
+                    + "     coalesce(Cl.FirstName,'') + CASE WHEN Cl.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN ' ' + coalesce(Cl.LastName,'') ELSE '' END  as client_description, \r\n "
+                    + "     CO.nr as \"Nr\",  \r\n "
+                    + "     (SELECT Name from Classifiers Where Code = Co.state) as state_name, \r\n "
+                    + "     CO.date, \r\n "
+                    + "     cast(CO.lungime as varchar) + ' x ' + cast(CO.latime as varchar) as Dimensiuni,   \r\n "
+                    + "     co.bucati as \"Total Comandat\" ,\r\n "
+                    + "     SUM(OD.quantity) as \"Total livrat\",\r\n "
+                    + "     co.bucati - coalesce(SUM(OD.quantity),0) as \"Diferenta\" \r\n "
+                    + " FROM MainTBL  \r\n "
+                    + " LEFT JOIN OrdersDelivery as OD ON OD.order_id = MainTBL.order_id \r\n "   
+                    + " LEFT JOIN ClientOrders as CO ON CO.order_id = MainTBL.order_id  \r\n "
+                    + " LEFT JOIN Client as CL ON CO.client_id = Cl.Clientid  \r\n "
+                    + " GROUP BY MainTBL.order_id, CO.nr, CO.lungime, CO.latime, Cl.FirstName, Cl.LastName, Cl.gender, CO.date, co.bucati, CO.client_id, Co.state";       
+
+                result = mDataBridge.ExecuteQuery(query);
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public DataTable GetClientOrdersList()
+        {
+            DataTable result = new DataTable();
+            mLastError = string.Empty;
+
+            try
+            {
+                string query = "SELECT \r\n "
+                        + "  order_id, \r\n "
+                        + "  state, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
+                        + "  date, \r\n "
+                        + "  client_id, \r\n "
+                        + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN coalesce(Client.LastName,'') ELSE '' END) From Client WHERE Client.clientid = ClientOrders.client_id ) as client_description, "
+                        + "  nr, \r\n "
+                        + "  articol, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "
+                        + "  desen, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = desen) as desen_name , "
+                        + "  tip, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = tip) as tip_name , "
+                        + "  colorit, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = colorit) as colorit_name , "
+                        + "  latime, \r\n "
+                        + "  lungime, \r\n "
+                        + "  metraj, \r\n "
+                        + "  bucati, \r\n "
+                        + "  festonare, \r\n "
+                        + "  (Select Name from Classifiers WHERE Code = colorit) as festonare_name , "
+                        + "  ean13 \r\n "
+                        + "  FROM  \r\n "
+                        + "  ClientOrders \r\n ";
+
+                result = mDataBridge.ExecuteQuery(query);
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
         public DataTable GetClientOrdersList(int clientID)
         {
             DataTable result = new DataTable();
@@ -445,6 +561,7 @@ namespace Client
                         + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
                         + "  date, \r\n "
                         + "  client_id, \r\n "
+                        + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN coalesce(Client.LastName,'') ELSE '' END) From Client WHERE Client.clientid = ClientOrders.client_id ) as client_description, "
                         + "  nr, \r\n "
                         + "  articol, \r\n "
                         + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "
@@ -491,6 +608,7 @@ namespace Client
                         + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
                         + "  date, \r\n "
                         + "  client_id, \r\n "
+                        + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN coalesce(Client.LastName,'') ELSE '' END) From Client WHERE Client.clientid = ClientOrders.client_id ) as client_description, "                      
                         + "  nr, \r\n "
                         + "  articol, \r\n "
                         + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "
@@ -534,8 +652,8 @@ namespace Client
                         + "  state, \r\n "
                         + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
                         + "  date, \r\n "
-                        + "  client_id, \r\n "                        
-                        + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN Client.LastName ELSE '' END) From Client WHERE Client.clientid = ClientOrders.client_id ) as client_description, "
+                        + "  client_id, \r\n "
+                        + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN coalesce(Client.LastName,'') ELSE '' END) From Client WHERE Client.clientid = ClientOrders.client_id ) as client_description, "
                         + "  nr, \r\n "
                         + "  articol, \r\n "
                         + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "
@@ -700,6 +818,33 @@ namespace Client
 
         #region Customers Delivery Orders
 
+        public DataTable GetDeliveryByID(int deliveryID)
+        {
+            DataTable result = new DataTable();
+            mLastError = string.Empty;
+
+            try
+            {
+                string query = "SELECT \r\n "
+                    + "  delivery_id,  \r\n "
+                    + "  [date], \r\n "
+                    + "  order_id, \r\n "
+                    + "  quantity, \r\n "
+                    + "  delivery_doc \r\n "
+                    + "FROM OrdersDelivery  \r\n "
+                    + " WHERE delivery_id = " + deliveryID;
+
+                result = mDataBridge.ExecuteQuery(query);
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
         public DataTable GetOrdersDeliveryList(int orderID)
         {
             DataTable result = new DataTable();
@@ -727,47 +872,28 @@ namespace Client
             return result;
         }
 
-        public DataTable GetOrdersDeliveryListDetailed(int orderID)
+        public DataTable GetOrdersDeliveryListShortDetailed(int clientID)
         {
             DataTable result = new DataTable();
             mLastError = string.Empty;
 
             try
             {
-                string query = "SELECT delivery_id, date FROM OrdersDelivery WHERE order_id = " + orderID;
-                DataTable dates = mDataBridge.ExecuteQuery(query);
-                mLastError = mDataBridge.LastError;
-
-                string sql = string.Empty;
-
-                if (dates != null && dates.Rows.Count > 0)
-                {
-                    sql = " WITH MainTBL as (SELECT " + orderID + " as order_id) \r\n "
-                         + "   SELECT MainTBL.order_id, \r\n "
-                         + "     CO.nr,  \r\n "
-                         + "     (SELECT NAME From Classifiers WHERE Code = CO.articol) as articol_name ,  \r\n "
-                         + "     (SELECT NAME From Classifiers WHERE Code = CO.desen) as desen_name ,  \r\n "
-                         + "     (SELECT NAME From Classifiers WHERE Code = CO.tip) as tip_name ,  \r\n "
-                         + "     (SELECT NAME From Classifiers WHERE Code = CO.colorit) as colorit_name ,  \r\n "
-                         + "     cast(CO.lungime as varchar) + ' x ' + cast(CO.latime as varchar) as Dimensiuni,   \r\n ";
-
-                        for (int i = 0; i < dates.Rows.Count; i++)
-                        {
-                            sql += "   OD" + i + ".date, \r\n ";
-                        }
-
-                        sql += "     CO.client_id, \r\n "
-                            + "     Cl.FirstName + CASE WHEN Cl.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN ' ' + Cl.LastName ELSE '' END  as client_description \r\n "
-                            + " FROM MainTBL  \r\n ";
-
-                    for (int i = 0; i < dates.Rows.Count; i++)
-                    {
-                        sql += " LEFT JOIN OrdersDelivery as OD" + i + " ON OD" + i + ".order_id = MainTBL.order_id \r\n ";
-                    }
-
-                    sql += "   LEFT JOIN ClientOrders as CO ON CO.order_id = MainTBL.order_id  \r\n "
-                         + "   LEFT JOIN Client as CL ON CO.client_id = Cl.Clientid  \r\n ";
-                }
+                string sql = " WITH MainTBL as (Select order_id from ClientOrders Where client_ID = " + clientID + ") \r\n "
+                        + "   SELECT \r\n "
+                        + "     MainTBL.order_id, \r\n "
+                        + "     CO.nr as \"Nr\",  \r\n "
+                        + "     cast(CO.lungime as varchar) + ' x ' + cast(CO.latime as varchar) as Dimensiuni,   \r\n "
+                        + "     co.bucati as \"Total Comandat\" ,\r\n "
+                        + "     SUM(OD.quantity) as \"Total livrat\",\r\n "
+                        + "     co.bucati - coalesce(SUM(OD.quantity),0) as \"Diferenta\",\r\n "
+                        + "     CO.client_id, \r\n "
+                        + "     Cl.FirstName + CASE WHEN Cl.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN ' ' + Cl.LastName ELSE '' END  as client_description \r\n "
+                        + " FROM MainTBL  \r\n "
+                        + " LEFT JOIN OrdersDelivery as OD ON OD.order_id = MainTBL.order_id \r\n "   
+                        + " LEFT JOIN ClientOrders as CO ON CO.order_id = MainTBL.order_id  \r\n "
+                        + " LEFT JOIN Client as CL ON CO.client_id = Cl.Clientid  \r\n "
+                        + " GROUP BY MainTBL.order_id, CO.nr, CO.lungime, CO.latime, Cl.FirstName, Cl.LastName, Cl.gender, co.bucati, CO.client_id";                
 
                 result = mDataBridge.ExecuteQuery(sql);
                 mLastError = mDataBridge.LastError;
@@ -779,6 +905,60 @@ namespace Client
 
             return result;
         }
+
+
+        //public DataTable GetOrdersDeliveryListDetailed(int clientID)
+        //{
+        //    DataTable result = new DataTable();
+        //    mLastError = string.Empty;
+
+        //    try
+        //    {
+        //        string query = "SELECT delivery_id, date FROM OrdersDelivery WHERE order_id in (Select order_id from ClientOrders Where client_ID = " + clientID + ")";
+        //        DataTable dates = mDataBridge.ExecuteQuery(query);
+        //        mLastError = mDataBridge.LastError;
+
+        //        string sql = string.Empty;
+
+        //        if (dates != null && dates.Rows.Count > 0)
+        //        {
+        //            sql = " WITH MainTBL as (Select order_id from ClientOrders Where client_ID = " + clientID + ") \r\n "
+        //                 + "   SELECT MainTBL.order_id, \r\n "
+        //                 + "     CO.nr,  \r\n "
+        //                 + "     (SELECT NAME From Classifiers WHERE Code = CO.articol) as articol_name ,  \r\n "
+        //                 + "     (SELECT NAME From Classifiers WHERE Code = CO.desen) as desen_name ,  \r\n "
+        //                 + "     (SELECT NAME From Classifiers WHERE Code = CO.tip) as tip_name ,  \r\n "
+        //                 + "     (SELECT NAME From Classifiers WHERE Code = CO.colorit) as colorit_name ,  \r\n "
+        //                 + "     cast(CO.lungime as varchar) + ' x ' + cast(CO.latime as varchar) as Dimensiuni,   \r\n ";
+
+        //                for (int i = 0; i < dates.Rows.Count; i++)
+        //                {
+        //                    sql += "   OD" + i + ".date, \r\n ";
+        //                }
+
+        //                sql += "     CO.client_id, \r\n "
+        //                    + "     Cl.FirstName + CASE WHEN Cl.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN ' ' + Cl.LastName ELSE '' END  as client_description \r\n "
+        //                    + " FROM MainTBL  \r\n ";
+
+        //            for (int i = 0; i < dates.Rows.Count; i++)
+        //            {
+        //                sql += " LEFT JOIN OrdersDelivery as OD" + i + " ON OD" + i + ".order_id = MainTBL.order_id \r\n ";
+        //            }
+
+        //            sql += "   LEFT JOIN ClientOrders as CO ON CO.order_id = MainTBL.order_id  \r\n "
+        //                 + "   LEFT JOIN Client as CL ON CO.client_id = Cl.Clientid  \r\n ";
+        //        }
+
+        //        result = mDataBridge.ExecuteQuery(sql);
+        //        mLastError = mDataBridge.LastError;
+        //    }
+        //    catch (Exception exception)
+        //    {
+        //        mLastError += "Error using DataBridge. " + exception.Message;
+        //    }
+
+        //    return result;
+        //}
 
         public bool AddOrderDelivery(DateTime date, int orderID, int quantity, string deliveriry_doc_descr)
         {

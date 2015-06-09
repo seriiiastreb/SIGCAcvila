@@ -13,12 +13,6 @@ public partial class Orders : System.Web.UI.Page
     bool allowEdit = false;
     bool allowView = false;
 
-    DataObjects.Client ClientObject
-    {
-        get { return Session[Utils.SessionKey_ClientObject] != null ? (DataObjects.Client)Session[Utils.SessionKey_ClientObject] : new DataObjects.Client(); }
-        set { Session[Utils.SessionKey_ClientObject] = value; }
-    }
-
     DataObjects.Order OrderObject
     {
         get { return Session[Utils.SessionKey_OrderObject] != null ? (DataObjects.Order)Session[Utils.SessionKey_OrderObject] : new DataObjects.Order(); }
@@ -43,63 +37,65 @@ public partial class Orders : System.Web.UI.Page
             {
                 newOrderDateCalendarExtender.Format = Constants.ISODateBackwardDotsFormat;
                 orderDateCalendarExtender.Format = Constants.ISODateBackwardDotsFormat;
-
+                livrareDateCalendarExtender.Format = Constants.ISODateBackwardDotsFormat;
+                
                 if (!IsPostBack)
                 {
                     FillAllComboBox();
+                    FIllOrdersGridView();
 
-                    if (Request["ord"] != null && !Request["ord"].ToString().Equals(string.Empty))
-                    {
-                        string stringORDID = Request["ord"].ToString();
+                    //if (Request["ord"] != null && !Request["ord"].ToString().Equals(string.Empty))
+                    //{
+                    //    string stringORDID = Request["ord"].ToString();
 
-                        if (!stringORDID.Equals("n"))
-                        {
-                            int orderID = 0;
-                            int.TryParse(stringORDID, out orderID);
+                    //    if (!stringORDID.Equals("n"))
+                    //    {
+                    //        int orderID = 0;
+                    //        int.TryParse(stringORDID, out orderID);
 
-                            DataObjects.Order orderObject = Utils.ModuleCustomers().GetOrderObjectByID(orderID);
-                            this.OrderObject = orderObject;
+                    //        DataObjects.Order orderObject = Utils.ModuleCustomers().GetOrderObjectByID(orderID);
+                    //        this.OrderObject = orderObject;
 
-                            FillMainordersForm(orderObject);
+                    //        FillMainordersForm(orderObject);
 
-                            if (this.ClientObject == null || this.ClientObject.ClientID == 0 && this.ClientObject.ClientID != orderObject.Client_ID)
-                            {
-                                this.ClientObject = Utils.ModuleCustomers().GetCleintObjectByID(orderObject.Client_ID);
-                            }
+                    //        if (this.ClientObject == null || this.ClientObject.ClientID == 0 && this.ClientObject.ClientID != orderObject.Client_ID)
+                    //        {
+                    //            this.ClientObject = Utils.ModuleCustomers().GetCleintObjectByID(orderObject.Client_ID);
+                    //        }
 
-                            FIllOrdersGridView();
+                    //        FIllOrdersGridView();
 
-                            for (int i = 0; i < ordersListGridView.Rows.Count; i++)
-                            {
-                                if (ordersListGridView.Rows[i].Cells[0].Text == stringORDID)
-                                {
-                                    ordersListGridView.SelectedIndex = i;
-                                    i = ordersListGridView.Rows.Count;
-                                }
-                            }
+                    //        for (int i = 0; i < ordersListGridView.Rows.Count; i++)
+                    //        {
+                    //            if (ordersListGridView.Rows[i].Cells[0].Text == stringORDID)
+                    //            {
+                    //                ordersListGridView.SelectedIndex = i;
+                    //                i = ordersListGridView.Rows.Count;
+                    //            }
+                    //        }
 
-                            Utils.GetMaster(this).ClearNavLinks();
-                            Utils.GetMaster(this).AddNavlink("Customers", appPath + "/ModuleCustomers/Customers.aspx", Utils.CustomerPage_HotNavogateKey);
-                            Utils.GetMaster(this).AddNavlink(this.ClientObject.FirstName + " " + this.ClientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + this.ClientObject.ClientID, Utils.Customer_HotNavogateKey);
-                            Utils.GetMaster(this).AddNavlink("Order Nr:" + orderObject.Nr, appPath + "/ModuleCustomers/Orders.aspx?ord=" + orderObject.Order_ID, Utils.Orders_HotNavogateKey);
-                        }
-                        else
-                        {
-                            ClearNewOrderForm();
-                            newOrderPopupExtender.Show();
-                        }
-                    }
-                    else
-                    {
-                        if (this.ClientObject == null || this.ClientObject.ClientID == 0)
-                        {
-                            customerSelectionControl.Show();
-                        }
-                        else
-                        {
-                            FIllOrdersGridView();
-                        }
-                    }
+                    //        Utils.GetMaster(this).ClearNavLinks();
+                    //        Utils.GetMaster(this).AddNavlink("Customers", appPath + "/ModuleCustomers/Customers.aspx", Utils.CustomerPage_HotNavogateKey);
+                    //        Utils.GetMaster(this).AddNavlink(this.ClientObject.FirstName + " " + this.ClientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + this.ClientObject.ClientID, Utils.Customer_HotNavogateKey);
+                    //        Utils.GetMaster(this).AddNavlink("Order Nr:" + orderObject.Nr, appPath + "/ModuleCustomers/Orders.aspx?ord=" + orderObject.Order_ID, Utils.Orders_HotNavogateKey);
+                    //    }
+                    //    else
+                    //    {
+                    //        ClearNewOrderForm();
+                    //        newOrderPopupExtender.Show();
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    if (this.ClientObject == null || this.ClientObject.ClientID == 0)
+                    //    {
+                    //        customerSelectionControl.Show();
+                    //    }
+                    //    else
+                    //    {
+                    //        FIllOrdersGridView();
+                    //    }
+                    //}
                 }
                 else
                 {
@@ -109,7 +105,11 @@ public partial class Orders : System.Web.UI.Page
                     int selectedIndexInOrdersGrid = 0;
                     int.TryParse(selectedOrdersListGridViewIndexHiddenField.Value, out selectedIndexInOrdersGrid);
                     if (!selectedOrdersListGridViewIndexHiddenField.Value.Equals(string.Empty)) ordersListGridView.SelectedIndex = selectedIndexInOrdersGrid;
-               
+
+                    int selectedIndexInLivrariGrid = 0;
+                    int.TryParse(selectedIndexInLivrariGridViewHiddenField.Value, out selectedIndexInLivrariGrid);
+                    if (!selectedIndexInLivrariGridViewHiddenField.Value.Equals(string.Empty)) livrariGridView.SelectedIndex = selectedIndexInLivrariGrid;
+
 
                     switch (eventSource)
                     {
@@ -130,20 +130,23 @@ public partial class Orders : System.Web.UI.Page
                                     {
                                         ClearOrderDetailsForm();
 
+                                        int clientID = 0;
+                                        int.TryParse(ordersListGridView.Rows[selectedIndexInOrdersGrid].Cells[0].Text, out clientID);
+
                                         int orderID = 0;
-                                        int.TryParse(ordersListGridView.Rows[selectedIndexInOrdersGrid].Cells[0].Text, out orderID);
+                                        int.TryParse(ordersListGridView.Rows[selectedIndexInOrdersGrid].Cells[1].Text, out orderID);
 
                                         DataObjects.Order orderObject = Utils.ModuleCustomers().GetOrderObjectByID(orderID);
                                         this.OrderObject = orderObject;
 
-                                        FillMainordersForm(orderObject);
+                                        FillMainOrdersForm(orderObject);
                                     }
                                     break;
 
                                 case "delete":
                                     {
                                         int orderID = 0;
-                                        int.TryParse(ordersListGridView.Rows[selectedIndexInOrdersGrid].Cells[0].Text, out orderID);
+                                        int.TryParse(ordersListGridView.Rows[selectedIndexInOrdersGrid].Cells[1].Text, out orderID);
 
                                         if (Utils.ModuleCustomers().DeleteClientOrder(orderID))
                                         {
@@ -159,6 +162,54 @@ public partial class Orders : System.Web.UI.Page
                             #endregion Orders Grid enents
 
                             break;
+
+                        case "livrariGridViewClik":
+
+                            #region Orders Grid enents
+                            switch (eventArgument)
+                            {
+                                case "add":
+                                    {
+                                        ClearlivrariFrom();
+                                        livrariPopupextender.Show();
+                                    }
+                                    break;
+
+                                case "edit":
+                                case "select":
+                                    {
+                                        ClearlivrariFrom();
+
+                                        int deliveryID = 0;
+                                        int.TryParse(livrariGridView.Rows[selectedIndexInLivrariGrid].Cells[0].Text, out deliveryID);
+                                        
+                                        DataTable livrareDT = Utils.ModuleCustomers().GetDeliveryByID(deliveryID);
+                                        
+                                        FillLivrariForm(livrareDT);
+                                        livrariPopupextender.Show();
+                                    }
+                                    break;
+
+                                case "delete":
+                                    //{
+                                    //    int orderID = 0;
+                                    //    int.TryParse(livrariGridView.Rows[selectedIndexInLivrariGrid].Cells[0].Text, out orderID);
+
+                                    //    if (Utils.ModuleCustomers().dele(orderID))
+                                    //    {
+                                    //        FIllLivrariGridView();
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Attention!", "The order was not deleted. Try again later.");
+                                    //    }
+                                    //}
+                                    break;
+                            }
+                            #endregion Orders Grid enents
+
+                            break;
+
                     }
                 }
             }
@@ -191,34 +242,15 @@ public partial class Orders : System.Web.UI.Page
 
         DataTable festonare = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.Festonare);
         Utils.FillSelector(orderFestonareDDL, festonare, "Name", "Code");
-
+        
+        DataTable clientListDT = Utils.ModuleCustomers().GetClientList(0);
+        Utils.FillSelector(newOrderClientDDL, clientListDT, "Client Full Name", "clientid");
     }
-
-    protected void customerSelectionControl_ClientSelected(object sender, ClientSelectionControl.FilterWindowEventsArg e)
-    {
-        if (e.SelectedItem != 0)
-        {
-            DataObjects.Client clienObject = Utils.ModuleCustomers().GetCleintObjectByID(e.SelectedItem );
-
-            this.ClientObject = clienObject;
-
-            Utils.GetMaster(this).ClearNavLinks();
-
-            Utils.GetMaster(this).AddNavlink("Customers", appPath + "/ModuleCustomers/Customers.aspx", Utils.CustomerPage_HotNavogateKey);
-            Utils.GetMaster(this).AddNavlink(clienObject.FirstName + " " + clienObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + clienObject.ClientID, Utils.Customer_HotNavogateKey);
-            
-            FIllOrdersGridView();
-        }
-    }
-
+    
     #region new orders
 
     private void ClearNewOrderForm()
     {
-        DataObjects.Client clientObject = this.ClientObject;
-        string part2Descr = clientObject != null && clientObject.Gender == (int)Constants.Classifiers.ClientType_PersoanaFizica ? clientObject.LastName + " (" + clientObject.BirthDate.ToString(Constants.ISODateBackwardDotsFormat) + ")" : string.Empty;
-
-        newOrderClientInfoTextBox.Text = clientObject != null ? clientObject.FirstName + " " + part2Descr  : string.Empty;
         newOrderDateTextBox.Text = string.Empty;
 
         try
@@ -244,7 +276,11 @@ public partial class Orders : System.Web.UI.Page
                 orderObject.State = state;
 
                 orderObject.Date = Crypt.Utils.ToDateTime(newOrderDateTextBox.Text, Constants.ISODateBackwardDotsFormat);
-                orderObject.Client_ID = this.ClientObject.ClientID;
+
+                int clientID = 0;
+                int.TryParse(newOrderClientDDL.SelectedValue, out clientID);
+
+                orderObject.Client_ID = clientID;
                 orderObject.Metraj = Crypt.Utils.MyDecimalParce(newOrderMetrajTextBox.Text);
 
                 int bucati = 0;
@@ -264,10 +300,10 @@ public partial class Orders : System.Web.UI.Page
                         }
                     }
 
-                    Utils.GetMaster(this).AddNavlink(this.ClientObject.FirstName + " " + this.ClientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + this.ClientObject.ClientID, Utils.Customer_HotNavogateKey);
-                    Utils.GetMaster(this).AddNavlink("Order Nr:" + orderObject.Nr, appPath + "/ModuleCustomers/Orders.aspx?ord=" + orderObject.Order_ID, Utils.Orders_HotNavogateKey);
+                    //Utils.GetMaster(this).AddNavlink(this.ClientObject.FirstName + " " + this.ClientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + this.ClientObject.ClientID, Utils.Customer_HotNavogateKey);
+                    //Utils.GetMaster(this).AddNavlink("Order Nr:" + orderObject.Nr, appPath + "/ModuleCustomers/Orders.aspx?ord=" + orderObject.Order_ID, Utils.Orders_HotNavogateKey);
 
-                    FillMainordersForm(orderObject);
+                    FillMainOrdersForm(orderObject);
                 }
                 else
                 {
@@ -290,23 +326,10 @@ public partial class Orders : System.Web.UI.Page
 
     protected void FIllOrdersGridView()
     {
-        DataObjects.Client client = this.ClientObject;
-
-        DataTable ordersList = null;
-
-        if (client != null)
-            ordersList = Utils.ModuleCustomers().GetClientOrdersList(client.ClientID);
+        DataTable ordersList = Utils.ModuleCustomers().GetClientOrdersShortDetails();
 
         ordersListGridView.DataSource = ordersList;
         ordersListGridView.DataBind();
-    }
-
-    protected void FIllLivrariGridView()
-    {        
-        DataTable ordersList = Utils.ModuleCustomers().GetOrdersDeliveryListDetailed(this.OrderObject.Order_ID);
-
-        livrariGridView.DataSource = ordersList;
-        livrariGridView.DataBind();
     }
 
     protected void ordersListGridView_RowCreated(object sender, GridViewRowEventArgs e)
@@ -378,7 +401,7 @@ public partial class Orders : System.Web.UI.Page
                 orderObject.State = orderState;
 
                 orderObject.Nr = nr;
-                
+
                 int articol = 0;
                 int.TryParse(orderArticolDDL.SelectedValue, out articol);
                 orderObject.Articol = articol;
@@ -396,15 +419,15 @@ public partial class Orders : System.Web.UI.Page
 
                 int bucati = 0;
                 int.TryParse(orderBucatiTextBox.Text, out bucati);
-                orderObject.Bucati = bucati;            
+                orderObject.Bucati = bucati;
 
                 orderObject.Metraj = Crypt.Utils.MyDecimalParce(orderMetrajTextBox.Text);
-    
+
                 int festonare = 0;
                 int.TryParse(orderFestonareDDL.SelectedValue, out festonare);
                 orderObject.Festonare = festonare;
 
-                orderObject.EAN13 =  orderEAN13TextBox.Text.Trim();
+                orderObject.EAN13 = orderEAN13TextBox.Text.Trim();
 
                 if (orderObject.Order_ID == 0)
                 {
@@ -432,11 +455,10 @@ public partial class Orders : System.Web.UI.Page
         else
         {
             Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
-        }        
+        }
     }
-
-
-    private void FillMainordersForm(DataObjects.Order orderObject)
+    
+    private void FillMainOrdersForm(DataObjects.Order orderObject)
     {
         if (orderObject != null)
         {
@@ -473,18 +495,107 @@ public partial class Orders : System.Web.UI.Page
 
             orderEAN13TextBox.Text = orderObject.EAN13;
 
-            Utils.GetMaster(this).AddNavlink("Order Nr:" + orderObject.Nr, appPath + "/ModuleCustomers/Orders.aspx?ord=" + orderObject.Order_ID, Utils.Orders_HotNavogateKey);
-            
+            //Utils.GetMaster(this).AddNavlink("Order Nr:" + orderObject.Nr, appPath + "/ModuleCustomers/Orders.aspx?ord=" + orderObject.Order_ID, Utils.Orders_HotNavogateKey);
+
+            livrariPanel.Visible = true;
             FIllLivrariGridView();
         }
     }
 
+    protected void FIllLivrariGridView()
+    {
+        DataTable ordersList = Utils.ModuleCustomers().GetOrdersDeliveryList(this.OrderObject.Order_ID);
 
+        livrariGridView.DataSource = ordersList;
+        livrariGridView.DataBind();
+    }
 
     protected void livrariGridView_RowCreated(object sender, GridViewRowEventArgs e)
     {
+        if (e.Row.RowType == DataControlRowType.Header)
+        { e.Row.TableSection = TableRowSection.TableHeader; }
 
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
+            e.Row.Attributes["onmouseout"] = "this.style.textDecoration='none';";
+        }
     }
+
+    private void ClearlivrariFrom()
+    {
+        livrariAction_HiddenField.Value = Crypt.Module.CreateEncodedString("New");
+        livrariID_HiddenField.Value = string.Empty;
+        orderID_HiddenField.Value = string.Empty;
+        livrariDateTextBox.Text = string.Empty;
+        livrariCantitateTextBox.Text = string.Empty;
+        livrariDocTextBox.Text = string.Empty;
+    }
+
+    private void FillLivrariForm(DataTable sourceDT)
+    {
+        if (sourceDT != null && sourceDT.Rows.Count == 1)
+        {
+            livrariAction_HiddenField.Value = Crypt.Module.CreateEncodedString("Edit");
+            livrariID_HiddenField.Value = sourceDT.Rows[0]["delivery_id"].ToString();
+            orderID_HiddenField.Value = sourceDT.Rows[0]["order_id"].ToString();
+            livrariDateTextBox.Text = sourceDT.Rows[0]["date"] != System.DBNull.Value ? ((DateTime)sourceDT.Rows[0]["date"]).ToString(Constants.ISODateBackwardDotsFormat) : string.Empty;
+            livrariCantitateTextBox.Text = sourceDT.Rows[0]["quantity"].ToString();
+            livrariDocTextBox.Text = sourceDT.Rows[0]["delivery_doc"].ToString();
+        }
+    }
+
+    protected void livrariCantitateSaveButton_Click(object sender, EventArgs e)
+    {
+        if (allowEdit)
+        {
+            try
+            {
+                bool resultAction = false;
+                string action = Crypt.Module.DecodeCriptedString(livrariAction_HiddenField.Value);
+                
+                int livrare_ID = 0;
+                int.TryParse(livrariID_HiddenField.Value, out livrare_ID);
+
+                int order_ID = this.OrderObject.Order_ID;
+
+                DateTime date = Crypt.Utils.ToDateTime(livrariDateTextBox.Text, (string)Constants.ISODateBackwardDotsFormat);
+
+                int cantitate = 0;
+                int.TryParse(livrariCantitateTextBox.Text, out cantitate);
+
+                string livrareDoc = livrariDocTextBox.Text.Trim();
+
+                if (action.Equals("New"))
+                {
+                    resultAction = Utils.ModuleCustomers().AddOrderDelivery(date, order_ID, cantitate, livrareDoc);
+                }
+                else
+                {
+                    resultAction = Utils.ModuleCustomers().UpdateOrderDelivery(livrare_ID, date, order_ID, cantitate, livrareDoc);
+                }
+
+                if (resultAction)
+                {
+                    FIllLivrariGridView();
+                }
+                else
+                {
+                    Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Attention!", "Data was not saved. Try again later.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Attention! Error in system!", ex.Message);
+            }
+        }
+        else
+        {
+            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Access restricted.", "You do not have access to this page or options. Contact DataBase administrator to resolve this issues.");
+        }
+    }
+
+
 
 
 

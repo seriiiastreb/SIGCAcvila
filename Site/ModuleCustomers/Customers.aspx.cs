@@ -449,12 +449,13 @@ public partial class Customers : System.Web.UI.Page
 
         #region ComandedOrders
 
-        //orderStates.Clear();
-        //orderStates.Add((int)Constants.Classifiers.OrderState_Confirmat);
+        DataTable ordersDetalied = Utils.ModuleCustomers().GetOrdersDeliveryListShortDetailed(clientObject.ClientID);
+        List<string> hiddenColumns = new List<string>(new string[] {"order_id"});
+        List<string> columnsToDisplay = new List<string>(new string[] { "order_id", "nr", "Dimensiuni", "Total Comandat", "Total livrat", "Diferenta" });
+        string doNavLinkStr = "/Site/ModuleCustomers/Orders.aspx?ord=";
 
-        //DataTable acctiveOrders = Utils.ModuleCustomers().GetClientOrdersList(clientObject.ClientID, orderStates);
-        //clientActiveOrdersGridView.DataSource = acctiveOrders;
-        //clientActiveOrdersGridView.DataBind();
+        activeOrdersDIV.InnerHtml = Utils.GetTableAsHTMLFormatedTable(ordersDetalied, hiddenColumns, columnsToDisplay, "detailedOrders", doNavLinkStr, "order_id");
+
 
         #endregion ComandedOrders
 

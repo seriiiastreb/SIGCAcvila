@@ -376,7 +376,45 @@ public class Utils
             }
         }
     }
-    
+
+    public static string GetTableAsHTMLFormatedTable(DataTable sourceTable, List<string> hiddenColumns, List<string> columnsToDisplay, string idtable, string doNavLink, string columnNameForDoNav)
+    {
+        string result = string.Empty;
+
+        if (sourceTable != null && sourceTable.Rows.Count > 0)
+        {
+            result += "<table id=\"" + idtable + "\" style=\"border-collapse:collapse;\" border=\"1\" cellspacing=\"0\"> \r\n ";
+
+            result += "<thead>\r\n <tr> \r\n ";
+            for (int i = 0; i < columnsToDisplay.Count; i++)
+            {
+                if (sourceTable.Columns.Contains(columnsToDisplay[i]))
+                    result += "<th " + (hiddenColumns.Contains(columnsToDisplay[i]) ? " class=\"hidden\" " : string.Empty) + ">" + columnsToDisplay[i] + "</th> \r\n";
+            }
+            result += "</tr> \r\n </thead>\r\n ";
+
+            result += "<tbody>\r\n ";
+
+            for (int r = 0; r < sourceTable.Rows.Count; r++)
+            {
+                result += "<tr " + (r % 2 == 1 ? " class=\"odd\" " : string.Empty) + (!doNavLink.Equals(string.Empty) ? "   onclick=\"DoNav('" + doNavLink + sourceTable.Rows[r][columnNameForDoNav].ToString() + "');\"  onmouseover=\"this.style.cursor='pointer';this.style.textDecoration='underline';\" onmouseout=\"this.style.textDecoration='none';\"      " : string.Empty) + " >\r\n";
+                             
+                for (int c = 0; c < columnsToDisplay.Count; c++)
+                {
+                    if (sourceTable.Columns.Contains(columnsToDisplay[c]))
+                        result += "<td " + (hiddenColumns.Contains(columnsToDisplay[c]) ? " class=\"hidden\" " : string.Empty) + ">" + sourceTable.Rows[r][columnsToDisplay[c]].ToString() + "</td> \r\n";
+                }
+
+                result += "</tr> \r\n";
+            }
+
+            result += "</tbody>\r\n ";
+            result += "</table>";
+        }
+
+        return result;
+    }
+
     public static string GetApplicationPath(HttpRequest Request)
     {
         string appPath = Request.ApplicationPath;

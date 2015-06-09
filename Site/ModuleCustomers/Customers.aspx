@@ -155,9 +155,10 @@
 
                         </div>
 
-                        <div class="grid_6 box" id="activeOrdersDIV" runat="server">
+                        <div class="grid_7 box" >
                             <h2> Comenzi Confirmate (in executie)</h2>
-
+                            <div id="activeOrdersDIV" runat="server">
+                            </div>
                         </div>
                     </div>
                 </ContentTemplate>
