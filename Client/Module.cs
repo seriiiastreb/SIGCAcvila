@@ -475,23 +475,27 @@ namespace Client
 
             try
             {
-                string query = " WITH MainTBL as (Select order_id from ClientOrders) \r\n "
-                    + "   SELECT \r\n "
-                    + "     CO.client_id, \r\n "
-                    + "     MainTBL.order_id, \r\n "
-                    + "     coalesce(Cl.FirstName,'') + CASE WHEN Cl.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN ' ' + coalesce(Cl.LastName,'') ELSE '' END  as client_description, \r\n "
-                    + "     CO.nr as \"Nr\",  \r\n "
-                    + "     (SELECT Name from Classifiers Where Code = Co.state) as state_name, \r\n "
-                    + "     CO.date, \r\n "
-                    + "     cast(CO.lungime as varchar) + ' x ' + cast(CO.latime as varchar) as Dimensiuni,   \r\n "
-                    + "     co.bucati as \"Total Comandat\" ,\r\n "
-                    + "     SUM(OD.quantity) as \"Total livrat\",\r\n "
-                    + "     co.bucati - coalesce(SUM(OD.quantity),0) as \"Diferenta\" \r\n "
-                    + " FROM MainTBL  \r\n "
-                    + " LEFT JOIN OrdersDelivery as OD ON OD.order_id = MainTBL.order_id \r\n "   
-                    + " LEFT JOIN ClientOrders as CO ON CO.order_id = MainTBL.order_id  \r\n "
-                    + " LEFT JOIN Client as CL ON CO.client_id = Cl.Clientid  \r\n "
-                    + " GROUP BY MainTBL.order_id, CO.nr, CO.lungime, CO.latime, Cl.FirstName, Cl.LastName, Cl.gender, CO.date, co.bucati, CO.client_id, Co.state";       
+                string query = @" WITH MainTBL as ( 
+                    Select order_id , 
+                    coalesce(Cl.FirstName,'') + CASE WHEN Cl.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + @" THEN ' ' + coalesce(Cl.LastName,'') ELSE '' END  as client_description
+                    FROM ClientOrders 
+                    LEFT JOIN Client as CL ON client_id = Cl.Clientid  ) 
+
+                    SELECT 
+                    MainTBL.order_id, 
+                    MainTBL.client_description,
+                    CO.nr as ""Nr"",  
+                    (SELECT Name from Classifiers Where Code = Co.state) as state_name, 
+                    CO.date,      
+                    SUM(OD.bucati) as ""Total Comandat"" ,
+                    0 as ""Total livrat"",
+                    0 as ""Diferenta""  
+
+                    FROM MainTBL  
+                    LEFT JOIN ClientOrders as CO ON CO.order_id = MainTBL.order_id 
+                    LEFT JOIN OrdersDetails as OD ON OD.order_id = MainTBL.order_id  
+                    GROUP BY MainTBL.order_id, MainTBL.client_description,  CO.nr , Co.state, CO.date
+                    ";       
 
                 result = mDataBridge.ExecuteQuery(query);
                 mLastError = mDataBridge.LastError;
@@ -504,38 +508,33 @@ namespace Client
             return result;
         }
 
-        public DataTable GetClientOrdersList()
+        public DataTable GetClientOrderFullDetails(int orderID)
         {
             DataTable result = new DataTable();
             mLastError = string.Empty;
 
             try
             {
-                string query = "SELECT \r\n "
-                        + "  order_id, \r\n "
-                        + "  state, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
-                        + "  date, \r\n "
-                        + "  client_id, \r\n "
-                        + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN coalesce(Client.LastName,'') ELSE '' END) From Client WHERE Client.clientid = ClientOrders.client_id ) as client_description, "
-                        + "  nr, \r\n "
-                        + "  articol, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "
-                        + "  desen, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = desen) as desen_name , "
-                        + "  tip, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = tip) as tip_name , "
-                        + "  colorit, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = colorit) as colorit_name , "
-                        + "  latime, \r\n "
-                        + "  lungime, \r\n "
-                        + "  metraj, \r\n "
-                        + "  bucati, \r\n "
-                        + "  festonare, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = colorit) as festonare_name , "
-                        + "  ean13 \r\n "
-                        + "  FROM  \r\n "
-                        + "  ClientOrders \r\n ";
+                string query = @" 
+                          SELECT 
+                        order_id
+                        , articol
+                        , (Select name From Classifiers WHERE Code = articol) as articol_name
+                        , desen
+                        , (Select name From Classifiers WHERE Code = desen) as desen_name
+                        , tip
+                        , (Select name From Classifiers WHERE Code = tip) as tip_name
+                        , colorit
+                        , (Select name From Classifiers WHERE Code = colorit) as colorit_name
+                        , latime
+                        , lungime
+                        , metraj
+                        , bucati
+                        , festonare
+                        , (Select name From Classifiers WHERE Code = festonare) as festonare_name
+                        , ean13
+
+                         FROM  OrdersDetails as CO WHERE CO.order_id = " + orderID;       
 
                 result = mDataBridge.ExecuteQuery(query);
                 mLastError = mDataBridge.LastError;
@@ -547,51 +546,94 @@ namespace Client
 
             return result;
         }
+        //public DataTable GetClientOrdersList()
+        //{
+        //    DataTable result = new DataTable();
+        //    mLastError = string.Empty;
 
-        public DataTable GetClientOrdersList(int clientID)
-        {
-            DataTable result = new DataTable();
-            mLastError = string.Empty;
+        //    try
+        //    {
+        //        string query = "SELECT \r\n "
+        //                + "  order_id, \r\n "
+        //                + "  state, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
+        //                + "  date, \r\n "
+        //                + "  client_id, \r\n "
+        //                + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN coalesce(Client.LastName,'') ELSE '' END) From Client WHERE Client.clientid = ClientOrders.client_id ) as client_description, "
+        //                + "  nr, \r\n "
+        //                + "  articol, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "
+        //                + "  desen, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = desen) as desen_name , "
+        //                + "  tip, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = tip) as tip_name , "
+        //                + "  colorit, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = colorit) as colorit_name , "
+        //                + "  latime, \r\n "
+        //                + "  lungime, \r\n "
+        //                + "  metraj, \r\n "
+        //                + "  bucati, \r\n "
+        //                + "  festonare, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = colorit) as festonare_name , "
+        //                + "  ean13 \r\n "
+        //                + "  FROM  \r\n "
+        //                + "  ClientOrders \r\n ";
 
-            try
-            {
-                string query = "SELECT \r\n "
-                        + "  order_id, \r\n "
-                        + "  state, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
-                        + "  date, \r\n "
-                        + "  client_id, \r\n "
-                        + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN coalesce(Client.LastName,'') ELSE '' END) From Client WHERE Client.clientid = ClientOrders.client_id ) as client_description, "
-                        + "  nr, \r\n "
-                        + "  articol, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "
-                        + "  desen, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = desen) as desen_name , "
-                        + "  tip, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = tip) as tip_name , "
-                        + "  colorit, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = colorit) as colorit_name , "
-                        + "  latime, \r\n "
-                        + "  lungime, \r\n "
-                        + "  metraj, \r\n "
-                        + "  bucati, \r\n "
-                        + "  festonare, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = colorit) as festonare_name , "
-                        + "  ean13 \r\n "
-                        + "  FROM  \r\n "
-                        + "  ClientOrders \r\n "
-                        + " WHERE client_id = " + clientID;
+        //        result = mDataBridge.ExecuteQuery(query);
+        //        mLastError = mDataBridge.LastError;
+        //    }
+        //    catch (Exception exception)
+        //    {
+        //        mLastError += "Error using DataBridge. " + exception.Message;
+        //    }
 
-                result = mDataBridge.ExecuteQuery(query);
-                mLastError = mDataBridge.LastError;
-            }
-            catch (Exception exception)
-            {
-                mLastError += "Error using DataBridge. " + exception.Message;
-            }
+        //    return result;
+        //}
 
-            return result;
-        }
+        //public DataTable GetClientOrdersList(int clientID)
+        //{
+        //    DataTable result = new DataTable();
+        //    mLastError = string.Empty;
+
+        //    try
+        //    {
+        //        string query = "SELECT \r\n "
+        //                + "  order_id, \r\n "
+        //                + "  state, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
+        //                + "  date, \r\n "
+        //                + "  client_id, \r\n "
+        //                + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN coalesce(Client.LastName,'') ELSE '' END) From Client WHERE Client.clientid = ClientOrders.client_id ) as client_description, "
+        //                + "  nr, \r\n "
+        //                + "  articol, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "
+        //                + "  desen, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = desen) as desen_name , "
+        //                + "  tip, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = tip) as tip_name , "
+        //                + "  colorit, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = colorit) as colorit_name , "
+        //                + "  latime, \r\n "
+        //                + "  lungime, \r\n "
+        //                + "  metraj, \r\n "
+        //                + "  bucati, \r\n "
+        //                + "  festonare, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = colorit) as festonare_name , "
+        //                + "  ean13 \r\n "
+        //                + "  FROM  \r\n "
+        //                + "  ClientOrders \r\n "
+        //                + " WHERE client_id = " + clientID;
+
+        //        result = mDataBridge.ExecuteQuery(query);
+        //        mLastError = mDataBridge.LastError;
+        //    }
+        //    catch (Exception exception)
+        //    {
+        //        mLastError += "Error using DataBridge. " + exception.Message;
+        //    }
+
+        //    return result;
+        //}
 
         public DataTable GetClientOrdersList(int clientID, List<int> ordersState)
         {
@@ -641,52 +683,52 @@ namespace Client
             return result;
         }
         
-        public DataObjects.Order GetOrderObjectByID(int orderID)
-        {
-            DataObjects.Order resultObject = null;
+        //public DataObjects.Order GetOrderObjectByID(int orderID)
+        //{
+        //    DataObjects.Order resultObject = null;
 
-            try
-            {
-                string query = "SELECT \r\n "
-                        + "  order_id, \r\n "
-                        + "  state, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
-                        + "  date, \r\n "
-                        + "  client_id, \r\n "
-                        + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN coalesce(Client.LastName,'') ELSE '' END) From Client WHERE Client.clientid = ClientOrders.client_id ) as client_description, "
-                        + "  nr, \r\n "
-                        + "  articol, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "
-                        + "  desen, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = desen) as desen_name , "
-                        + "  tip, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = tip) as tip_name , "
-                        + "  colorit, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = colorit) as colorit_name , "
-                        + "  latime, \r\n "
-                        + "  lungime, \r\n "
-                        + "  metraj, \r\n "
-                        + "  bucati, \r\n "
-                        + "  festonare, \r\n "
-                        + "  (Select Name from Classifiers WHERE Code = colorit) as festonare_name , "
-                        + "  ean13 \r\n "
-                        + "  FROM  \r\n "
-                        + "  ClientOrders \r\n "
-                        + " WHERE order_id = " + orderID;
+        //    try
+        //    {
+        //        string query = "SELECT \r\n "
+        //                + "  order_id, \r\n "
+        //                + "  state, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = state) as state_name , "
+        //                + "  date, \r\n "
+        //                + "  client_id, \r\n "
+        //                + "  (Select Client.FirstName + (CASE WHEN Client.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN coalesce(Client.LastName,'') ELSE '' END) From Client WHERE Client.clientid = ClientOrders.client_id ) as client_description, "
+        //                + "  nr, \r\n "
+        //                + "  articol, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = articol) as articol_name , "
+        //                + "  desen, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = desen) as desen_name , "
+        //                + "  tip, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = tip) as tip_name , "
+        //                + "  colorit, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = colorit) as colorit_name , "
+        //                + "  latime, \r\n "
+        //                + "  lungime, \r\n "
+        //                + "  metraj, \r\n "
+        //                + "  bucati, \r\n "
+        //                + "  festonare, \r\n "
+        //                + "  (Select Name from Classifiers WHERE Code = colorit) as festonare_name , "
+        //                + "  ean13 \r\n "
+        //                + "  FROM  \r\n "
+        //                + "  ClientOrders \r\n "
+        //                + " WHERE order_id = " + orderID;
 
-                DataTable result = mDataBridge.ExecuteQuery(query);
-                mLastError = mDataBridge.LastError;
+        //        DataTable result = mDataBridge.ExecuteQuery(query);
+        //        mLastError = mDataBridge.LastError;
 
-                if (result != null && result.Rows.Count == 1)
-                    resultObject = new DataObjects.Order(result.Rows[0]);
-            }
-            catch (Exception exception)
-            {
-                mLastError += "Error using DataBridge. " + exception.Message;
-            }
+        //        if (result != null && result.Rows.Count == 1)
+        //            resultObject = new DataObjects.Order(result.Rows[0]);
+        //    }
+        //    catch (Exception exception)
+        //    {
+        //        mLastError += "Error using DataBridge. " + exception.Message;
+        //    }
 
-            return resultObject;
-        }
+        //    return resultObject;
+        //}
              
         public bool AddClientOrder(ref DataObjects.Order orderObject)
         {
@@ -697,25 +739,16 @@ namespace Client
             {
                 if (orderObject != null)
                 {
-                    string nonQuery = "INSERT INTO ClientOrders(state,date,client_id,nr,articol,desen,tip,colorit,latime,lungime,metraj,bucati,festonare,ean13) \r\n"
+                    string nonQuery = "INSERT INTO ClientOrders(state,date,client_id,nr) \r\n"
                                     + " OUTPUT INSERTED.order_id "
-                                    + " VALUES (@state,@date,@client_id,@nr,@articol,@desen,@tip,@colorit,@latime,@lungime,@metraj,@bucati,@festonare,@ean13); ";
+                                    + " VALUES (@state,@date,@client_id,@nr); ";
 
                     Hashtable parameters = new Hashtable();
                     parameters.Add("@state", orderObject.State);
                     parameters.Add("@date", orderObject.Date);
                     parameters.Add("@client_id", orderObject.Client_ID);
                     parameters.Add("@nr", orderObject.Nr);
-                    parameters.Add("@articol", orderObject.Articol);
-                    parameters.Add("@desen", orderObject.Desen);
-                    parameters.Add("@tip", orderObject.Tip);
-                    parameters.Add("@colorit", orderObject.Colorit);
-                    parameters.Add("@latime", orderObject.Latime);
-                    parameters.Add("@lungime", orderObject.Lungime);
-                    parameters.Add("@metraj", orderObject.Metraj);
-                    parameters.Add("@bucati", orderObject.Bucati);
-                    parameters.Add("@festonare", orderObject.Festonare);
-                    parameters.Add("@ean13", orderObject.EAN13);
+                  
 
                     object insertedID = mDataBridge.ExecuteScalarQuery(nonQuery, parameters); // PG compliant
                     mLastError = mDataBridge.LastError;
@@ -750,17 +783,7 @@ namespace Client
                                           state = @state,
                                           date = @date,
                                           client_id = @client_id,
-                                          nr = @nr,
-                                          articol = @articol,
-                                          desen = @desen,
-                                          tip = @tip,
-                                          colorit = @colorit,
-                                          latime = @latime,
-                                          lungime = @lungime,
-                                          metraj = @metraj,
-                                          bucati = @bucati,
-                                          festonare = @festonare,
-                                          ean13 = @ean13 
+                                          nr = @nr                                          
                                         WHERE 
                                           order_id = @order_id; ";
 
@@ -769,17 +792,7 @@ namespace Client
                     parameters.Add("@state", orderObject.State);
                     parameters.Add("@date", orderObject.Date);
                     parameters.Add("@client_id", orderObject.Client_ID);
-                    parameters.Add("@nr", orderObject.Nr);
-                    parameters.Add("@articol", orderObject.Articol);
-                    parameters.Add("@desen", orderObject.Desen);
-                    parameters.Add("@tip", orderObject.Tip);
-                    parameters.Add("@colorit", orderObject.Colorit);
-                    parameters.Add("@latime", orderObject.Latime);
-                    parameters.Add("@lungime", orderObject.Lungime);
-                    parameters.Add("@metraj", orderObject.Metraj);
-                    parameters.Add("@bucati", orderObject.Bucati);
-                    parameters.Add("@festonare", orderObject.Festonare);
-                    parameters.Add("@ean13", orderObject.EAN13);
+                    parameters.Add("@nr", orderObject.Nr);                
 
                     result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                     mLastError = mDataBridge.LastError;

@@ -139,37 +139,38 @@
                     <asp:BoundField DataField="Type ID"  HeaderText="Type ID"  HeaderStyle-CssClass="hidden" ItemStyle-CssClass="hidden" HtmlEncode="False" />
                     <asp:BoundField DataField="Name"          HeaderText="Name"             HtmlEncode="False" />                                                    
                 </Columns>
-            </asp:GridView>
+            </asp:GridView>          
+    </div>
 
+    <asp:HyperLink ID="clTypeHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
 
-            <asp:HyperLink ID="clTypeHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
-
-            <ajax:ModalPopupExtender ID="classifierTypePopupExtender" runat="server"     
-                TargetControlID="clTypeHyperLink"
-                PopupControlID = "classifierTypePanel" 
-                PopupDragHandleControlID="legendClType"
-                CancelControlID="classifierTypeCancelButton"
-                DropShadow="true" >
-            </ajax:ModalPopupExtender>   
+    <ajax:ModalPopupExtender ID="classifierTypePopupExtender" runat="server"     
+        TargetControlID="clTypeHyperLink"
+        PopupControlID = "classifierTypePanel" 
+        PopupDragHandleControlID="legendClType"
+        CancelControlID="classifierTypeCancelButton"
+        DropShadow="true" >
+    </ajax:ModalPopupExtender>   
                         
 
-            <asp:Panel ID="classifierTypePanel" runat="server" class="box" Width="370px" Height="100px" style="display:none; border:1px solid #000;" >
-                <h2 runat="server" id="legendClType"  style="cursor:move;">Classifier Type</h2>
-       			<fieldset class="login">						
-					<p>
-						<label>Classifier Type Name: </label>
-                        <asp:HiddenField ID="classiferTypeAction" runat="server" />  
-                        <asp:HiddenField ID="selectedClassifierTypeIDHiddenField" runat="server" />                       
-						<asp:TextBox ID="classifierTypeTextBox" runat="server"></asp:TextBox>
-					</p>
-                    <div style="  text-align: center;">
-                        <asp:Button ID="classifierTypeSaveButton" runat="server" Text="Save" onclick="classifierTypeSaveButton_Click"   />
-                        <asp:Button ID="classifierTypeCancelButton" runat="server" Text="Cancel"  />  
-                    </div>
+    <asp:Panel ID="classifierTypePanel" runat="server" class="box" style="display:none; border:1px solid #000;" >
+        <h2 runat="server" id="legendClType"  style="cursor:move;">Classifier Type</h2>
+       	<fieldset class="login">						
+			<p>
+				<label>Classifier Type Name: </label>
+                <asp:HiddenField ID="classiferTypeAction" runat="server" />  
+                <asp:HiddenField ID="selectedClassifierTypeIDHiddenField" runat="server" />                       
+				<asp:TextBox ID="classifierTypeTextBox" runat="server"></asp:TextBox>
+			</p>
+            <div style="  text-align: center;">
+                <asp:Button ID="classifierTypeSaveButton" runat="server" Text="Save" onclick="classifierTypeSaveButton_Click"   />
+                <asp:Button ID="classifierTypeCancelButton" runat="server" Text="Cancel"  />  
+            </div>
 
-				</fieldset>
-            </asp:Panel>
-    </div>
+		</fieldset>
+    </asp:Panel>
+
+
     
     <div class="grid_8 box context-menu-classifier" id="classifiersDIV" style=" min-height:300px;">
         <h2>List Of Classifiers &nbsp;&nbsp; <asp:ImageButton ID="classifiersRefreshButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Show/Refresh" ImageUrl="../images/refresh.png"  runat="server" OnClick="classifiersRefreshButton_Click" AlternateText="Show/Refresh list" /></h2>
@@ -190,42 +191,41 @@
                 <asp:BoundField DataField="Name"        HeaderText="Name"             HtmlEncode="False" />
                 <asp:BoundField DataField="GroupCode"   HeaderText="Group Code"       HtmlEncode="False" />                               
             </Columns>
-        </asp:GridView>
-
-
-
-        <asp:HyperLink ID="classifiersHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
-
-        <ajax:ModalPopupExtender ID="classifersPopupExtender" runat="server"     
-            TargetControlID="classifiersHyperLink"
-            PopupControlID = "classifersPanel" 
-            PopupDragHandleControlID="legendClassifiers"
-            CancelControlID="classifiersCancelButton"
-            DropShadow="true" >
-        </ajax:ModalPopupExtender>   
-                        
-
-        <asp:Panel ID="classifersPanel" runat="server" class="box" Width="380px" Height="150px" style="display:none; border:1px solid #000;" >
-            <h2 runat="server" id="legendClassifiers" style="cursor:move;">Classifier:</h2>
-       		<fieldset class="login">					
-				<p>
-					<label>Classifier Name: </label>
-                    <asp:HiddenField ID="classifiersActionHiddenField" runat="server" />  
-                    <asp:HiddenField ID="currentClassifierSelectedHiddenFiled" runat="server" />                                              
-                    <asp:TextBox ID="classifierNameTextBox" runat="server"></asp:TextBox>
-				</p>
-                <p>
-                    <label> Group Code: </label>
-                    <asp:TextBox ID="classifierGroupCodeTextBox" runat="server"></asp:TextBox>
-                    <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" ControlToValidate="classifierGroupCodeTextBox" ErrorMessage="Please Enter Only Numbers" ValidationExpression="^\d+$" ValidationGroup="number"></asp:RegularExpressionValidator>                                 
-                </p>
-                <div style="  text-align: center;">
-				    <asp:Button ID="classifiersSaveButton"  runat="server" Text="Save" onclick="classifiersSaveButton_Click" ValidationGroup="number"  />
-                    <asp:Button ID="classifiersCancelButton"   runat="server" Text="Cancel" /> 
-                </div> 
-			</fieldset>
-        </asp:Panel>
+        </asp:GridView>        
     </div>
+
+    <asp:HyperLink ID="classifiersHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
+
+    <ajax:ModalPopupExtender ID="classifersPopupExtender" runat="server"     
+        TargetControlID="classifiersHyperLink"
+        PopupControlID = "classifersPanel" 
+        PopupDragHandleControlID="legendClassifiers"
+        CancelControlID="classifiersCancelButton"
+        DropShadow="true" >
+    </ajax:ModalPopupExtender>                           
+
+    <asp:Panel ID="classifersPanel" runat="server" class="box" style="display:none; border:1px solid #000;" >
+        <h2 runat="server" id="legendClassifiers" style="cursor:move;">Classifier:</h2>
+       	<fieldset class="login">					
+			<p>
+				<label>Classifier Name: </label>
+                <asp:HiddenField ID="classifiersActionHiddenField" runat="server" />  
+                <asp:HiddenField ID="currentClassifierSelectedHiddenFiled" runat="server" />                                              
+                <asp:TextBox ID="classifierNameTextBox" runat="server"></asp:TextBox>
+			</p>
+            <p>
+                <label> Group Code: </label>
+                <asp:TextBox ID="classifierGroupCodeTextBox" runat="server"></asp:TextBox>
+                <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" ControlToValidate="classifierGroupCodeTextBox" ErrorMessage="Please Enter Only Numbers" ValidationExpression="^\d+$" ValidationGroup="number"></asp:RegularExpressionValidator>                                 
+            </p>
+            <div style="  text-align: center;">
+				<asp:Button ID="classifiersSaveButton"  runat="server" Text="Save" onclick="classifiersSaveButton_Click" ValidationGroup="number"  />
+                <asp:Button ID="classifiersCancelButton"   runat="server" Text="Cancel" /> 
+            </div> 
+		</fieldset>
+    </asp:Panel>
+
+
 </asp:Content>
 
 
