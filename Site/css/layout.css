@@ -279,6 +279,7 @@ td.currency {
 ----------------------------------------------- */
 form {
 	overflow:hidden;
+	min-height: 300px;
 }
 fieldset {
 	border:1px solid #bbb;

@@ -167,7 +167,16 @@ public partial class Login : System.Web.UI.Page
 
         if (allowModuleStore)
         {
-            modulesMenu += " <li> <a href=\"" + appPath + "/ModuleStore/StorePage.aspx\">  <img id=\"Img6\" width=\"24\" height=\"24\" alt=\"Warehouse management page\" title=\"Warehouse management page\" src=\"" + appPath + "/Images/shopping_cart.png\" style=\" cursor:pointer; \"> </a> </li>\r\n ";
+            modulesMenu += "<li> \r\n";
+            modulesMenu += "<a>  <img id=\"Img6\" width=\"24\" height=\"24\" alt=\"Warehouse management page\" title=\"Warehouse management page\" src=\"" + appPath + "/Images/shopping_cart.png\" style=\" cursor:pointer; \"> </a> \r\n ";
+            modulesMenu += " <ul>  \r\n ";
+            modulesMenu += "     <li>  <a href=\"" + appPath + "/ModuleStore/StorePage.aspx\"> Stok</a> </li> \r\n ";
+            modulesMenu += "     <li>  <a href=\"" + appPath + "/ModuleStore/Produse.aspx\"> Products </a> </li> \r\n ";
+            modulesMenu += " </ul>  \r\n ";
+            modulesMenu += "</li>\r\n ";
+
+
+           //modulesMenu += " <li> <a href=\"" + appPath + "/ModuleStore/StorePage.aspx\">  <img id=\"Img6\" width=\"24\" height=\"24\" alt=\"Warehouse management page\" title=\"Warehouse management page\" src=\"" + appPath + "/Images/shopping_cart.png\" style=\" cursor:pointer; \"> </a> </li>\r\n ";
         }
 
 
@@ -178,6 +187,7 @@ public partial class Login : System.Web.UI.Page
             modulesMenu += "<a href='#'> <img id=\"Img2\" width=\"24\" height=\"24\" alt=\"Basic Program administration\" title=\"Basic Program administration\" src=\"" + appPath + "/Images/admin.png\" style=\" cursor:pointer; \"> </a> \r\n ";
             modulesMenu += " <ul>  \r\n ";
             modulesMenu += "     <li>  <a href=\"" + appPath + "/ModuleMain/Classifiers.aspx\">Classifiers Management</a> </li> \r\n ";
+
             if (allowUserManagement) 
                 modulesMenu += "    <li>  <a href=\"" + appPath + "/ModuleMain/SystemSeqAdmin.aspx\">User Management</a> </li> \r\n ";
             modulesMenu += " </ul>  \r\n ";

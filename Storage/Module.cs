@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DAL;
+using System.Data;
+using System.Collections;
 
 namespace Store
 {
@@ -31,6 +33,282 @@ namespace Store
         {
             Plus = Module.mDataBridge.ConcatSimbol + " ' ' " + Module.mDataBridge.ConcatSimbol;
         }
+
+        #region Customers Products
+
+        public DataTable GetProductsList()
+        {
+            DataTable result = new DataTable();
+            mLastError = string.Empty;
+
+            try
+            {
+                string query = @" 
+                    SELECT 
+                      product_id,
+                      articol,
+                        (SELECT Name from Classifiers Where Code = PD.articol) as articol_name, 
+                      desen,
+                        (SELECT Name from Classifiers Where Code = PD.desen) as desen_name, 
+                      tip,
+                        (SELECT Name from Classifiers Where Code = PD.tip) as tip_name, 
+                      colorit,
+                        (SELECT Name from Classifiers Where Code = PD.colorit) as colorit_name, 
+                      latime,
+                      lungime,
+                      metraj,
+                      festonare,
+                        (SELECT Name from Classifiers Where Code = PD.festonare) as festonare_name, 
+                      ean13
+                    FROM 
+                      ProductDetails as PD ;  ";
+
+                result = mDataBridge.ExecuteQuery(query);
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public bool AddProduct(int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, decimal metraj, int festonare, string ean13)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {              
+                string nonQuery = @"INSERT INTO ProductDetails ( articol, desen, tip, colorit, latime, lungime, metraj, festonare, ean13 ) 
+                                             VALUES ( @articol, @desen, @tip, @colorit, @latime, @lungime, @metraj, @festonare, @ean13); ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@articol", articol);
+                parameters.Add("@desen", desen);
+                parameters.Add("@tip", tip);
+                parameters.Add("@colorit", colorit);
+                parameters.Add("@latime", latime);
+                parameters.Add("@lungime", lungime);
+                parameters.Add("@metraj", metraj);
+                parameters.Add("@festonare", festonare);
+                parameters.Add("@ean13", ean13);
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = mDataBridge.LastError;                                
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public bool UpdateProduct(int product_id, int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, decimal metraj, int festonare, string ean13)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {
+                string nonQuery = @"UPDATE 
+                              ProductDetails  
+                            SET 
+                              articol = @articol,
+                              desen = @desen,
+                              tip = @tip,
+                              colorit = @colorit,
+                              latime = @latime,
+                              lungime = @lungime,
+                              metraj = @metraj,
+                              festonare = @festonare,
+                              ean13 = @ean13 
+                            WHERE 
+                              product_id = @product_id; ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@product_id", product_id);
+                parameters.Add("@articol", articol);
+                parameters.Add("@desen", desen);
+                parameters.Add("@tip", tip);
+                parameters.Add("@colorit", colorit);
+                parameters.Add("@latime", latime);
+                parameters.Add("@lungime", lungime);
+                parameters.Add("@metraj", metraj);
+                parameters.Add("@festonare", festonare);
+                parameters.Add("@ean13", ean13);
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public bool DeleteProduct(int product_id)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {
+                string nonQuery = @"DELETE FROM  ProductDetails  WHERE product_id = @product_id; ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@product_id", product_id);            
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        #endregion Customers Products
+
+        #region Stok
+
+
+        public DataTable GetProductsList()
+        {
+            DataTable result = new DataTable();
+            mLastError = string.Empty;
+
+            try
+            {
+                string distinctDays = " SELECT DISTINCT FROM Stok";
+                DataTable days = mDataBridge.ExecuteQuery(distinctDays);
+                mLastError = mDataBridge.LastError;
+
+                if (days != null && days.Rows.Count > 0)
+                {
+                    
+//                    <asp:BoundField DataField="product_id" HeaderText="product_id" ItemStyle-CssClass="hidden" HeaderStyle-CssClass="hidden" />
+//<asp:BoundField DataField="product_id" HeaderText="product_id" ItemStyle-CssClass="hidden" HeaderStyle-CssClass="hidden" />
+//<asp:BoundField DataField="articol_name" HeaderText="Articol" />      
+//<asp:BoundField DataField="desen_name" HeaderText="Desen" />                     
+//<asp:BoundField DataField="tip_name" HeaderText="Tip" />            
+//<asp:BoundField DataField="colorit_name" HeaderText="Colorit" />                 
+//<asp:BoundField DataField="latime" HeaderText="Latime" />      
+//<asp:BoundField DataField="lungime" HeaderText="Lungime" />                  
+//<asp:BoundField DataField="metraj" HeaderText="Metraj" />               
+//<asp:BoundField DataField="festonare_name" HeaderText="Festonare" />
+//<asp:BoundField DataField="ean13" HeaderText="ean13" />
+
+
+                    string query = @" WITH MainTBL as ( SELECT DISTINCT produs_id FROM Stok )
+
+                        SELECT 
+                            MainTBL.produs_id
+                        FROM MainTBL 
+                        ";
+                         for(int i=0; i< days.Rows.Count; i++)
+                         {
+                             query += " LEFT JOIN Stok as ST" + i + " ON ST" + i +  ".produs_id =  MainTBL.produs_id AND  " ;
+                         }
+
+                            
+                            
+                          stok_id,
+                          ,
+                          day,
+                          quantity
+                        
+
+
+                }
+
+
+
+
+
+                    SELECT 
+                      product_id,
+                      articol,
+                        (SELECT Name from Classifiers Where Code = PD.articol) as articol_name, 
+                      desen,
+                        (SELECT Name from Classifiers Where Code = PD.desen) as desen_name, 
+                      tip,
+                        (SELECT Name from Classifiers Where Code = PD.tip) as tip_name, 
+                      colorit,
+                        (SELECT Name from Classifiers Where Code = PD.colorit) as colorit_name, 
+                      latime,
+                      lungime,
+                      metraj,
+                      festonare,
+                        (SELECT Name from Classifiers Where Code = PD.festonare) as festonare_name, 
+                      ean13
+                    FROM 
+                      ProductDetails as PD ;  ";
+
+                result = mDataBridge.ExecuteQuery(query);
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }    
+
+        public bool UpdateProduct(int product_id, int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, decimal metraj, int festonare, string ean13)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {
+                string nonQuery = @"UPDATE 
+                              ProductDetails  
+                            SET 
+                              articol = @articol,
+                              desen = @desen,
+                              tip = @tip,
+                              colorit = @colorit,
+                              latime = @latime,
+                              lungime = @lungime,
+                              metraj = @metraj,
+                              festonare = @festonare,
+                              ean13 = @ean13 
+                            WHERE 
+                              product_id = @product_id; ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@product_id", product_id);
+                parameters.Add("@articol", articol);
+                parameters.Add("@desen", desen);
+                parameters.Add("@tip", tip);
+                parameters.Add("@colorit", colorit);
+                parameters.Add("@latime", latime);
+                parameters.Add("@lungime", lungime);
+                parameters.Add("@metraj", metraj);
+                parameters.Add("@festonare", festonare);
+                parameters.Add("@ean13", ean13);
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+
+        #endregion Stok
     }
 
     namespace Domains

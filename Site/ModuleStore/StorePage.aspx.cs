@@ -26,7 +26,7 @@ public partial class StorePage : System.Web.UI.Page
             {
                 if (!IsPostBack)
                 {
-                
+                    ShowPanel(stokListPanel.ID);
                 }      
             }
             else
@@ -36,7 +36,34 @@ public partial class StorePage : System.Web.UI.Page
         }
         catch (Exception ex)
         { Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Attention! Error in system!", ex.Message); }
-    }  
+    }
 
 
+    protected void ShowPanel(string panelID)
+    {
+        stokListPanel.Visible = false;
+        uploadFromFilePanel.Visible = false;
+
+
+        switch (panelID)
+        { 
+            case "stokListPanel":
+
+                break;
+
+            case "uploadFromFilePanel":
+                break;
+        }
+
+    }
+
+    protected void FillStokGridView()
+    {
+        DataTable dt = 
+    }
+
+    protected void uploadFromFileButton_Click(object sender, ImageClickEventArgs e)
+    {
+        ShowPanel(uploadFromFilePanel.ID);
+    }
 }
