@@ -23,7 +23,8 @@
             <label>Open File:  <asp:FileUpload ID="excelFileUpload" runat="server" ToolTip="Browse to select a excel file" />&nbsp; <asp:Button ID="openFileButton" runat="server" Text="Open File"  OnClick="openFileButton_Click"/> </label>
 
             <br />
-
+            <asp:DropDownList ID="fileSheetsDDL" runat="server" AutoPostBack="false" OnSelectedIndexChanged="fileSheetsDDL_SelectedIndexChanged"></asp:DropDownList>
+             <br />
             <asp:GridView ID="uploadFileGridView" runat="server" 
                 AutoGenerateColumns="true"
                 AlternatingRowStyle-CssClass="odd"

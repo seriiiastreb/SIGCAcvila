@@ -121,6 +121,13 @@ public class Constants
         EURO = 3
     }
 
+    public class ExcelCellFormat
+    {
+        public const int Currency_Euro = 0;
+        public const int Currency_USD = 1;
+        public const int DecimalNumber_ThousandsSeparatedByComa = 2;
+    }
+
     public class ContentType
     {
         public static readonly string TXT = "text/plain";

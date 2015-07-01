@@ -72,7 +72,21 @@ public partial class StorePage : System.Web.UI.Page
     }
     protected void openFileButton_Click(object sender, EventArgs e)
     {
+        if (excelFileUpload.HasFile)
+        {
+            HttpPostedFile file = excelFileUpload.PostedFile;
 
+            if (file != null && file.ContentLength > 0)
+            {
+                bool useFirstRowAsColumnNames = true;
+
+                DataTable sourceDataTable = Crypt.Excel.GetSheetAsTable(file.InputStream, sheetName ,useFirstRowAsColumnNames);
+                DataTable transformedtable = TransformColumnsTable(sourceDataTable);
+
+                uploadFileGridView.DataSource = transformedtable;
+                uploadFileGridView.DataBind();
+            }
+        }
     }
     protected void confirmUploadButton_Click(object sender, EventArgs e)
     {

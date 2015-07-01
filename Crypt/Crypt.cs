@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
+using NPOI.SS.UserModel;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.Formula.Eval;
 
 namespace Crypt
 {
@@ -2799,6 +2802,1066 @@ namespace Crypt
             dtOut = dt.DefaultView.ToTable();
             return dtOut;
         }
+
+    }
+
+    public class Excel
+    {
+        #region EXPORT
+
+        private static readonly string CellFormat_EURO = "#,##0.00 €";
+        private static readonly string CellFormat_USD = "#,##0.00 $";
+        private static readonly string CellFormat_ThousandsSeparated = "#,##0.00";
+
+        private static ICellStyle GetCurrensySpecificCellStyle(HSSFWorkbook workbook, int cellType, ICellStyle cs, ICellStyle newStyle)
+        {
+            newStyle.CloneStyleFrom(cs);
+
+            switch (cellType)
+            {
+                case Constants.ExcelCellFormat.Currency_Euro:
+                    newStyle.DataFormat = workbook.CreateDataFormat().GetFormat(CellFormat_EURO);
+                    break;
+
+                case Constants.ExcelCellFormat.Currency_USD:
+                    newStyle.DataFormat = workbook.CreateDataFormat().GetFormat(CellFormat_USD);
+                    break;
+
+                case Constants.ExcelCellFormat.DecimalNumber_ThousandsSeparatedByComa:
+                    newStyle.DataFormat = workbook.CreateDataFormat().GetFormat(CellFormat_ThousandsSeparated);
+                    break;
+            }
+
+            return newStyle;
+        }
+
+        public static void ExportDataTableToExcelUsingNPOI(DataTable headerTable, DataTable sourceTable, string fileName, string legalEntity, string period, string executingDatecomment, List<int> autosizeColumns)
+        {
+            HSSFWorkbook workbook = new HSSFWorkbook();
+
+            workbook = CreateExcelFromDataTable(headerTable, sourceTable, ref workbook, legalEntity, period, executingDatecomment, null, 0, autosizeColumns);
+
+            FileStream file = new FileStream(fileName, FileMode.Create);
+            workbook.Write(file);
+            file.Close();
+        }
+
+        public static void ExportDataTableToExcelUsingNPOI(DataTable headerTable, DataSet tableList, string fileName, string legalEntity, string period, string executingDatecomment, List<int> autosizeColumns)
+        {
+            HSSFWorkbook workbook = new HSSFWorkbook();
+            for (int t = 0; t < tableList.Tables.Count; t++)
+            {
+                DataTable sourceTable = tableList.Tables[t];
+
+                workbook = CreateExcelFromDataTable(headerTable, sourceTable, ref workbook, legalEntity, period, executingDatecomment, null, 0, autosizeColumns);
+            }
+
+            FileStream file = new FileStream(fileName, FileMode.Create);
+            workbook.Write(file);
+            file.Close();
+        }
+
+        public static void ExportDataTableToExcelUsingNPOI(DataTable headerTable, DataTable sourceTable, string fileName, string legalEntity, string period, string executingDatecomment, List<string> currencyColumnsList, int currencyValuta, List<int> autosizeColumns)
+        {
+            HSSFWorkbook workbook = new HSSFWorkbook();
+
+            workbook = CreateExcelFromDataTable(headerTable, sourceTable, ref workbook, legalEntity, period, executingDatecomment, currencyColumnsList, currencyValuta, autosizeColumns);
+
+            FileStream file = new FileStream(fileName, FileMode.Create);
+            workbook.Write(file);
+            file.Close();
+        }
+
+        public static void ExportDataTableToExcelUsingNPOI(DataTable headerTable, DataSet tableList, string fileName, string legalEntity, string period, string executingDatecomment, List<string> currencyColumnsList, int currencyValuta, List<int> autosizeColumns)
+        {
+            HSSFWorkbook workbook = new HSSFWorkbook();
+            for (int t = 0; t < tableList.Tables.Count; t++)
+            {
+                DataTable sourceTable = tableList.Tables[t];
+
+                workbook = CreateExcelFromDataTable(headerTable, sourceTable, ref workbook, legalEntity, period, executingDatecomment, currencyColumnsList, currencyValuta, autosizeColumns);
+            }
+
+            FileStream file = new FileStream(fileName, FileMode.Create);
+            workbook.Write(file);
+            file.Close();
+        }
+
+        private static HSSFWorkbook CreateExcelFromDataTable(DataTable headerTable, DataTable sourceTable, ref HSSFWorkbook workbook, string legalEntity, string period, string executingDatecomment, List<string> currencyColumnsList, int currencyValuta, List<int> autosizeColumns)
+        {
+            string tableName = sourceTable.TableName.Replace(":", " ").Replace("/", " ").Replace("\\", " ").Replace("?", " ").Replace("*", " ").Replace("]", " ").Replace("[", " ");
+            NPOI.SS.UserModel.ISheet sheet = workbook.CreateSheet(tableName);
+
+            #region create style
+            // table header style
+            ICellStyle styleGrey = workbook.CreateCellStyle();
+            styleGrey.FillPattern = FillPattern.SolidForeground;
+            styleGrey.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Grey25Percent.Index;
+            IFont f1 = workbook.CreateFont();
+            f1.Color = NPOI.HSSF.Util.HSSFColor.Black.Index;
+            f1.FontName = "Arial";
+            f1.Boldweight = (short)NPOI.SS.UserModel.FontBoldWeight.Bold;
+            f1.FontHeightInPoints = 11;
+            styleGrey.SetFont(f1);
+
+            //table heder  style
+            ICellStyle styleBold = workbook.CreateCellStyle();
+            IFont f2 = workbook.CreateFont();
+            f2.Color = NPOI.HSSF.Util.HSSFColor.Black.Index;
+            f2.FontName = "Arial";
+            f2.Boldweight = (short)NPOI.SS.UserModel.FontBoldWeight.Bold;
+            f2.FontHeightInPoints = 13;
+            styleBold.SetFont(f2);
+
+            //row heder  style
+            ICellStyle styleRowBold = workbook.CreateCellStyle();
+            IFont f3 = workbook.CreateFont();
+            f3.Color = NPOI.HSSF.Util.HSSFColor.Black.Index;
+            f3.FontName = "Arial";
+            f3.Boldweight = (short)NPOI.SS.UserModel.FontBoldWeight.Bold;
+            f3.FontHeightInPoints = 10;
+            styleRowBold.SetFont(f3);
+
+            //column heder  style
+            ICellStyle styleColumnBold = workbook.CreateCellStyle();
+            styleColumnBold.FillPattern = FillPattern.SolidForeground;
+            styleColumnBold.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.LightCornflowerBlue.Index;
+            IFont f4 = workbook.CreateFont();
+            f4.Color = NPOI.HSSF.Util.HSSFColor.Black.Index;
+            f4.FontName = "Arial";
+            f4.Boldweight = (short)NPOI.SS.UserModel.FontBoldWeight.Bold;
+            f4.FontHeightInPoints = 10;
+            styleColumnBold.SetFont(f4);
+
+
+
+            #endregion create style
+
+            int rowIndex = 0;
+
+            if (headerTable != null && headerTable.Rows.Count > 0)
+            {
+                #region aply DataTable as Header For Excel
+
+                for (int r = 0; r < headerTable.Rows.Count; r++)
+                {
+                    NPOI.SS.UserModel.IRow reportNameRow = sheet.CreateRow(rowIndex);
+
+                    for (int c = 0; c < headerTable.Columns.Count; c++)
+                    {
+                        string cellValue = headerTable.Rows[r][c].ToString();
+
+                        if (!string.IsNullOrEmpty(cellValue))
+                        {
+                            reportNameRow.CreateCell(c).SetCellValue(cellValue);
+                            reportNameRow.GetCell(c).CellStyle = styleBold;
+                        }
+                        else
+                        { reportNameRow.CreateCell(c); }
+                    }
+
+                    rowIndex++;
+                }
+
+                #endregion  aply DataTable as Header For Excel
+            }
+            else
+            {
+                #region aply Selective Header For Excel
+
+                if (!String.IsNullOrEmpty(tableName))
+                {
+
+                    NPOI.SS.UserModel.IRow reportNameRow = sheet.CreateRow(rowIndex);
+
+                    reportNameRow.CreateCell(0).SetCellValue(tableName);
+                    reportNameRow.GetCell(0).CellStyle = styleBold;
+                    rowIndex++;
+                }
+
+                if (!String.IsNullOrEmpty(legalEntity))
+                {
+                    NPOI.SS.UserModel.IRow reportNameRow = sheet.CreateRow(rowIndex);
+
+                    reportNameRow.CreateCell(0).SetCellValue(legalEntity);
+                    reportNameRow.GetCell(0).CellStyle = styleBold;
+                    rowIndex++;
+                }
+
+                if (!String.IsNullOrEmpty(period))
+                {
+                    NPOI.SS.UserModel.IRow reportNameRow = sheet.CreateRow(rowIndex);
+
+                    reportNameRow.CreateCell(0).SetCellValue("Period: " + period);
+                    reportNameRow.GetCell(0).CellStyle = styleBold;
+
+                    rowIndex++;
+                }
+
+                if (!String.IsNullOrEmpty(period))
+                {
+                    NPOI.SS.UserModel.IRow reportNameRow = sheet.CreateRow(rowIndex);
+
+                    reportNameRow.CreateCell(0).SetCellValue("Executed date: " + DateTime.Now.ToString("yyyy-MM-dd HH:MM:ss") + "  " + executingDatecomment);
+                    reportNameRow.GetCell(0).CellStyle = styleBold;
+
+                    rowIndex++;
+                }
+
+                #endregion aply Selective Header For Excel
+            }
+
+
+            NPOI.SS.UserModel.IRow spaceRow = sheet.CreateRow(rowIndex);
+            rowIndex++;
+            NPOI.SS.UserModel.IRow headerRow = sheet.CreateRow(rowIndex);
+            rowIndex++;
+            // handling header.
+
+            List<int> columnListTotals = new List<int>();
+            List<int> rowListTotals = new List<int>();
+
+            foreach (DataColumn column in sourceTable.Columns)
+            {
+                headerRow.CreateCell(column.Ordinal).SetCellValue(column.ColumnName);
+                headerRow.GetCell(column.Ordinal).CellStyle = styleGrey;
+                if (column.ColumnName.ToLower().Contains("total")) columnListTotals.Add(column.Ordinal);
+            }
+
+            ICellStyle cs = workbook.CreateCellStyle();
+            ICellStyle newStyle = workbook.CreateCellStyle();
+
+            // handling value.
+            //int rowIndex = 1;
+            int tableRowIndex = rowIndex;
+            foreach (DataRow row in sourceTable.Rows)
+            {
+                NPOI.SS.UserModel.IRow dataRow = sheet.CreateRow(rowIndex);
+
+                foreach (DataColumn column in sourceTable.Columns)
+                {
+                    switch (column.DataType.FullName)
+                    {
+                        case "System.Decimal":
+                            {
+                                double val = 0;
+                                Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
+
+                                if (val != 0)
+                                    dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
+                                else
+                                    dataRow.CreateCell(column.Ordinal, CellType.Blank);
+
+                            }
+                            break;
+
+                        case "System.Int":
+                            {
+                                double val = 0;
+                                Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
+
+                                if (val != 0)
+                                    dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
+                                else
+                                    dataRow.CreateCell(column.Ordinal, CellType.Blank);
+                            }
+                            break;
+
+                        case "System.Int32":
+                            {
+                                double val = 0;
+                                Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
+
+                                if (val != 0)
+                                    dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
+                                else
+                                    dataRow.CreateCell(column.Ordinal, CellType.Blank);
+                            }
+                            break;
+
+                        case "System.Int64":
+                            {
+                                double val = 0;
+                                Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
+
+                                if (val != 0)
+                                    dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
+                                else
+                                    dataRow.CreateCell(column.Ordinal, CellType.Blank);
+                            }
+                            break;
+
+                        case "System.Float":
+                            {
+                                double val = 0;
+                                Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
+
+                                if (val != 0)
+                                    dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
+                                else
+                                    dataRow.CreateCell(column.Ordinal, CellType.Blank);
+                            }
+                            break;
+
+                        case "System.Double":
+                            {
+                                double val = 0;
+                                Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
+
+                                if (val != 0)
+                                    dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
+                                else
+                                    dataRow.CreateCell(column.Ordinal, CellType.Blank);
+                            }
+                            break;
+
+                        case "System.Long":
+                            {
+                                double val = 0;
+                                Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
+
+                                if (val != 0)
+                                    dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
+                                else
+                                    dataRow.CreateCell(column.Ordinal, CellType.Blank);
+                            }
+                            break;
+
+                        case "System.Bool":
+                            if (row[column] == DBNull.Value)
+                            {
+                                dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(String.Empty);
+                            }
+                            else
+                            {
+                                dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue((bool)row[column]);
+                            }
+                            break;
+
+                        case "System.DateTime":
+                            {
+                                DateTime val = DateTime.MinValue;
+                                DateTime.TryParse(row[column] != DBNull.Value ? row[column].ToString() : val.ToString(), out val);
+                                if (val != DateTime.MinValue)
+                                {
+                                    string time = val.ToString("HH:mm:ss");
+                                    dataRow.CreateCell(column.Ordinal, CellType.Blank).SetCellValue(val.ToString(time.Equals("00:00:00") ? "yyyy-MM-dd" : "yyyy-MM-dd HH:mm:ss"));
+                                }
+                            }
+                            break;
+
+                        case "System.String":
+                            if (currencyColumnsList != null && currencyColumnsList.Contains(column.ColumnName))
+                            {
+                                double val = (double)Crypt.Utils.MyDecimalParce(row[column] != DBNull.Value ? row[column].ToString() : String.Empty);
+
+                                if (val != 0)
+                                    dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
+                                else
+                                    dataRow.CreateCell(column.Ordinal, CellType.String).SetCellValue(row[column] != DBNull.Value ? row[column].ToString() : String.Empty);
+                            }
+                            else
+                            {
+                                dataRow.CreateCell(column.Ordinal, CellType.String).SetCellValue(row[column] != DBNull.Value ? row[column].ToString() : String.Empty);
+                            }
+
+                            if (row[column] != DBNull.Value && row[column].ToString().ToLower().Contains("total") && (!rowListTotals.Contains(rowIndex))) rowListTotals.Add(rowIndex);
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    if (currencyColumnsList != null && currencyColumnsList.Contains(column.ColumnName))
+                    {
+                        double valueCell = dataRow.GetCell(column.Ordinal).CellType == CellType.Numeric ? dataRow.GetCell(column.Ordinal).NumericCellValue : 0;
+
+                        if (valueCell != 0)
+                        {
+                            ICellStyle currency = GetCurrensySpecificCellStyle(workbook, currencyValuta, cs, newStyle);
+                            dataRow.GetCell(column.Ordinal).CellStyle = currency;
+                        }
+                    }
+
+                    if (columnListTotals.Contains(column.Ordinal))
+                    {
+                        if (currencyColumnsList != null && currencyColumnsList.Contains(column.ColumnName))
+                        {
+                            double valueCell = dataRow.GetCell(column.Ordinal).CellType == CellType.Numeric ? dataRow.GetCell(column.Ordinal).NumericCellValue : 0;
+
+                            if (valueCell != 0)
+                            {
+                                ICellStyle currency = GetCurrensySpecificCellStyle(workbook, currencyValuta, styleColumnBold, newStyle);
+                                dataRow.GetCell(column.Ordinal).CellStyle = currency;
+                            }
+                        }
+                        else
+                        {
+                            dataRow.GetCell(column.Ordinal).CellStyle = styleColumnBold;
+                        }
+                    }
+                }
+
+                rowIndex++;
+            }
+
+
+
+
+            if (rowListTotals.Count > 0)
+            {
+                for (int r = 0; r < rowListTotals.Count; r++)
+                {
+                    for (int i = 0; i < sourceTable.Columns.Count; i++)
+                    {
+                        if (!columnListTotals.Contains(i))
+                        {
+                            if (currencyColumnsList != null && currencyColumnsList.Contains(sourceTable.Columns[i].ColumnName))
+                            {
+                                double valueCell = sheet.GetRow(rowListTotals[r]).GetCell(i).CellType == CellType.Numeric ? sheet.GetRow(rowListTotals[r]).GetCell(i).NumericCellValue : 0;
+
+                                if (valueCell != 0)
+                                {
+                                    ICellStyle currency = GetCurrensySpecificCellStyle(workbook, currencyValuta, styleRowBold, newStyle);
+                                    sheet.GetRow(rowListTotals[r]).GetCell(i).CellStyle = currency;
+                                }
+                            }
+                            else
+                            {
+                                sheet.GetRow(rowListTotals[r]).GetCell(i).CellStyle = styleRowBold;
+                            }
+                        }
+                        else
+                        {
+                            if (currencyColumnsList != null && currencyColumnsList.Contains(sourceTable.Columns[i].ColumnName))
+                            {
+                                double valueCell = sheet.GetRow(rowListTotals[r]).GetCell(i).CellType == CellType.Numeric ? sheet.GetRow(rowListTotals[r]).GetCell(i).NumericCellValue : 0;
+
+                                if (valueCell != 0)
+                                {
+                                    ICellStyle currency = GetCurrensySpecificCellStyle(workbook, currencyValuta, styleColumnBold, newStyle);
+                                    sheet.GetRow(rowListTotals[r]).GetCell(i).CellStyle = currency;
+                                }
+                            }
+                            else
+                            {
+                                sheet.GetRow(rowListTotals[r]).GetCell(i).CellStyle = styleColumnBold;
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            if (autosizeColumns != null)
+            {
+                for (int c = 0; c < sourceTable.Columns.Count; c++)
+                {
+                    if (autosizeColumns.Contains(c))
+                        sheet.AutoSizeColumn(c);
+                }
+            }
+
+            return workbook;
+        }
+
+        public static void ExportDataSetToExcelUsingXMLFormat(DataSet source, string fileName)
+        {
+            System.IO.StreamWriter excelDoc;
+
+            excelDoc = new System.IO.StreamWriter(fileName);
+            const string startExcelXML = "<xml version>\r\n<Workbook " +
+                  "xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\"\r\n" +
+                  " xmlns:o=\"urn:schemas-microsoft-com:office:office\"\r\n " +
+                  "xmlns:x=\"urn:schemas-    microsoft-com:office:" +
+                  "excel\"\r\n xmlns:ss=\"urn:schemas-microsoft-com:" +
+                  "office:spreadsheet\">\r\n <Styles>\r\n " +
+                  "<Style ss:ID=\"Default\" ss:Name=\"Normal\">\r\n " +
+                  "<Alignment ss:Vertical=\"Bottom\"/>\r\n <Borders/>" +
+                  "\r\n <Font/>\r\n <Interior/>\r\n <NumberFormat/>" +
+                  "\r\n <Protection/>\r\n </Style>\r\n " +
+                  "<Style ss:ID=\"BoldColumn\">\r\n <Font " +
+                  "x:Family=\"Swiss\" ss:Bold=\"1\"/>\r\n </Style>\r\n " +
+                  "<Style     ss:ID=\"StringLiteral\">\r\n <NumberFormat" +
+                  " ss:Format=\"@\"/>\r\n </Style>\r\n <Style " +
+                  "ss:ID=\"Decimal\">\r\n <NumberFormat " +
+                  "ss:Format=\"0.0000\"/>\r\n </Style>\r\n " +
+                  "<Style ss:ID=\"Integer\">\r\n <NumberFormat " +
+                  "ss:Format=\"0\"/>\r\n </Style>\r\n <Style " +
+                  "ss:ID=\"DateLiteral\">\r\n <NumberFormat " +
+                  "ss:Format=\"mm/dd/yyyy;@\"/>\r\n </Style>\r\n " +
+                  "</Styles>\r\n ";
+            const string endExcelXML = "</Workbook>";
+
+            int rowCount = 0;
+
+            /*
+           <xml version>
+           <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+           xmlns:o="urn:schemas-microsoft-com:office:office"
+           xmlns:x="urn:schemas-microsoft-com:office:excel"
+           xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+           <Styles>
+           <Style ss:ID="Default" ss:Name="Normal">
+             <Alignment ss:Vertical="Bottom"/>
+             <Borders/>
+             <Font/>
+             <Interior/>
+             <NumberFormat/>
+             <Protection/>
+           </Style>
+           <Style ss:ID="BoldColumn">
+             <Font x:Family="Swiss" ss:Bold="1"/>
+           </Style>
+           <Style ss:ID="StringLiteral">
+             <NumberFormat ss:Format="@"/>
+           </Style>
+           <Style ss:ID="Decimal">
+             <NumberFormat ss:Format="0.0000"/>
+           </Style>
+           <Style ss:ID="Integer">
+             <NumberFormat ss:Format="0"/>
+           </Style>
+           <Style ss:ID="DateLiteral">
+             <NumberFormat ss:Format="mm/dd/yyyy;@"/>
+           </Style>
+           </Styles>
+           <Worksheet ss:Name="Sheet1">
+           </Worksheet>
+           </Workbook>
+           */
+            excelDoc.Write(startExcelXML);
+
+            for (int i = 0; i < source.Tables.Count; i++)
+            {
+                DataTable dt = source.Tables[i];
+
+                excelDoc.Write("<Worksheet ss:Name=\"" + dt.TableName + "\">");
+                excelDoc.Write("<Table>");
+                excelDoc.Write("<Row>");
+                for (int x = 0; x < dt.Columns.Count; x++)
+                {
+                    excelDoc.Write("<Cell ss:StyleID=\"BoldColumn\"><Data ss:Type=\"String\">");
+                    excelDoc.Write(dt.Columns[x].ColumnName);
+                    excelDoc.Write("</Data></Cell>");
+                }
+                excelDoc.Write("</Row>");
+                foreach (DataRow x in dt.Rows)
+                {
+                    rowCount++;
+                    ////if the number of rows is > 64000 create a new page to continue output
+                    //if (rowCount == 64000)
+                    //{
+                    //    rowCount = 0;
+                    //    sheetCount++;
+                    //    excelDoc.Write("</Table>");
+                    //    excelDoc.Write(" </Worksheet>");
+                    //    excelDoc.Write("<Worksheet ss:Name=\"Sheet" + sheetCount + "\">");
+                    //    excelDoc.Write("<Table>");
+                    //}
+                    excelDoc.Write("<Row>"); //ID=" + rowCount + "
+                    for (int y = 0; y < dt.Columns.Count; y++)
+                    {
+                        System.Type rowType;
+                        rowType = x[y].GetType();
+                        switch (rowType.ToString())
+                        {
+                            case "System.String":
+                                string XMLstring = x[y].ToString();
+                                XMLstring = XMLstring.Trim();
+                                XMLstring = XMLstring.Replace("&", "&");
+                                XMLstring = XMLstring.Replace(">", ">");
+                                XMLstring = XMLstring.Replace("<", "<");
+                                excelDoc.Write("<Cell ss:StyleID=\"StringLiteral\">" +
+                                               "<Data ss:Type=\"String\">");
+                                excelDoc.Write(XMLstring);
+                                excelDoc.Write("</Data></Cell>");
+                                break;
+                            case "System.DateTime":
+                                //Excel has a specific Date Format of YYYY-MM-DD followed by  
+                                //the letter 'T' then hh:mm:sss.lll Example 2005-01-31T24:01:21.000
+                                //The Following Code puts the date stored in XMLDate 
+                                //to the format above
+                                DateTime XMLDate = (DateTime)x[y];
+                                string XMLDatetoString = ""; //Excel Converted Date
+                                XMLDatetoString = XMLDate.Year.ToString() +
+                                     "-" +
+                                     (XMLDate.Month < 10 ? "0" +
+                                     XMLDate.Month.ToString() : XMLDate.Month.ToString()) +
+                                     "-" +
+                                     (XMLDate.Day < 10 ? "0" +
+                                     XMLDate.Day.ToString() : XMLDate.Day.ToString()) +
+                                     "T" +
+                                     (XMLDate.Hour < 10 ? "0" +
+                                     XMLDate.Hour.ToString() : XMLDate.Hour.ToString()) +
+                                     ":" +
+                                     (XMLDate.Minute < 10 ? "0" +
+                                     XMLDate.Minute.ToString() : XMLDate.Minute.ToString()) +
+                                     ":" +
+                                     (XMLDate.Second < 10 ? "0" +
+                                     XMLDate.Second.ToString() : XMLDate.Second.ToString()) +
+                                     ".000";
+                                excelDoc.Write("<Cell ss:StyleID=\"DateLiteral\">" +
+                                             "<Data ss:Type=\"DateTime\">");
+                                excelDoc.Write(XMLDatetoString);
+                                excelDoc.Write("</Data></Cell>");
+                                break;
+                            case "System.Boolean":
+                                excelDoc.Write("<Cell ss:StyleID=\"StringLiteral\">" +
+                                            "<Data ss:Type=\"String\">");
+                                excelDoc.Write(x[y].ToString());
+                                excelDoc.Write("</Data></Cell>");
+                                break;
+                            case "System.Int16":
+                            case "System.Int32":
+                            case "System.Int64":
+                            case "System.Byte":
+                                excelDoc.Write("<Cell ss:StyleID=\"Integer\">" +
+                                        "<Data ss:Type=\"Number\">");
+                                excelDoc.Write(x[y].ToString());
+                                excelDoc.Write("</Data></Cell>");
+                                break;
+                            case "System.Decimal":
+                            case "System.Double":
+                                excelDoc.Write("<Cell ss:StyleID=\"Decimal\">" +
+                                      "<Data ss:Type=\"Number\">");
+                                excelDoc.Write(x[y].ToString());
+                                excelDoc.Write("</Data></Cell>");
+                                break;
+                            case "System.DBNull":
+                                excelDoc.Write("<Cell ss:StyleID=\"StringLiteral\">" +
+                                      "<Data ss:Type=\"String\">");
+                                excelDoc.Write("");
+                                excelDoc.Write("</Data></Cell>");
+                                break;
+                            default:
+                                throw (new Exception(rowType.ToString() + " not handled."));
+                        }
+                    }
+                    excelDoc.Write("</Row>");
+                }
+                excelDoc.Write("</Table>");
+                excelDoc.Write(" </Worksheet>");
+            }
+
+            excelDoc.Write(endExcelXML);
+            excelDoc.Close();
+        }
+
+        #endregion EXPORT
+
+
+        #region IMPORT
+
+        private static string GetExcelCellValue(ICell cell)
+        {
+            string cellValueString = string.Empty;
+
+            if (cell != null)
+            {
+                switch (cell.CellType)
+                {
+                    case CellType.String:
+                        cellValueString = cell.RichStringCellValue.String;
+                        break;
+                    case CellType.Numeric:
+                        if (DateUtil.IsCellDateFormatted(cell))
+                        {
+                            cellValueString = string.Format("{0:00}", cell.DateCellValue.Day) + "/" + string.Format("{0:00}", cell.DateCellValue.Month) + "/" + string.Format("{0:0000}", cell.DateCellValue.Year);
+                        }
+                        else
+                        {
+                            NPOI.SS.UserModel.DataFormatter formatter = new NPOI.SS.UserModel.DataFormatter();
+                            cellValueString = formatter.FormatCellValue(cell);
+                        }
+                        break;
+                    case CellType.Boolean:
+                        cellValueString = cell.BooleanCellValue.ToString();
+                        break;
+                    case CellType.Error:
+                        cellValueString = ErrorEval.GetText(cell.ErrorCellValue);
+                        break;
+                    case CellType.Formula:
+                        bool formulasNotResults = false;
+                        if (formulasNotResults)
+                        {
+                            cellValueString = cell.CellFormula.ToString();
+                        }
+                        else
+                        {
+                            switch (cell.CachedFormulaResultType)
+                            {
+                                case CellType.String:
+                                    IRichTextString str = cell.RichStringCellValue;
+                                    if (str != null && str.Length > 0)
+                                    {
+                                        cellValueString = str.ToString().Replace("\0", "");
+                                    }
+                                    break;
+                                case CellType.Numeric:
+                                    cellValueString = cell.NumericCellValue.ToString();
+                                    break;
+                                case CellType.Boolean:
+                                    cellValueString = cell.BooleanCellValue.ToString();
+                                    break;
+                                case CellType.Error:
+                                    cellValueString = ErrorEval.GetText(cell.ErrorCellValue);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        break;
+                    default:
+                        cellValueString = cell.StringCellValue;
+                        break;
+                }
+            }
+
+            return cellValueString;
+        }
+
+        public static String[] GetExcelSheetsNames(string filePath)
+        {
+            String[] result = null;
+
+            // Now load the workbook
+            FileStream fileStream = new FileStream(filePath, FileMode.Open);
+            HSSFWorkbook hssfworkbookFromFile = new HSSFWorkbook(fileStream);
+
+            hssfworkbookFromFile.MissingCellPolicy = MissingCellPolicy.RETURN_BLANK_AS_NULL;
+
+            result = new String[hssfworkbookFromFile.NumberOfSheets];
+
+            for (int i = 0; i < hssfworkbookFromFile.NumberOfSheets; i++)
+            {
+                HSSFSheet sheet = (HSSFSheet)hssfworkbookFromFile.GetSheetAt(i);
+                if (sheet == null)
+                {
+                    continue;
+                }
+
+                string sheetName = sheet.SheetName;
+                result[i] = sheetName;
+            }
+
+            return result;
+        }
+
+        private static DataTable GetExcelSheetAsTable(HSSFSheet sheet, bool useFirstRowAsColumnNames)
+        {
+            DataTable resultTable = new DataTable();
+
+            resultTable.TableName = sheet.SheetName;
+
+            #region Iterate on rows and cells
+            int numOfColumns = 0;
+            int firstRow = sheet.FirstRowNum + (useFirstRowAsColumnNames ? 1 : 0);
+            int lastRow = sheet.LastRowNum;
+            for (int j = firstRow; j <= lastRow; j++)
+            {
+                IRow row = sheet.GetRow(j);
+                if (row == null)
+                {
+                    continue;
+                }
+                // Check each cell in turn        					
+                int lastCell = row.LastCellNum;
+                if (lastCell > numOfColumns)
+                {
+                    numOfColumns = lastCell;
+                }
+            }
+
+            if (useFirstRowAsColumnNames)
+            {
+                IRow row = sheet.GetRow(0);
+                if (row != null)
+                {
+                    for (int h = 0; h < numOfColumns; h++)
+                    {
+                        resultTable.Columns.Add(GetExcelCellValue(row.Cells[h]), typeof(string));
+                    }
+                }
+            }
+            else
+            {
+                for (int h = 0; h < numOfColumns; h++)
+                {
+                    resultTable.Columns.Add(h.ToString(), typeof(string));
+                }
+            }
+
+            for (int j = firstRow; j <= lastRow; j++)
+            {
+                IRow row = sheet.GetRow(j);
+                if (row == null)
+                {
+                    continue;
+                }
+
+                System.Data.DataRow dataRow = resultTable.NewRow();
+                object[] itemArray = new object[numOfColumns];
+
+                // Check each cell in turn
+                int firstCell = row.FirstCellNum;
+                int lastCell = row.LastCellNum;
+                // Include blank cells
+                firstCell = 0;
+
+                for (int k = firstCell; k < lastCell; k++)
+                {
+                    ICell cell = row.GetCell(k);
+
+                    // end iterating on cells
+                    itemArray[k] = GetExcelCellValue(cell);
+                }
+
+                dataRow.ItemArray = itemArray;
+                resultTable.Rows.Add(dataRow);
+                // end iterating on rows
+            }
+            #endregion Iterate on rows and cells
+
+            return resultTable;
+        }
+
+        public static DataSet GetExcelAsDataSet(Stream inputStream)
+        {
+            DataSet resultDataSet = new DataSet();
+
+            if (inputStream != null)
+            {
+                HSSFWorkbook hssfworkbookFromFile = new HSSFWorkbook(inputStream);
+                hssfworkbookFromFile.MissingCellPolicy = MissingCellPolicy.RETURN_BLANK_AS_NULL;
+
+                for (int i = 0; i < hssfworkbookFromFile.NumberOfSheets; i++)
+                {
+                    HSSFSheet sheet = (HSSFSheet)hssfworkbookFromFile.GetSheetAt(i);
+                    if (sheet != null)
+                    {
+                        resultDataSet.Tables.Add(GetExcelSheetAsTable(sheet, false));
+                    }
+                }
+            }
+
+            return resultDataSet;
+        }
+
+        public static DataSet GetExcelAsDataSet(Stream inputStream, bool useFirstRowAsColumnNames)
+        {
+            DataSet resultDataSet = new DataSet();
+
+            if (inputStream != null)
+            {
+                HSSFWorkbook hssfworkbookFromFile = new HSSFWorkbook(inputStream);
+                hssfworkbookFromFile.MissingCellPolicy = MissingCellPolicy.RETURN_BLANK_AS_NULL;
+
+                for (int i = 0; i < hssfworkbookFromFile.NumberOfSheets; i++)
+                {
+                    HSSFSheet sheet = (HSSFSheet)hssfworkbookFromFile.GetSheetAt(i);
+                    if (sheet != null)
+                    {
+                        resultDataSet.Tables.Add(GetExcelSheetAsTable(sheet, useFirstRowAsColumnNames));
+                    }
+                }
+            }
+
+            return resultDataSet;
+        }
+
+        public static DataSet GetExcelAsDataSet(string sourceFileName)
+        {
+            System.Data.DataSet dataSet = new System.Data.DataSet();
+
+            // Now load the workbook
+            FileStream fileStream = new FileStream(sourceFileName, FileMode.Open);
+            dataSet = GetExcelAsDataSet(fileStream);
+
+            return dataSet;
+        }
+
+        public static DataSet GetExcelAsDataSet(string sourceFileName, bool useFirstRowAsColumnNames)
+        {
+            System.Data.DataSet dataSet = new System.Data.DataSet();
+
+            // Now load the workbook
+            FileStream fileStream = new FileStream(sourceFileName, FileMode.Open);
+            dataSet = GetExcelAsDataSet(fileStream, useFirstRowAsColumnNames);
+
+            return dataSet;
+        }
+
+        public static DataTable GetSheetAsTable(string sourceFileName)
+        {
+            DataTable resultTable = null;
+
+            FileStream fileStream = new FileStream(sourceFileName, FileMode.Open);
+            if (fileStream != null)
+            {
+                HSSFWorkbook hssfworkbookFromFile = new HSSFWorkbook(fileStream);
+                hssfworkbookFromFile.MissingCellPolicy = MissingCellPolicy.RETURN_BLANK_AS_NULL;
+
+                HSSFSheet sheet = (HSSFSheet)hssfworkbookFromFile.GetSheetAt(0);
+                if (sheet != null)
+                {
+                    resultTable = GetExcelSheetAsTable(sheet, false);
+                }
+            }
+
+            return resultTable;
+        }
+
+        public static DataTable GetSheetAsTable(string sourceFileName, bool useFirstRowAsColumnNames)
+        {
+            DataTable resultTable = null;
+
+            FileStream fileStream = new FileStream(sourceFileName, FileMode.Open);
+            if (fileStream != null)
+            {
+                HSSFWorkbook hssfworkbookFromFile = new HSSFWorkbook(fileStream);
+                hssfworkbookFromFile.MissingCellPolicy = MissingCellPolicy.RETURN_BLANK_AS_NULL;
+
+                HSSFSheet sheet = (HSSFSheet)hssfworkbookFromFile.GetSheetAt(0);
+                if (sheet != null)
+                {
+                    resultTable = GetExcelSheetAsTable(sheet, useFirstRowAsColumnNames);
+                }
+            }
+
+            return resultTable;
+        }
+
+        public static DataTable GetSheetAsTable(Stream fileStream)
+        {
+            DataTable resultTable = null;
+
+            if (fileStream != null)
+            {
+                HSSFWorkbook hssfworkbookFromFile = new HSSFWorkbook(fileStream);
+                hssfworkbookFromFile.MissingCellPolicy = MissingCellPolicy.RETURN_BLANK_AS_NULL;
+
+                HSSFSheet sheet = (HSSFSheet)hssfworkbookFromFile.GetSheetAt(0);
+                if (sheet != null)
+                {
+                    resultTable = GetExcelSheetAsTable(sheet, false);
+                }
+            }
+
+            return resultTable;
+        }
+
+        public static DataTable GetSheetAsTable(Stream fileStream, bool useFirstRowAsColumnNames)
+        {
+            DataTable resultTable = null;
+
+            if (fileStream != null)
+            {
+                HSSFWorkbook hssfworkbookFromFile = new HSSFWorkbook(fileStream);
+                hssfworkbookFromFile.MissingCellPolicy = MissingCellPolicy.RETURN_BLANK_AS_NULL;
+
+                HSSFSheet sheet = (HSSFSheet)hssfworkbookFromFile.GetSheetAt(0);
+                if (sheet != null)
+                {
+                    resultTable = GetExcelSheetAsTable(sheet, useFirstRowAsColumnNames);
+                }
+            }
+
+            return resultTable;
+        }
+
+
+        public static DataTable GetSheetAsTable(string sourceFileName, string sheetName)
+        {
+            DataTable result = new DataTable();
+
+            FileStream fileStream = new FileStream(sourceFileName, FileMode.Open);
+            if (fileStream != null)
+            {
+                HSSFWorkbook hssfworkbookFromFile = new HSSFWorkbook(fileStream);
+                hssfworkbookFromFile.MissingCellPolicy = MissingCellPolicy.RETURN_BLANK_AS_NULL;
+
+                for (int i = 0; i < hssfworkbookFromFile.NumberOfSheets; i++)
+                {
+                    HSSFSheet sheet = (HSSFSheet)hssfworkbookFromFile.GetSheetAt(i);
+                    if (sheet != null && sheet.SheetName.ToLower().Equals(sheetName.ToLower()))
+                    {
+                        result = GetExcelSheetAsTable(sheet, false);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static DataTable GetSheetAsTable(string sourceFileName, string sheetName, bool useFirstRowAsColumnNames)
+        {
+            DataTable result = new DataTable();
+
+            FileStream fileStream = new FileStream(sourceFileName, FileMode.Open);
+            if (fileStream != null)
+            {
+                HSSFWorkbook hssfworkbookFromFile = new HSSFWorkbook(fileStream);
+                hssfworkbookFromFile.MissingCellPolicy = MissingCellPolicy.RETURN_BLANK_AS_NULL;
+
+                for (int i = 0; i < hssfworkbookFromFile.NumberOfSheets; i++)
+                {
+                    HSSFSheet sheet = (HSSFSheet)hssfworkbookFromFile.GetSheetAt(i);
+                    if (sheet != null && sheet.SheetName.ToLower().Equals(sheetName.ToLower()))
+                    {
+                        result = GetExcelSheetAsTable(sheet, useFirstRowAsColumnNames);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static DataTable GetSheetAsTable(FileStream fileStream, string sheetName)
+        {
+            DataTable result = new DataTable();
+
+            if (fileStream != null)
+            {
+                HSSFWorkbook hssfworkbookFromFile = new HSSFWorkbook(fileStream);
+                hssfworkbookFromFile.MissingCellPolicy = MissingCellPolicy.RETURN_BLANK_AS_NULL;
+
+                for (int i = 0; i < hssfworkbookFromFile.NumberOfSheets; i++)
+                {
+                    HSSFSheet sheet = (HSSFSheet)hssfworkbookFromFile.GetSheetAt(i);
+                    if (sheet != null && sheet.SheetName.ToLower().Equals(sheetName.ToLower()))
+                    {
+                        result = GetExcelSheetAsTable(sheet, false);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static DataTable GetSheetAsTable(FileStream fileStream, string sheetName, bool useFirstRowAsColumnNames)
+        {
+            DataTable result = new DataTable();
+
+            if (fileStream != null)
+            {
+                HSSFWorkbook hssfworkbookFromFile = new HSSFWorkbook(fileStream);
+                hssfworkbookFromFile.MissingCellPolicy = MissingCellPolicy.RETURN_BLANK_AS_NULL;
+
+                for (int i = 0; i < hssfworkbookFromFile.NumberOfSheets; i++)
+                {
+                    HSSFSheet sheet = (HSSFSheet)hssfworkbookFromFile.GetSheetAt(i);
+                    if (sheet != null && sheet.SheetName.ToLower().Equals(sheetName.ToLower()))
+                    {
+                        result = GetExcelSheetAsTable(sheet, useFirstRowAsColumnNames);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        #endregion IMPORT
 
     }
 }
