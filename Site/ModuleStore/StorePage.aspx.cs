@@ -48,10 +48,12 @@ public partial class StorePage : System.Web.UI.Page
         switch (panelID)
         { 
             case "stokListPanel":
-
+                stokListPanel.Visible = true;
+                FillStokGridView();
                 break;
 
             case "uploadFromFilePanel":
+                uploadFromFilePanel.Visible = true;
                 break;
         }
 
@@ -59,11 +61,21 @@ public partial class StorePage : System.Web.UI.Page
 
     protected void FillStokGridView()
     {
-        DataTable dt = 
+        DataTable dt = Utils.ModuleStore().GetStokList();
+        productsListGridView.DataSource = dt;
+        productsListGridView.DataBind();
     }
 
     protected void uploadFromFileButton_Click(object sender, ImageClickEventArgs e)
     {
         ShowPanel(uploadFromFilePanel.ID);
+    }
+    protected void openFileButton_Click(object sender, EventArgs e)
+    {
+
+    }
+    protected void confirmUploadButton_Click(object sender, EventArgs e)
+    {
+
     }
 }

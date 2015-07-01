@@ -179,80 +179,60 @@ namespace Store
         #region Stok
 
 
-        public DataTable GetProductsList()
+        public DataTable GetStokList()
         {
             DataTable result = new DataTable();
             mLastError = string.Empty;
 
             try
             {
-                string distinctDays = " SELECT DISTINCT FROM Stok";
+                string distinctDays = " SELECT DISTINCT day FROM Stok";
                 DataTable days = mDataBridge.ExecuteQuery(distinctDays);
                 mLastError = mDataBridge.LastError;
 
                 if (days != null && days.Rows.Count > 0)
                 {
-                    
-//                    <asp:BoundField DataField="product_id" HeaderText="product_id" ItemStyle-CssClass="hidden" HeaderStyle-CssClass="hidden" />
-//<asp:BoundField DataField="product_id" HeaderText="product_id" ItemStyle-CssClass="hidden" HeaderStyle-CssClass="hidden" />
-//<asp:BoundField DataField="articol_name" HeaderText="Articol" />      
-//<asp:BoundField DataField="desen_name" HeaderText="Desen" />                     
-//<asp:BoundField DataField="tip_name" HeaderText="Tip" />            
-//<asp:BoundField DataField="colorit_name" HeaderText="Colorit" />                 
-//<asp:BoundField DataField="latime" HeaderText="Latime" />      
-//<asp:BoundField DataField="lungime" HeaderText="Lungime" />                  
-//<asp:BoundField DataField="metraj" HeaderText="Metraj" />               
-//<asp:BoundField DataField="festonare_name" HeaderText="Festonare" />
-//<asp:BoundField DataField="ean13" HeaderText="ean13" />
+                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stok)
+                                , ProdDet as (SELECT 
+                                product_id
+                                , ClArt.Name as ""Articol"" 
+                                , ClDesen.Name as ""Desen"" 
+                                , ClTip.Name as ""Tip"" 
+                                , ClColorit.Name as ""Colorit"" 
+                                , latime as ""Latime""
+                                , lungime as ""Lungime""  
+                                , CLFestonare.Name as ""Festonare""
+                                , ean13 as ""EAN13""                    
+                                FROM productdetails PD
+                                LEFT JOIN Classifiers as ClArt on ClArt.Code = PD.articol
+                                LEFT JOIN Classifiers as ClDesen on ClDesen.Code = PD.desen
+                                LEFT JOIN Classifiers as ClTip on ClTip.Code = PD.tip
+                                LEFT JOIN Classifiers as ClColorit on ClColorit.Code = PD.colorit
+                                LEFT JOIN Classifiers as CLFestonare on CLFestonare.Code = PD.festonare)  ";
 
+                    query += @" SELECT  
+                            ProdDet.""Articol""  
+                            ,ProdDet.""Desen""                             
+                            ,ProdDet.""Tip""                             
+                            ,ProdDet.""Colorit""   
+                            ,ProdDet.""Latime""   
+                            ,ProdDet.""Lungime""   
+                            ,ProdDet.""Festonare""  
+                            ,ProdDet.""EAN13""  ";
+                    for (int i = 0; i < days.Rows.Count; i++)
+                    {
+                        query += ", ST" + i + ".quantity as \"" + days.Rows[i]["day"].ToString() + "\"   \r\n ";
+                    }
+                    query += "  FROM MainTBL  \r\n ";
+                    query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id ";
+                    for (int i = 0; i < days.Rows.Count; i++)
+                    {
+                        query += " LEFT JOIN Stok as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".day = '" + days.Rows[i]["day"].ToString() + "' ";
+                    }
 
-                    string query = @" WITH MainTBL as ( SELECT DISTINCT produs_id FROM Stok )
-
-                        SELECT 
-                            MainTBL.produs_id
-                        FROM MainTBL 
-                        ";
-                         for(int i=0; i< days.Rows.Count; i++)
-                         {
-                             query += " LEFT JOIN Stok as ST" + i + " ON ST" + i +  ".produs_id =  MainTBL.produs_id AND  " ;
-                         }
-
-                            
-                            
-                          stok_id,
-                          ,
-                          day,
-                          quantity
-                        
-
-
+                    result = mDataBridge.ExecuteQuery(query);
+                    mLastError = mDataBridge.LastError;
                 }
-
-
-
-
-
-                    SELECT 
-                      product_id,
-                      articol,
-                        (SELECT Name from Classifiers Where Code = PD.articol) as articol_name, 
-                      desen,
-                        (SELECT Name from Classifiers Where Code = PD.desen) as desen_name, 
-                      tip,
-                        (SELECT Name from Classifiers Where Code = PD.tip) as tip_name, 
-                      colorit,
-                        (SELECT Name from Classifiers Where Code = PD.colorit) as colorit_name, 
-                      latime,
-                      lungime,
-                      metraj,
-                      festonare,
-                        (SELECT Name from Classifiers Where Code = PD.festonare) as festonare_name, 
-                      ean13
-                    FROM 
-                      ProductDetails as PD ;  ";
-
-                result = mDataBridge.ExecuteQuery(query);
-                mLastError = mDataBridge.LastError;
             }
             catch (Exception exception)
             {
@@ -260,9 +240,9 @@ namespace Store
             }
 
             return result;
-        }    
+        }
 
-        public bool UpdateProduct(int product_id, int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, decimal metraj, int festonare, string ean13)
+        public bool UpdateStok(int product_id, int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, decimal metraj, int festonare, string ean13)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
