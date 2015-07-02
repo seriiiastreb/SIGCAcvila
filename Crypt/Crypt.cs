@@ -3770,7 +3770,6 @@ namespace Crypt
             return resultTable;
         }
 
-
         public static DataTable GetSheetAsTable(string sourceFileName, string sheetName)
         {
             DataTable result = new DataTable();
@@ -3817,7 +3816,7 @@ namespace Crypt
             return result;
         }
 
-        public static DataTable GetSheetAsTable(FileStream fileStream, string sheetName)
+        public static DataTable GetSheetAsTable(Stream fileStream, string sheetName)
         {
             DataTable result = new DataTable();
 
@@ -3839,7 +3838,7 @@ namespace Crypt
             return result;
         }
 
-        public static DataTable GetSheetAsTable(FileStream fileStream, string sheetName, bool useFirstRowAsColumnNames)
+        public static DataTable GetSheetAsTable(Stream fileStream, string sheetName, bool useFirstRowAsColumnNames)
         {
             DataTable result = new DataTable();
 

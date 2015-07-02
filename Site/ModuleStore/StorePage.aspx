@@ -20,16 +20,34 @@
         <h2> Upload From excel file </h2>
 
         <fieldset>
-            <label>Open File:  <asp:FileUpload ID="excelFileUpload" runat="server" ToolTip="Browse to select a excel file" />&nbsp; <asp:Button ID="openFileButton" runat="server" Text="Open File"  OnClick="openFileButton_Click"/> </label>
-
+            <label>Week:<asp:TextBox ID="weekTextBox" runat="server"></asp:TextBox>   &nbsp; &nbsp; &nbsp;  
+            File sheet: <asp:DropDownList ID="fileSheetsDDL" runat="server" ></asp:DropDownList>        &nbsp; &nbsp; &nbsp;         
+            File:&nbsp;<asp:FileUpload ID="excelFileUpload" runat="server" />  <asp:Button ID="openFileButton" runat="server" Text="Open File"  OnClick="openFileButton_Click"/> </label>
+            &nbsp; &nbsp; &nbsp; 
+            <asp:Button runat="server" Text="Back to Stok list" ID="backButton" OnClick="backButton_Click" />
             <br />
-            <asp:DropDownList ID="fileSheetsDDL" runat="server" AutoPostBack="false" OnSelectedIndexChanged="fileSheetsDDL_SelectedIndexChanged"></asp:DropDownList>
-             <br />
-            <asp:GridView ID="uploadFileGridView" runat="server" 
-                AutoGenerateColumns="true"
-                AlternatingRowStyle-CssClass="odd"
-                AllowPaging="false"   >
-            </asp:GridView>
+            <div style="max-height:600px; overflow-y:scroll;">
+                <asp:GridView ID="uploadFileGridView" runat="server" 
+                    AutoGenerateColumns="true"
+                    AlternatingRowStyle-CssClass="odd" HeaderStyle-BackColor="DarkGray"
+                    AllowPaging="false"   >
+                    <Columns>
+                        <asp:TemplateField >
+                            <HeaderTemplate>
+                                 <asp:CheckBox runat="server" ID="selectAllCheckBox" onclick = "CheckAllForGrid('ctl00_MainPlaceHolder_uploadFileGridView', this);" />
+                            </HeaderTemplate>
+                            <ItemTemplate>
+                                <asp:CheckBox runat="server" ID="rowCheckBox" />
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Upload Status">
+                            <ItemTemplate>
+                                <asp:Label runat="server" ID="resultUploadLabel" Text=""></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                    </Columns>
+                </asp:GridView>
+            </div>
             <br />
 
             <asp:Button  ID="confirmUploadButton" Text="Confirm Uppload" runat="server" OnClick="confirmUploadButton_Click" />

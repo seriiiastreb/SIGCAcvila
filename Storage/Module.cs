@@ -186,11 +186,11 @@ namespace Store
 
             try
             {
-                string distinctDays = " SELECT DISTINCT day FROM Stok";
-                DataTable days = mDataBridge.ExecuteQuery(distinctDays);
+                string distinctDays = " SELECT DISTINCT week FROM Stok";
+                DataTable weeks = mDataBridge.ExecuteQuery(distinctDays);
                 mLastError = mDataBridge.LastError;
 
-                if (days != null && days.Rows.Count > 0)
+                if (weeks != null && weeks.Rows.Count > 0)
                 {
                     string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stok)
                                 , ProdDet as (SELECT 
@@ -219,15 +219,15 @@ namespace Store
                             ,ProdDet.""Lungime""   
                             ,ProdDet.""Festonare""  
                             ,ProdDet.""EAN13""  ";
-                    for (int i = 0; i < days.Rows.Count; i++)
+                    for (int i = 0; i < weeks.Rows.Count; i++)
                     {
-                        query += ", ST" + i + ".quantity as \"" + days.Rows[i]["day"].ToString() + "\"   \r\n ";
+                        query += ", ST" + i + ".quantity as \"" + weeks.Rows[i]["week"].ToString() + "\"   \r\n ";
                     }
                     query += "  FROM MainTBL  \r\n ";
                     query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id ";
-                    for (int i = 0; i < days.Rows.Count; i++)
+                    for (int i = 0; i < weeks.Rows.Count; i++)
                     {
-                        query += " LEFT JOIN Stok as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".day = '" + days.Rows[i]["day"].ToString() + "' ";
+                        query += " LEFT JOIN Stok as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".day = '" + weeks.Rows[i]["week"].ToString() + "' ";
                     }
 
                     result = mDataBridge.ExecuteQuery(query);
@@ -242,39 +242,23 @@ namespace Store
             return result;
         }
 
-        public bool UpdateStok(int product_id, int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, decimal metraj, int festonare, string ean13)
+        public bool UpdateStok(string week, int product_id, int quantity)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
             bool result = false;
             try
-            {
-                string nonQuery = @"UPDATE 
-                              ProductDetails  
-                            SET 
-                              articol = @articol,
-                              desen = @desen,
-                              tip = @tip,
-                              colorit = @colorit,
-                              latime = @latime,
-                              lungime = @lungime,
-                              metraj = @metraj,
-                              festonare = @festonare,
-                              ean13 = @ean13 
-                            WHERE 
-                              product_id = @product_id; ";
+            {        
+                string nonQuery = @"UPDATE stok  SET quantity = @quantity WHERE  product_id = @product_id AND week = @week 
+
+                                    INSERT INTO stok(product_id, week, quantity)
+                                    SELECT @product_id, @week, @quantity 
+                                    WHERE not exists (select 1 from stok WHERE product_id = @product_id AND week = @week) ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@product_id", product_id);
-                parameters.Add("@articol", articol);
-                parameters.Add("@desen", desen);
-                parameters.Add("@tip", tip);
-                parameters.Add("@colorit", colorit);
-                parameters.Add("@latime", latime);
-                parameters.Add("@lungime", lungime);
-                parameters.Add("@metraj", metraj);
-                parameters.Add("@festonare", festonare);
-                parameters.Add("@ean13", ean13);
+                parameters.Add("@week", week);
+                parameters.Add("@quantity", quantity);
 
                 result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = mDataBridge.LastError;
@@ -287,7 +271,45 @@ namespace Store
             return result;
         }
 
+        public int DetectProduct(string articol, string desen , string tip, string colorit, decimal latime, decimal lungime)
+        {
+            int result = 0;
+            mLastError = string.Empty;
 
+            try
+            {
+                string distinctDays = @"select product_id from productDetails
+                    WHERE 
+                    articol = (select code from classifiers where name = @articol)
+                    and desen = (select code from classifiers where name = @desen)
+                    and tip = (select code from classifiers where name = @tip)
+                    and colorit = (select code from classifiers where name = @colorit)
+                    and latime = @latime
+                    and lungime =  @lungime";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@articol", articol);
+                parameters.Add("@desen", desen);
+                parameters.Add("@tip", tip);
+                parameters.Add("@colorit", colorit);
+                parameters.Add("@latime", latime);
+                parameters.Add("@lungime", lungime);
+
+                DataTable tempDT = mDataBridge.ExecuteQuery(distinctDays, parameters);
+                mLastError = mDataBridge.LastError;
+
+                if (tempDT != null && tempDT.Rows.Count > 0)
+                {
+                    result = (int)tempDT.Rows[0][0];
+                }
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
         #endregion Stok
     }
 
