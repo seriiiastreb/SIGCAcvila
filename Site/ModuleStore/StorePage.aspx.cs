@@ -165,4 +165,9 @@ public partial class StorePage : System.Web.UI.Page
     {
         ShowPanel(stokListPanel.ID);
     }
+
+    protected void refreshButton_Click(object sender, ImageClickEventArgs e)
+    {
+        ShowPanel(stokListPanel.ID);
+    }
 }

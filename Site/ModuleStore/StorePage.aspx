@@ -8,7 +8,7 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server">  
 
     <asp:Panel runat="server" ID="stokListPanel" class="grid_16 box" style="min-height:100px;" Visible="false">
-        <h2>STOK &nbsp;&nbsp; &nbsp;&nbsp;<asp:ImageButton ID="uploadFromFileButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Upload From File" ImageUrl="../images/plus.png"  runat="server" OnClick="uploadFromFileButton_Click" AlternateText="Upload From File" /></h2>
+        <h2>STOK &nbsp;&nbsp;<asp:ImageButton ID="refreshButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Refresh" ImageUrl="../images/refresh.png"  runat="server" OnClick="refreshButton_Click" AlternateText="Refresh" /> &nbsp;&nbsp;&nbsp;&nbsp;<asp:ImageButton ID="uploadFromFileButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Upload From File" ImageUrl="../images/plus.png"  runat="server" OnClick="uploadFromFileButton_Click" AlternateText="Upload From File" /></h2>
         <asp:GridView ID="productsListGridView" runat="server" 
             AutoGenerateColumns="true"
             AlternatingRowStyle-CssClass="odd"

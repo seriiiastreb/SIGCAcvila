@@ -227,7 +227,7 @@ namespace Store
                     query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id ";
                     for (int i = 0; i < weeks.Rows.Count; i++)
                     {
-                        query += " LEFT JOIN Stok as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".day = '" + weeks.Rows[i]["week"].ToString() + "' ";
+                        query += " LEFT JOIN Stok as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeks.Rows[i]["week"].ToString() + "' ";
                     }
 
                     result = mDataBridge.ExecuteQuery(query);
