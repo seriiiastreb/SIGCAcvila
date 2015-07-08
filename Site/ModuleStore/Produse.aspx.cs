@@ -78,7 +78,6 @@ public partial class Produse : System.Web.UI.Page
                                         try { orderFestonareDDL.SelectedValue = productsListGridView.Rows[selectedIndexInProdusGrid].Cells[12].Text; }
                                         catch { }
 
-                                        orderEAN13TextBox.Text = productsListGridView.Rows[selectedIndexInProdusGrid].Cells[14].Text;
                                         productPopupExtender.Show();
                                     }
                                     break;
@@ -155,7 +154,6 @@ public partial class Produse : System.Web.UI.Page
         orderLatimeTextBox.Text = string.Empty;
         orderLungimeTextBox.Text = string.Empty;
         orderMetrajTextBox.Text = string.Empty;
-        orderEAN13TextBox.Text = string.Empty;
     }
 
     protected void saveProductDetailsButton_Click(object sender, EventArgs e)
@@ -189,15 +187,13 @@ public partial class Produse : System.Web.UI.Page
                 int festonare = 0;
                 int.TryParse(orderFestonareDDL.SelectedValue, out festonare);
 
-                string ean13 = orderEAN13TextBox.Text.Trim();
-
                 if (isNewAction)
                 {
-                    resultAction = Utils.ModuleStore().AddProduct(articol, desen, tip, colorit, latime, lungime, metraj, festonare, ean13);
+                    resultAction = Utils.ModuleStore().AddProduct(articol, desen, tip, colorit, latime, lungime, metraj, festonare);
                 }
                 else
                 {
-                    resultAction = Utils.ModuleStore().UpdateProduct(productID, articol, desen, tip, colorit, latime, lungime, metraj, festonare, ean13);
+                    resultAction = Utils.ModuleStore().UpdateProduct(productID, articol, desen, tip, colorit, latime, lungime, metraj, festonare);
                 }
 
 

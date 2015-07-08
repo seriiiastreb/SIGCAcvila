@@ -6,7 +6,7 @@ using System.Web.UI.WebControls;
 using System.Data;
 using System.IO;
 
-public partial class StorePage : System.Web.UI.Page
+public partial class Vinzari : System.Web.UI.Page
 {
     private readonly string mCurrentModule = Store.Module.ID;
     private readonly string mPageName = "Warehouse management page";
@@ -27,7 +27,7 @@ public partial class StorePage : System.Web.UI.Page
             {
                 if (!IsPostBack)
                 {
-                    ShowPanel(stokListPanel.ID);
+                    ShowPanel(vinzariListPanel.ID);
                 }      
             }
             else
@@ -42,15 +42,14 @@ public partial class StorePage : System.Web.UI.Page
 
     protected void ShowPanel(string panelID)
     {
-        stokListPanel.Visible = false;
+        vinzariListPanel.Visible = false;
         uploadFromFilePanel.Visible = false;
 
-
         switch (panelID)
-        { 
-            case "stokListPanel":
-                stokListPanel.Visible = true;
-                FillStokGridView();
+        {
+            case "vinzariListPanel":
+                vinzariListPanel.Visible = true;
+                FillVinzariGridView();
                 break;
 
             case "uploadFromFilePanel":
@@ -58,7 +57,6 @@ public partial class StorePage : System.Web.UI.Page
                 uploadFromFilePanel.Visible = true;
                 break;
         }
-
     }
 
     protected void FillSheetsDDL()
@@ -70,17 +68,18 @@ public partial class StorePage : System.Web.UI.Page
         sheets.Add("Sheet1");
         sheets.Add("Sheet2");
         sheets.Add("Sheet3");
+        sheets.Add("Sheet4");
         fileSheetsDDL.DataSource = sheets;
         fileSheetsDDL.DataBind();
 
         fileSheetsDDL.SelectedValue = "Sheet2";
     }
 
-    protected void FillStokGridView()
+    protected void FillVinzariGridView()
     {
-        DataTable dt = Utils.ModuleStore().GetStokList();
-        productsListGridView.DataSource = dt;
-        productsListGridView.DataBind();
+        DataTable dt = Utils.ModuleStore().GetVinzariList();
+        vinzariListGridView.DataSource = dt;
+        vinzariListGridView.DataBind();
     }
 
     protected void uploadFromFileButton_Click(object sender, ImageClickEventArgs e)
@@ -136,7 +135,7 @@ public partial class StorePage : System.Web.UI.Page
                         {
                             if (cantitate != 0)
                             {
-                                if (Utils.ModuleStore().UpdateStok(week, productID, cantitate))
+                                if (Utils.ModuleStore().UpdateVinzari(week, productID, cantitate))
                                 {
                                     resultUploadLabel.Text = "OK.";
                                 }
@@ -166,11 +165,11 @@ public partial class StorePage : System.Web.UI.Page
 
     protected void backButton_Click(object sender, EventArgs e)
     {
-        ShowPanel(stokListPanel.ID);
+        ShowPanel(vinzariListPanel.ID);
     }
 
     protected void refreshButton_Click(object sender, ImageClickEventArgs e)
     {
-        ShowPanel(stokListPanel.ID);
+        ShowPanel(vinzariListPanel.ID);
     }
 }

@@ -92,7 +92,6 @@
                 <asp:BoundField DataField="metraj" HeaderText="Metraj" />   
                 <asp:BoundField DataField="festonare" HeaderText="festonare" ItemStyle-CssClass="hidden" HeaderStyle-CssClass="hidden" />             
                 <asp:BoundField DataField="festonare_name" HeaderText="Festonare" />
-                <asp:BoundField DataField="ean13" HeaderText="ean13" />
             </Columns>
         </asp:GridView>
     </div>
@@ -144,11 +143,7 @@
 		    <p>
                 <label>Festonare:</label>
                 <asp:DropDownList ID="orderFestonareDDL" runat="server"></asp:DropDownList>
-            </p>   
-            <p>
-                <label>EAN13:</label>
-                <asp:TextBox ID="orderEAN13TextBox" runat="server"></asp:TextBox>
-            </p>   
+            </p>  
             <div style="margin:auto; width:201px;">
                 <asp:Button ID="saveProductDetailsButton" runat="server"  Text="Save" OnClick="saveProductDetailsButton_Click" />
                 <asp:Button ID="productCancelButton" runat="server"  Text="Cancel"  />

@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="StorePage.aspx.cs" Inherits="StorePage" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Vinzari.aspx.cs" Inherits="Vinzari" %>
 <%@ Register TagPrefix="ajax" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit"%>
 
 
@@ -7,9 +7,9 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server">  
 
-    <asp:Panel runat="server" ID="stokListPanel" class="grid_16 box" style="min-height:100px;" Visible="false">
-        <h2>STOK &nbsp;&nbsp;<asp:ImageButton ID="refreshButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Refresh" ImageUrl="../images/refresh.png"  runat="server" OnClick="refreshButton_Click" AlternateText="Refresh" /> &nbsp;&nbsp;&nbsp;&nbsp;<asp:ImageButton ID="uploadFromFileButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Upload From File" ImageUrl="../images/plus.png"  runat="server" OnClick="uploadFromFileButton_Click" AlternateText="Upload From File" /></h2>
-        <asp:GridView ID="productsListGridView" runat="server" 
+    <asp:Panel runat="server" ID="vinzariListPanel" class="grid_16 box" style="min-height:100px;" Visible="false">
+        <h2>Vinzari &nbsp;&nbsp;<asp:ImageButton ID="refreshButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Refresh" ImageUrl="../images/refresh.png"  runat="server" OnClick="refreshButton_Click" AlternateText="Refresh" /> &nbsp;&nbsp;&nbsp;&nbsp;<asp:ImageButton ID="uploadFromFileButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Upload From File" ImageUrl="../images/plus.png"  runat="server" OnClick="uploadFromFileButton_Click" AlternateText="Upload From File" /></h2>
+        <asp:GridView ID="vinzariListGridView" runat="server" 
             AutoGenerateColumns="true"
             AlternatingRowStyle-CssClass="odd"
             AllowPaging="false"   >
@@ -20,7 +20,7 @@
         <h2> Upload From excel file </h2>
 
         <fieldset>
-            <label>Week:<asp:DropDownList ID="weeksDDL" runat="server"></asp:DropDownList>  &nbsp; &nbsp; &nbsp;  
+            <label>Week:<asp:DropDownList ID="weeksDDL" runat="server"></asp:DropDownList>   &nbsp; &nbsp; &nbsp;  
             File sheet: <asp:DropDownList ID="fileSheetsDDL" runat="server" ></asp:DropDownList>        &nbsp; &nbsp; &nbsp;         
             File:&nbsp;<asp:FileUpload ID="excelFileUpload" runat="server" />  <asp:Button ID="openFileButton" runat="server" Text="Open File"  OnClick="openFileButton_Click"/> </label>
             &nbsp; &nbsp; &nbsp; 

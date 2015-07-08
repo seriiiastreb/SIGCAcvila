@@ -172,6 +172,7 @@ public partial class Login : System.Web.UI.Page
             modulesMenu += " <ul>  \r\n ";
             modulesMenu += "     <li>  <a href=\"" + appPath + "/ModuleStore/StorePage.aspx\"> Stok</a> </li> \r\n ";
             modulesMenu += "     <li>  <a href=\"" + appPath + "/ModuleStore/Produse.aspx\"> Products </a> </li> \r\n ";
+            modulesMenu += "     <li>  <a href=\"" + appPath + "/ModuleStore/Vinzari.aspx\"> Vinzari </a> </li> \r\n ";
             modulesMenu += " </ul>  \r\n ";
             modulesMenu += "</li>\r\n ";
 
