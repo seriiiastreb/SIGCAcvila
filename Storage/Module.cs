@@ -237,11 +237,6 @@ namespace Store
                             ,ProdDet.""Latime""   
                             ,ProdDet.""Lungime""   ";
 
-                    for (int i = 0; i < weeks.Rows.Count; i++)
-                    {
-                        query += ", ST" + i + ".quantity as \"" + weeks.Rows[i]["week"].ToString() + "\"   \r\n ";
-                    }
-
                     query += " , dbo.MaxVAL(5, ( ";
 
                     for (int i = 0; i < weeks.Rows.Count && i < 5; i++)
@@ -250,8 +245,23 @@ namespace Store
                         query += "coalesce(VZ" + (weeks.Rows.Count - i - 1) + ".quantity, 0)";
                     }
 
-                    query += " ) / 5 ) as \"Kanban\" \r\n ";
+                    query += " ) / 5 * 3) as \"Kanban\" \r\n ";
 
+                    query += " , cast( ( ";
+
+                    for (int i = 0; i < weeks.Rows.Count && i < 5; i++)
+                    {
+                        if (i > 0) query += " + ";
+                        query += "coalesce(VZ" + (weeks.Rows.Count - i - 1) + ".quantity, 0)";
+                    }
+
+                    query += " ) / 5 as decimal(18,2))  as \"Vinz Medii\" \r\n ";
+
+
+                    for (int i = 0; i < weeks.Rows.Count; i++)
+                    {
+                        query += ", coalesce(ST" + i + ".quantity,0) as \"" + weeks.Rows[i]["week"].ToString() + "\"   \r\n ";
+                    }
 
 
                     query += "  FROM MainTBL  \r\n ";
@@ -389,23 +399,34 @@ namespace Store
                             ,ProdDet.""Colorit""   
                             ,ProdDet.""Latime""   
                             ,ProdDet.""Lungime""   
-                            ";                        
-                   
-                    for (int i = 0; i < weeks.Rows.Count; i++)
-                    {
-                        query += ", ST" + i + ".quantity as \"" + weeks.Rows[i]["week"].ToString() + "\"   \r\n ";
-                    }
+                            ";
 
                     query += " , dbo.MaxVAL(5, ( ";
 
                     for (int i = 0; i < weeks.Rows.Count && i < 5; i++)
                     {
-                        if(i>0) query += " + ";
+                        if (i > 0) query += " + ";
                         query += "coalesce(ST" + (weeks.Rows.Count - i - 1) + ".quantity, 0)";
                     }
 
-                    query += " ) / 5 ) as \"Kanban\" \r\n ";
+                    query += " ) / 5 * 3) as \"Kanban\" \r\n ";
 
+
+                    query += " , cast ( ( ";
+
+                    for (int i = 0; i < weeks.Rows.Count && i < 5; i++)
+                    {
+                        if (i > 0) query += " + ";
+                        query += "coalesce(ST" + (weeks.Rows.Count - i - 1) + ".quantity, 0)";
+                    }
+
+                    query += " ) / 5 as decimal(18,2))  as \"Vinz Medii\" \r\n ";
+
+                   
+                    for (int i = 0; i < weeks.Rows.Count; i++)
+                    {
+                        query += ", coalesce(ST" + i + ".quantity,0) as \"" + weeks.Rows[i]["week"].ToString() + "\"   \r\n ";
+                    }
 
                     query += "  FROM MainTBL  \r\n ";
                     query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id ";
