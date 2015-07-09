@@ -29,7 +29,7 @@ public partial class Produse : System.Web.UI.Page
                 if (!IsPostBack)
                 {
                     FillAllComboBox();
-                    FIllProductsGridView();
+                    ShowPanel(productsPanel.ID);
                 }
                 else
                 {
@@ -73,10 +73,6 @@ public partial class Produse : System.Web.UI.Page
 
                                         orderLatimeTextBox.Text = productsListGridView.Rows[selectedIndexInProdusGrid].Cells[9].Text;
                                         orderLungimeTextBox.Text = productsListGridView.Rows[selectedIndexInProdusGrid].Cells[10].Text;
-                                        orderMetrajTextBox.Text = productsListGridView.Rows[selectedIndexInProdusGrid].Cells[11].Text;
-
-                                        try { orderFestonareDDL.SelectedValue = productsListGridView.Rows[selectedIndexInProdusGrid].Cells[12].Text; }
-                                        catch { }
 
                                         productPopupExtender.Show();
                                     }
@@ -101,7 +97,6 @@ public partial class Produse : System.Web.UI.Page
 
                             break;
                     }
-
                 }
             }
             else
@@ -113,6 +108,40 @@ public partial class Produse : System.Web.UI.Page
         { Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Attention! Error in system!", ex.Message); }
     }
 
+    protected void ShowPanel(string panelID)
+    {
+        productsPanel.Visible = false;
+        uploadFromFilePanel.Visible = false;
+
+
+        switch (panelID)
+        {
+            case "productsPanel":
+                productsPanel.Visible = true;
+                FIllProductsGridView();
+                break;
+
+            case "uploadFromFilePanel":
+                FillSheetsDDL();
+                uploadFromFilePanel.Visible = true;
+                break;
+        }
+    }
+
+    protected void FillSheetsDDL()
+    {
+    //    DataTable weeksDT = Utils.ModuleStore().GetWeeksList();
+    //    Utils.FillSelector(weeksDDL, weeksDT, "week", "week");
+
+        List<string> sheets = new List<string>();
+        sheets.Add("Sheet1");
+        sheets.Add("Sheet2");
+        sheets.Add("Sheet3");
+        fileSheetsDDL.DataSource = sheets;
+        fileSheetsDDL.DataBind();
+
+        fileSheetsDDL.SelectedValue = "Sheet1";
+    }
 
 
     
@@ -129,9 +158,6 @@ public partial class Produse : System.Web.UI.Page
 
         DataTable colorit = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.Colorit);
         Utils.FillSelector(orderColoritDDL, colorit, "Name", "Code");
-
-        DataTable festonare = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.Festonare);
-        Utils.FillSelector(orderFestonareDDL, festonare, "Name", "Code");
     }
 
     #region new orders
@@ -149,11 +175,8 @@ public partial class Produse : System.Web.UI.Page
         try { orderColoritDDL.SelectedIndex = 0; }
         catch { }
 
-        try { orderFestonareDDL.SelectedIndex = 0; }
-        catch { }
         orderLatimeTextBox.Text = string.Empty;
         orderLungimeTextBox.Text = string.Empty;
-        orderMetrajTextBox.Text = string.Empty;
     }
 
     protected void saveProductDetailsButton_Click(object sender, EventArgs e)
@@ -182,18 +205,14 @@ public partial class Produse : System.Web.UI.Page
 
                 decimal latime = Crypt.Utils.MyDecimalParce(orderLatimeTextBox.Text);
                 decimal lungime = Crypt.Utils.MyDecimalParce(orderLungimeTextBox.Text);
-                decimal metraj = Crypt.Utils.MyDecimalParce(orderMetrajTextBox.Text);
-
-                int festonare = 0;
-                int.TryParse(orderFestonareDDL.SelectedValue, out festonare);
 
                 if (isNewAction)
                 {
-                    resultAction = Utils.ModuleStore().AddProduct(articol, desen, tip, colorit, latime, lungime, metraj, festonare);
+                    resultAction = Utils.ModuleStore().AddProduct(articol, desen, tip, colorit, latime, lungime);
                 }
                 else
                 {
-                    resultAction = Utils.ModuleStore().UpdateProduct(productID, articol, desen, tip, colorit, latime, lungime, metraj, festonare);
+                    resultAction = Utils.ModuleStore().UpdateProduct(productID, articol, desen, tip, colorit, latime, lungime);
                 }
 
 
@@ -240,4 +259,149 @@ public partial class Produse : System.Web.UI.Page
         }
     }
 
+    protected void refreshButton_Click(object sender, ImageClickEventArgs e)
+    {
+        FIllProductsGridView();
+    }
+    protected void backButton_Click(object sender, EventArgs e)
+    {
+        ShowPanel(productsPanel.ID);
+    }
+
+    protected void openFileButton_Click(object sender, EventArgs e)
+    {
+        if (excelFileUpload.HasFile)
+        {
+            HttpPostedFile file = excelFileUpload.PostedFile;
+
+            if (file != null && file.ContentLength > 0)
+            {
+                bool useFirstRowAsColumnNames = true;
+
+                string sheetName = fileSheetsDDL.SelectedValue;
+
+                DataTable sourceDataTable = Crypt.Excel.GetSheetAsTable(file.InputStream, sheetName, useFirstRowAsColumnNames);
+
+                uploadFileGridView.DataSource = sourceDataTable;
+                uploadFileGridView.DataBind();
+            }
+        }
+    }
+
+    DataTable articolHashTable = new DataTable();
+    DataTable desenHashTable = new DataTable();
+    DataTable tipHashTable = new DataTable();
+    DataTable coloritHashTable = new DataTable();
+
+    protected void confirmUploadButton_Click(object sender, EventArgs e)
+    {
+        if (uploadFileGridView.Rows.Count > 0)
+        {
+            for (int i = 0; i < uploadFileGridView.Rows.Count; i++)
+            {
+                CheckBox rowCheckBox = (CheckBox)uploadFileGridView.Rows[i].Cells[0].FindControl("rowCheckBox");
+                Label resultUploadLabel = (Label)uploadFileGridView.Rows[i].Cells[1].FindControl("resultUploadLabel");
+
+                if (rowCheckBox != null && rowCheckBox.Checked)
+                {
+                    string articolSTR = uploadFileGridView.Rows[i].Cells[2].Text;
+                    int articolInt = 0;
+
+                    string desenSTR = uploadFileGridView.Rows[i].Cells[3].Text;
+                    int desenINT = 0;
+
+                    string tipSTR = uploadFileGridView.Rows[i].Cells[4].Text;
+                    int tipInt = 0;
+
+                    string coloritSTR = uploadFileGridView.Rows[i].Cells[5].Text;
+                    int coloritINt = 0;
+
+                    decimal latime = Crypt.Utils.MyDecimalParce(uploadFileGridView.Rows[i].Cells[6].Text);
+                    decimal lungime = Crypt.Utils.MyDecimalParce(uploadFileGridView.Rows[i].Cells[7].Text);
+
+                    if (!articolHashTable.Columns.Contains(articolSTR))
+                    {
+                        if (articolHashTable.Rows.Count == 0) articolHashTable.Rows.Add();
+
+                        articolInt = Utils.ModuleMain().GetClassifierCodeByName(articolSTR, (int)Constants.ClassifierTypes.Articol);
+                        if (articolInt == 0)
+                        {
+                            articolInt = Utils.ModuleMain().NewClassifier((int)Constants.ClassifierTypes.Articol, articolSTR);
+                        }
+
+                        articolHashTable.Columns.Add(articolSTR, typeof(int));
+                        articolHashTable.Rows[0][articolSTR] = articolInt;
+                    }
+                    else
+                    {
+                        articolInt = (int)articolHashTable.Rows[0][articolSTR];
+                    }
+
+                    if (!desenHashTable.Columns.Contains(desenSTR))
+                    {
+                        if (desenHashTable.Rows.Count == 0) desenHashTable.Rows.Add();
+
+                        desenINT = Utils.ModuleMain().GetClassifierCodeByName(desenSTR, (int)Constants.ClassifierTypes.Desen);
+                        if (desenINT == 0)
+                        {
+                            desenINT = Utils.ModuleMain().NewClassifier((int)Constants.ClassifierTypes.Desen, desenSTR);
+                        }
+                        desenHashTable.Columns.Add(desenSTR, typeof(int));
+                        desenHashTable.Rows[0][desenSTR] = desenINT;
+                    }
+                    else
+                    {
+                        desenINT = (int)desenHashTable.Rows[0][desenSTR];
+                    }
+
+                    if (!tipHashTable.Columns.Contains(tipSTR))
+                    {
+                        if (tipHashTable.Rows.Count == 0) tipHashTable.Rows.Add();
+
+                        tipInt = Utils.ModuleMain().GetClassifierCodeByName(tipSTR, (int)Constants.ClassifierTypes.Tip);
+                        if (tipInt == 0)
+                        {
+                            tipInt = Utils.ModuleMain().NewClassifier((int)Constants.ClassifierTypes.Tip, tipSTR);
+                        }
+                        tipHashTable.Columns.Add(tipSTR, typeof(int));
+                        tipHashTable.Rows[0][tipSTR] = tipInt;
+                    }
+                    else
+                    {
+                        tipInt = (int)tipHashTable.Rows[0][tipSTR];
+                    }
+
+                    if (!coloritHashTable.Columns.Contains(coloritSTR))
+                    {
+                        if (coloritHashTable.Rows.Count == 0) coloritHashTable.Rows.Add();
+
+                        coloritINt = Utils.ModuleMain().GetClassifierCodeByName(coloritSTR, (int)Constants.ClassifierTypes.Colorit);
+                        if (coloritINt == 0)
+                        {
+                            coloritINt = Utils.ModuleMain().NewClassifier((int)Constants.ClassifierTypes.Colorit, coloritSTR);
+                        }
+                        coloritHashTable.Columns.Add(coloritSTR, typeof(int));
+                        coloritHashTable.Rows[0][coloritSTR] = coloritINt;
+                    }
+                    else
+                    {
+                        coloritINt = (int)coloritHashTable.Rows[0][coloritSTR];
+                    }
+                    
+                    if (Utils.ModuleStore().AddProduct(articolInt, desenINT, tipInt, coloritINt, latime, lungime))
+                    {
+                        resultUploadLabel.Text = "OK.";
+                    }
+                    else
+                    {
+                        resultUploadLabel.Text = "Error upload row." + Utils.ModuleStore().LastError;
+                    }                 
+                }
+            }
+        }
+    }
+    protected void uploadFromFileButton_Click(object sender, ImageClickEventArgs e)
+    {
+        ShowPanel(uploadFromFilePanel.ID);
+    }
 }

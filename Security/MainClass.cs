@@ -248,6 +248,32 @@ namespace Security
 
             return result;
         }
+        
+        public int GetClassifierCodeByName(string clName, int typeID)
+        {
+            int result = 0;
+
+            try
+            {
+                string commandText = "SELECT Classifiers.Code  "                                        
+                                        + " FROM Classifiers as Classifiers "
+                                        + " WHERE Classifiers.name = '" + clName + "' AND Classifiers.typeID =  " + typeID; 
+
+                System.Data.DataTable classifiersList = Security.MainModule.DataBridge.ExecuteQuery(commandText); // PG compliant
+                mLastError = Security.MainModule.DataBridge.LastError;
+
+                if (classifiersList != null && classifiersList.Rows.Count == 1 && classifiersList.Rows[0][0] != System.DBNull.Value)
+                {
+                    result = (int)classifiersList.Rows[0][0];
+                }
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
 
         public bool UpdateClassifier(int classifierCode, string classifierName, int groupCode)
         {
@@ -283,6 +309,34 @@ namespace Security
 
                 result = Security.MainModule.DataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = Security.MainModule.DataBridge.LastError;                
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public int NewClassifier(int clTypeID, string name)
+        {
+            int result = 0;
+            try
+            {
+                string nonQuery = @"INSERT INTO Classifiers (TypeID, Name, groupCode) "
+                                + " OUTPUT INSERTED.code "
+                                + " VALUES ( " + clTypeID + ", @name , NULL )";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@name", name);
+
+                object resultDT = Security.MainModule.DataBridge.ExecuteScalarQuery(nonQuery, parameters); // PG compliant
+                mLastError = Security.MainModule.DataBridge.LastError;
+
+                if (resultDT != null)
+                {
+                    result = (int)resultDT;
+                }
             }
             catch (Exception exception)
             {

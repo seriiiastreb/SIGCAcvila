@@ -55,11 +55,7 @@ namespace Store
                       colorit,
                         (SELECT Name from Classifiers Where Code = PD.colorit) as colorit_name, 
                       latime,
-                      lungime,
-                      metraj,
-                      festonare,
-                        (SELECT Name from Classifiers Where Code = PD.festonare) as festonare_name, 
-                      ean13
+                      lungime                     
                     FROM 
                       ProductDetails as PD ;  ";
 
@@ -74,15 +70,15 @@ namespace Store
             return result;
         }
 
-        public bool AddProduct(int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, decimal metraj, int festonare)
+        public bool AddProduct(int articol, int desen, int tip, int colorit, decimal latime, decimal lungime)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
             bool result = false;
             try
             {              
-                string nonQuery = @"INSERT INTO ProductDetails ( articol, desen, tip, colorit, latime, lungime, metraj, festonare ) 
-                                             VALUES ( @articol, @desen, @tip, @colorit, @latime, @lungime, @metraj, @festonare); ";
+                string nonQuery = @"INSERT INTO ProductDetails ( articol, desen, tip, colorit, latime, lungime ) 
+                                    VALUES ( @articol, @desen, @tip, @colorit, @latime, @lungime); ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@articol", articol);
@@ -91,8 +87,6 @@ namespace Store
                 parameters.Add("@colorit", colorit);
                 parameters.Add("@latime", latime);
                 parameters.Add("@lungime", lungime);
-                parameters.Add("@metraj", metraj);
-                parameters.Add("@festonare", festonare);
 
                 result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = mDataBridge.LastError;                                
@@ -105,7 +99,7 @@ namespace Store
             return result;
         }
 
-        public bool UpdateProduct(int product_id, int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, decimal metraj, int festonare)
+        public bool UpdateProduct(int product_id, int articol, int desen, int tip, int colorit, decimal latime, decimal lungime)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
@@ -121,8 +115,6 @@ namespace Store
                               colorit = @colorit,
                               latime = @latime,
                               lungime = @lungime,
-                              metraj = @metraj,
-                              festonare = @festonare
                             WHERE 
                               product_id = @product_id; ";
 
@@ -134,8 +126,6 @@ namespace Store
                 parameters.Add("@colorit", colorit);
                 parameters.Add("@latime", latime);
                 parameters.Add("@lungime", lungime);
-                parameters.Add("@metraj", metraj);
-                parameters.Add("@festonare", festonare);
 
                 result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = mDataBridge.LastError;
