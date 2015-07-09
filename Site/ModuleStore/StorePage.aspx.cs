@@ -10,10 +10,12 @@ public partial class StorePage : System.Web.UI.Page
 {
     private readonly string mCurrentModule = Store.Module.ID;
     private readonly string mPageName = "Warehouse management page";
+    string tempDirectory = System.Configuration.ConfigurationManager.AppSettings["TempDirectory"];
+    static readonly string msDirectorySeparator = System.IO.Path.DirectorySeparatorChar.ToString();
 
     bool allowEdit = false;
     bool allowView = false;
-    
+
     protected void Page_Load(object sender, EventArgs e)
     {
         Utils.GetMaster(this).PerformPreloadActions(mCurrentModule, mPageName);
@@ -27,8 +29,9 @@ public partial class StorePage : System.Web.UI.Page
             {
                 if (!IsPostBack)
                 {
+                    FillSheetsDDL();
                     ShowPanel(stokListPanel.ID);
-                }      
+                }
             }
             else
             {
@@ -47,14 +50,13 @@ public partial class StorePage : System.Web.UI.Page
 
 
         switch (panelID)
-        { 
+        {
             case "stokListPanel":
                 stokListPanel.Visible = true;
                 FillStokGridView();
                 break;
 
             case "uploadFromFilePanel":
-                FillSheetsDDL();
                 uploadFromFilePanel.Visible = true;
                 break;
         }
@@ -65,6 +67,8 @@ public partial class StorePage : System.Web.UI.Page
     {
         DataTable weeksDT = Utils.ModuleStore().GetWeeksList();
         Utils.FillSelector(weeksDDL, weeksDT, "week", "week");
+        Utils.FillSelector(generateCommandWeekDDL, weeksDT, "week", "week");
+
 
         List<string> inweySource = new List<string>();
         inweySource.Add("Stok");
@@ -137,7 +141,7 @@ public partial class StorePage : System.Web.UI.Page
                     int cantitate = 0;
                     int.TryParse(uploadFileGridView.Rows[i].Cells[8].Text, out cantitate);
 
-                    if(!week.Equals(string.Empty))
+                    if (!week.Equals(string.Empty))
                     {
                         int productID = Utils.ModuleStore().DetectProduct(articolSTR, desenSTR, tipSTR, coloritSTR, latime, lungime);
 
@@ -195,5 +199,79 @@ public partial class StorePage : System.Web.UI.Page
     protected void refreshButton_Click(object sender, ImageClickEventArgs e)
     {
         ShowPanel(stokListPanel.ID);
+    }
+
+
+    protected void createOrdersButton_Click(object sender, ImageClickEventArgs e)
+    {
+        string selectedWeek = generateCommandWeekDDL.SelectedValue;
+        int selectedWeekIndexInGrid = -1;
+
+        DataTable excelDT = new DataTable();
+        excelDT.Columns.Add("Articol", typeof(string));
+        excelDT.Columns.Add("desen", typeof(string));
+        excelDT.Columns.Add("tip", typeof(string));
+        excelDT.Columns.Add("colorit", typeof(string));
+        excelDT.Columns.Add("latime", typeof(decimal));
+        excelDT.Columns.Add("lungime", typeof(decimal));
+        excelDT.Columns.Add("cantitate", typeof(int));
+
+        if (stokListGridView.Rows.Count > 0)
+        {
+            for (int c = 0; c < stokListGridView.Rows[0].Cells.Count; c++)
+            {
+                string ww = ((System.Web.UI.WebControls.DataControlFieldCell)(stokListGridView.Rows[0].Cells[c])).ContainingField.HeaderText;
+                if (ww.Equals(selectedWeek))
+                {
+                    selectedWeekIndexInGrid = c;
+                    c = stokListGridView.Rows[0].Cells.Count;
+                }
+            }
+
+
+            if (selectedWeekIndexInGrid != -1)
+            {
+                for (int i = 0; i < stokListGridView.Rows.Count; i++)
+                {
+                    excelDT.Rows.Add();
+
+                    excelDT.Rows[i]["Articol"] = stokListGridView.Rows[i].Cells[0].Text;
+                    excelDT.Rows[i]["desen"] = stokListGridView.Rows[i].Cells[1].Text;
+                    excelDT.Rows[i]["tip"] = stokListGridView.Rows[i].Cells[2].Text;
+                    excelDT.Rows[i]["colorit"] = stokListGridView.Rows[i].Cells[3].Text;
+                    excelDT.Rows[i]["latime"] = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[4].Text);
+                    excelDT.Rows[i]["lungime"] = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[5].Text);
+
+                    int kanban = 0;
+                    int.TryParse(stokListGridView.Rows[i].Cells[6].Text, out kanban);
+
+                    int inWey = 0;
+                    int.TryParse(stokListGridView.Rows[i].Cells[7].Text, out inWey);
+
+                    int stokInSelectedWeek = 0;
+                    int.TryParse(stokListGridView.Rows[i].Cells[selectedWeekIndexInGrid].Text, out stokInSelectedWeek);
+
+                    excelDT.Rows[i]["cantitate"] = kanban * 0.5 - stokInSelectedWeek - inWey;
+                }
+
+                if (excelDT != null && excelDT.Rows.Count > 0)
+                {
+                    excelDT.TableName = "Comanda " + selectedWeek;
+
+                    string documentName = "Comanda " + selectedWeek + ".xls";
+                    string fileNameFullPath = Server.MapPath("~/" + tempDirectory + msDirectorySeparator + documentName);
+
+                    Crypt.Excel.ExportDataTableToExcelUsingNPOI(null, excelDT, fileNameFullPath, string.Empty, string.Empty, string.Empty, null, 0, null);
+
+                    byte[] fileInByte = System.IO.File.ReadAllBytes(fileNameFullPath);
+
+                    Utils.DownloadFile(fileInByte, this, documentName);
+                }
+            }
+            else
+            {
+                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Atentie", "Alegeti saptamina!");
+            }
+        }
     }
 }

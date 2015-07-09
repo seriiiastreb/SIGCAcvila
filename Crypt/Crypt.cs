@@ -2969,15 +2969,15 @@ namespace Crypt
             {
                 #region aply Selective Header For Excel
 
-                if (!String.IsNullOrEmpty(tableName))
-                {
+                //if (!String.IsNullOrEmpty(tableName))
+                //{
 
-                    NPOI.SS.UserModel.IRow reportNameRow = sheet.CreateRow(rowIndex);
+                //    NPOI.SS.UserModel.IRow reportNameRow = sheet.CreateRow(rowIndex);
 
-                    reportNameRow.CreateCell(0).SetCellValue(tableName);
-                    reportNameRow.GetCell(0).CellStyle = styleBold;
-                    rowIndex++;
-                }
+                //    reportNameRow.CreateCell(0).SetCellValue(tableName);
+                //    reportNameRow.GetCell(0).CellStyle = styleBold;
+                //    rowIndex++;
+                //}
 
                 if (!String.IsNullOrEmpty(legalEntity))
                 {

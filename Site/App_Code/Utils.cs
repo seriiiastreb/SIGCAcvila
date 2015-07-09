@@ -354,6 +354,71 @@ public class Utils
     }
     #endregion Email	
 
+    public static void DownloadStringAsFile(string fileString, Page sourcePage, string fileName)
+    {
+        if (!string.IsNullOrEmpty(fileString))
+        {
+            sourcePage.Response.Clear();
+            sourcePage.Response.ClearHeaders();
+            sourcePage.Response.ClearContent();
+
+            byte[] fileInByte = System.Text.Encoding.UTF8.GetBytes(fileString);
+            string fileNameEncoded = System.Web.HttpUtility.UrlEncode(fileName, System.Text.Encoding.UTF8);
+            sourcePage.Response.AppendHeader("Content-Disposition", "attachment; filename=" + fileNameEncoded);
+            sourcePage.Response.AppendHeader("Content-Length", fileInByte.Length.ToString());
+            sourcePage.Response.AddHeader("Connection", "Keep-Alive");
+            sourcePage.Response.ContentType = "application/download";
+            sourcePage.Response.BinaryWrite(fileInByte);
+            sourcePage.Response.Flush();
+        }
+    }
+
+    //public static void DownloadFile(List<string> fileNames, string tempDirectoryFullPath, Page sourcePage)
+    //{
+    //    ////  adding files in one archive
+
+    //    string zipFile = HRPM.Utils.ArchiveManager.ZIP.AddFileToArchive(fileNames, tempDirectoryFullPath, string.Empty, string.Empty);
+
+    //    if (System.IO.File.Exists(zipFile))
+    //    {
+    //        string funal_fileName = Path.GetFileName(zipFile);
+    //        byte[] fileInByte = System.IO.File.ReadAllBytes(zipFile);
+
+    //        DownloadFile(fileInByte, sourcePage, funal_fileName);
+
+    //        foreach (string file in fileNames)
+    //        {
+    //            if (System.IO.File.Exists(file))
+    //            {
+    //                System.IO.File.Delete(file);
+    //            }
+    //        }
+
+    //        if (System.IO.File.Exists(zipFile))
+    //        {
+    //            System.IO.File.Delete(zipFile);
+    //        }
+    //    }
+    //}
+
+    public static void DownloadFile(byte[] fileInByte, Page sourcePage, string fileName)
+    {
+        if (fileInByte != null)
+        {
+            sourcePage.Response.Clear();
+            sourcePage.Response.ClearHeaders();
+            sourcePage.Response.ClearContent();
+
+            string fileNameEncoded = System.Web.HttpUtility.UrlEncode(fileName, System.Text.Encoding.UTF8);
+            sourcePage.Response.AppendHeader("Content-Disposition", "attachment; filename=" + fileNameEncoded);
+            sourcePage.Response.AppendHeader("Content-Length", fileInByte.Length.ToString());
+            sourcePage.Response.AddHeader("Connection", "Keep-Alive");
+            sourcePage.Response.ContentType = "application/download";
+            sourcePage.Response.BinaryWrite(fileInByte);
+            sourcePage.Response.Flush();
+        }
+    }
+
     public static void FillSelector(DropDownList destinationSelector, DataTable sourceTable, string dataTextField, string dataValueField)
     {
         if (destinationSelector != null)

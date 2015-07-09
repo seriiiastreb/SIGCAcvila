@@ -235,16 +235,7 @@ namespace Store
 
                     query += " ) / 5 * 3) as \"Kanban\" \r\n ";
 
-                    query += " , cast( ( ";
-
-                    for (int i = 0; i < weeks.Rows.Count && i < 5; i++)
-                    {
-                        if (i > 0) query += " + ";
-                        query += "coalesce(VZ" + (weeks.Rows.Count - i - 1) + ".quantity, 0)";
-                    }
-
-                    query += " ) / 5 as decimal(18,2))  as \"in Wey\" \r\n ";
-
+                    query += " , coalesce(IW.quantity,0)  as \"in Wey\" \r\n ";
 
                     for (int i = 0; i < weeks.Rows.Count; i++)
                     {
@@ -263,6 +254,8 @@ namespace Store
                     {
                         query += " LEFT JOIN Vinzari as VZ" + i + " ON VZ" + i + ".product_id =  MainTBL.product_id AND VZ" + i + ".week = '" + weeks.Rows[i]["week"].ToString() + "' \r\n ";
                     }
+
+                    query += "  LEFT JOIN InWey as IW ON IW.product_id =  MainTBL.product_id AND IW.week = '" + weeks.Rows[weeks.Rows.Count - 1]["week"].ToString() + "' ";
 
                     result = mDataBridge.ExecuteQuery(query);
                     mLastError = mDataBridge.LastError;
