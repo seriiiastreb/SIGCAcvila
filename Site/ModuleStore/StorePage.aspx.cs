@@ -66,6 +66,13 @@ public partial class StorePage : System.Web.UI.Page
         DataTable weeksDT = Utils.ModuleStore().GetWeeksList();
         Utils.FillSelector(weeksDDL, weeksDT, "week", "week");
 
+        List<string> inweySource = new List<string>();
+        inweySource.Add("Stok");
+        inweySource.Add("In Wey");
+        inWeyDDL.DataSource = inweySource;
+        inWeyDDL.DataBind();
+
+
         List<string> sheets = new List<string>();
         sheets.Add("Sheet1");
         sheets.Add("Sheet2");
@@ -79,8 +86,8 @@ public partial class StorePage : System.Web.UI.Page
     protected void FillStokGridView()
     {
         DataTable dt = Utils.ModuleStore().GetStokList();
-        productsListGridView.DataSource = dt;
-        productsListGridView.DataBind();
+        stokListGridView.DataSource = dt;
+        stokListGridView.DataBind();
     }
 
     protected void uploadFromFileButton_Click(object sender, ImageClickEventArgs e)
@@ -110,6 +117,8 @@ public partial class StorePage : System.Web.UI.Page
     {
         if (uploadFileGridView.Rows.Count > 0)
         {
+            string destinationUpload = inWeyDDL.SelectedValue;
+
             for (int i = 0; i < uploadFileGridView.Rows.Count; i++)
             {
                 CheckBox rowCheckBox = (CheckBox)uploadFileGridView.Rows[i].Cells[0].FindControl("rowCheckBox");
@@ -136,13 +145,27 @@ public partial class StorePage : System.Web.UI.Page
                         {
                             if (cantitate != 0)
                             {
-                                if (Utils.ModuleStore().UpdateStok(week, productID, cantitate))
+                                if (destinationUpload.Equals("Stok"))
                                 {
-                                    resultUploadLabel.Text = "OK.";
+                                    if (Utils.ModuleStore().UpdateStok(week, productID, cantitate))
+                                    {
+                                        resultUploadLabel.Text = "OK.";
+                                    }
+                                    else
+                                    {
+                                        resultUploadLabel.Text = "Error upload row." + Utils.ModuleStore().LastError;
+                                    }
                                 }
                                 else
                                 {
-                                    resultUploadLabel.Text = "Error upload row." + Utils.ModuleStore().LastError;
+                                    if (Utils.ModuleStore().UpdateInWey(week, productID, cantitate))
+                                    {
+                                        resultUploadLabel.Text = "OK.";
+                                    }
+                                    else
+                                    {
+                                        resultUploadLabel.Text = "Error upload row." + Utils.ModuleStore().LastError;
+                                    }
                                 }
                             }
                             else

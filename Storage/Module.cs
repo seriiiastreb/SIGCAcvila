@@ -209,15 +209,13 @@ namespace Store
                                 , ClTip.Name as ""Tip"" 
                                 , ClColorit.Name as ""Colorit"" 
                                 , latime as ""Latime""
-                                , lungime as ""Lungime""  
-                                , CLFestonare.Name as ""Festonare""
-                                , ean13 as ""EAN13""                    
+                                , lungime as ""Lungime""                
                                 FROM productdetails PD
                                 LEFT JOIN Classifiers as ClArt on ClArt.Code = PD.articol
                                 LEFT JOIN Classifiers as ClDesen on ClDesen.Code = PD.desen
                                 LEFT JOIN Classifiers as ClTip on ClTip.Code = PD.tip
-                                LEFT JOIN Classifiers as ClColorit on ClColorit.Code = PD.colorit
-                                LEFT JOIN Classifiers as CLFestonare on CLFestonare.Code = PD.festonare)  ";
+                                LEFT JOIN Classifiers as ClColorit on ClColorit.Code = PD.colorit )
+";
 
                     query += @" SELECT  
                             ProdDet.""Articol""  
@@ -245,7 +243,7 @@ namespace Store
                         query += "coalesce(VZ" + (weeks.Rows.Count - i - 1) + ".quantity, 0)";
                     }
 
-                    query += " ) / 5 as decimal(18,2))  as \"Vinz Medii\" \r\n ";
+                    query += " ) / 5 as decimal(18,2))  as \"in Wey\" \r\n ";
 
 
                     for (int i = 0; i < weeks.Rows.Count; i++)
@@ -306,7 +304,34 @@ namespace Store
 
             return result;
         }
+        public bool UpdateInWey(string week, int product_id, int quantity)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
 
+            bool result = false;
+            try
+            {
+                string nonQuery = @"UPDATE InWey  SET quantity = @quantity WHERE  product_id = @product_id AND week = @week 
+
+                                    INSERT INTO InWey(product_id, week, quantity)
+                                    SELECT @product_id, @week, @quantity 
+                                    WHERE not exists (select 1 from InWey WHERE product_id = @product_id AND week = @week) ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@product_id", product_id);
+                parameters.Add("@week", week);
+                parameters.Add("@quantity", quantity);
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
         public int DetectProduct(string articol, string desen , string tip, string colorit, decimal latime, decimal lungime)
         {
             int result = 0;
@@ -372,13 +397,11 @@ namespace Store
                                 , ClColorit.Name as ""Colorit"" 
                                 , latime as ""Latime""
                                 , lungime as ""Lungime""  
-                                , CLFestonare.Name as ""Festonare""
                                 FROM productdetails PD
                                 LEFT JOIN Classifiers as ClArt on ClArt.Code = PD.articol
                                 LEFT JOIN Classifiers as ClDesen on ClDesen.Code = PD.desen
                                 LEFT JOIN Classifiers as ClTip on ClTip.Code = PD.tip
-                                LEFT JOIN Classifiers as ClColorit on ClColorit.Code = PD.colorit
-                                LEFT JOIN Classifiers as CLFestonare on CLFestonare.Code = PD.festonare) 
+                                LEFT JOIN Classifiers as ClColorit on ClColorit.Code = PD.colorit) 
 
 ";
 
