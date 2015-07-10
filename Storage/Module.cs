@@ -196,10 +196,14 @@ namespace Store
             try
             {
                 string distinctDays = " SELECT DISTINCT week FROM Stok";
-                DataTable weeks = mDataBridge.ExecuteQuery(distinctDays);
+                DataTable weeksInStok = mDataBridge.ExecuteQuery(distinctDays);
                 mLastError = mDataBridge.LastError;
 
-                if (weeks != null && weeks.Rows.Count > 0)
+                string distinctDaysVinzari = " SELECT DISTINCT week FROM Vinzari";
+                DataTable weeksInVinzari = mDataBridge.ExecuteQuery(distinctDaysVinzari);
+                mLastError = mDataBridge.LastError;
+
+                if (weeksInStok != null && weeksInStok.Rows.Count > 0)
                 {
                     string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stok)
                                 , ProdDet as (SELECT 
@@ -227,35 +231,35 @@ namespace Store
 
                     query += " , dbo.MaxVAL(5, ( ";
 
-                    for (int i = 0; i < weeks.Rows.Count && i < 5; i++)
+                    for (int i = 0; i < weeksInVinzari.Rows.Count && i < 5; i++)
                     {
                         if (i > 0) query += " + ";
-                        query += "coalesce(VZ" + (weeks.Rows.Count - i - 1) + ".quantity, 0)";
+                        query += "coalesce(VZ" + (weeksInVinzari.Rows.Count - i - 1) + ".quantity, 0)";
                     }
 
                     query += " ) / 5 * 3) as \"Kanban\" \r\n ";
 
                     query += " , coalesce(IW.quantity,0)  as \"in Wey\" \r\n ";
 
-                    for (int i = 0; i < weeks.Rows.Count; i++)
+                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
                     {
-                        query += ", coalesce(ST" + i + ".quantity,0) as \"" + weeks.Rows[i]["week"].ToString() + "\"   \r\n ";
+                        query += ", coalesce(ST" + i + ".quantity,0) as \"" + weeksInStok.Rows[i]["week"].ToString() + "\"   \r\n ";
                     }
 
 
                     query += "  FROM MainTBL  \r\n ";
                     query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id \r\n ";
-                    for (int i = 0; i < weeks.Rows.Count; i++)
+                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
                     {
-                        query += " LEFT JOIN Stok as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeks.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += " LEFT JOIN Stok as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
-                    for (int i = 0; i < weeks.Rows.Count; i++)
+                    for (int i = 0; i < weeksInVinzari.Rows.Count; i++)
                     {
-                        query += " LEFT JOIN Vinzari as VZ" + i + " ON VZ" + i + ".product_id =  MainTBL.product_id AND VZ" + i + ".week = '" + weeks.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += " LEFT JOIN Vinzari as VZ" + i + " ON VZ" + i + ".product_id =  MainTBL.product_id AND VZ" + i + ".week = '" + weeksInVinzari.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
-                    query += "  LEFT JOIN InWey as IW ON IW.product_id =  MainTBL.product_id AND IW.week = '" + weeks.Rows[weeks.Rows.Count - 1]["week"].ToString() + "' ";
+                    query += "  LEFT JOIN InWey as IW ON IW.product_id =  MainTBL.product_id AND IW.week = '" + weeksInStok.Rows[weeksInStok.Rows.Count - 1]["week"].ToString() + "' ";
 
                     result = mDataBridge.ExecuteQuery(query);
                     mLastError = mDataBridge.LastError;
