@@ -387,15 +387,22 @@ public partial class Produse : System.Web.UI.Page
                     {
                         coloritINt = (int)coloritHashTable.Rows[0][coloritSTR];
                     }
-                    
-                    if (Utils.ModuleStore().AddProduct(articolInt, desenINT, tipInt, coloritINt, latime, lungime))
+
+                    if (Utils.ModuleStore().DetectProduct(articolSTR, desenSTR, tipSTR, coloritSTR, latime, lungime) == 0)
                     {
-                        resultUploadLabel.Text = "OK.";
+                        if (Utils.ModuleStore().AddProduct(articolInt, desenINT, tipInt, coloritINt, latime, lungime))
+                        {
+                            resultUploadLabel.Text = "OK.";
+                        }
+                        else
+                        {
+                            resultUploadLabel.Text = "Error upload row." + Utils.ModuleStore().LastError;
+                        }
                     }
                     else
                     {
-                        resultUploadLabel.Text = "Error upload row." + Utils.ModuleStore().LastError;
-                    }                 
+                        resultUploadLabel.Text = "Productul deja exista!";
+                    }
                 }
             }
         }
