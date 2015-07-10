@@ -212,7 +212,7 @@ public partial class StorePage : System.Web.UI.Page
         excelDT.Columns.Add("colorit", typeof(string));
         excelDT.Columns.Add("latime", typeof(decimal));
         excelDT.Columns.Add("lungime", typeof(decimal));
-        excelDT.Columns.Add("cantitate", typeof(int));
+        excelDT.Columns.Add("cantitate", typeof(decimal));
 
         if (stokListGridView.Rows.Count > 0)
         {
@@ -240,16 +240,13 @@ public partial class StorePage : System.Web.UI.Page
                     excelDT.Rows[i]["latime"] = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[4].Text);
                     excelDT.Rows[i]["lungime"] = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[5].Text);
 
-                    int kanban = 0;
-                    int.TryParse(stokListGridView.Rows[i].Cells[6].Text, out kanban);
+                    decimal kanban = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[6].Text);
+                    decimal inWey = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[7].Text);
+                    decimal stokInSelectedWeek = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[selectedWeekIndexInGrid].Text);
 
-                    int inWey = 0;
-                    int.TryParse(stokListGridView.Rows[i].Cells[7].Text, out inWey);
+                    decimal cantitate = kanban / 2 - stokInSelectedWeek - inWey;
 
-                    int stokInSelectedWeek = 0;
-                    int.TryParse(stokListGridView.Rows[i].Cells[selectedWeekIndexInGrid].Text, out stokInSelectedWeek);
-
-                    excelDT.Rows[i]["cantitate"] = kanban * 0.5 - stokInSelectedWeek - inWey;
+                    excelDT.Rows[i]["cantitate"] = cantitate > 0 ? Math.Ceiling(cantitate) : 0;
                 }
 
                 if (excelDT != null && excelDT.Rows.Count > 0)
@@ -259,7 +256,7 @@ public partial class StorePage : System.Web.UI.Page
                     string documentName = "Comanda " + selectedWeek + ".xls";
                     string fileNameFullPath = Server.MapPath("~/" + tempDirectory + msDirectorySeparator + documentName);
 
-                    Crypt.Excel.ExportDataTableToExcelUsingNPOI(null, excelDT, fileNameFullPath, string.Empty, string.Empty, string.Empty, null, 0, null);
+                    Crypt.Excel.ExportDataTableToExcelUsingNPOI(null, excelDT, fileNameFullPath, string.Empty, string.Empty, string.Empty, null, 0, null, true);
 
                     byte[] fileInByte = System.IO.File.ReadAllBytes(fileNameFullPath);
 

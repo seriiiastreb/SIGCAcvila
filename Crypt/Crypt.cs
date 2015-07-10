@@ -2835,25 +2835,25 @@ namespace Crypt
             return newStyle;
         }
 
-        public static void ExportDataTableToExcelUsingNPOI(DataTable headerTable, DataTable sourceTable, string fileName, string legalEntity, string period, string executingDatecomment, List<int> autosizeColumns)
+        public static void ExportDataTableToExcelUsingNPOI(DataTable headerTable, DataTable sourceTable, string fileName, string legalEntity, string period, string executingDatecomment, List<int> autosizeColumns, bool showZeroNumbers)
         {
             HSSFWorkbook workbook = new HSSFWorkbook();
 
-            workbook = CreateExcelFromDataTable(headerTable, sourceTable, ref workbook, legalEntity, period, executingDatecomment, null, 0, autosizeColumns);
+            workbook = CreateExcelFromDataTable(headerTable, sourceTable, ref workbook, legalEntity, period, executingDatecomment, null, 0, autosizeColumns, showZeroNumbers);
 
             FileStream file = new FileStream(fileName, FileMode.Create);
             workbook.Write(file);
             file.Close();
         }
 
-        public static void ExportDataTableToExcelUsingNPOI(DataTable headerTable, DataSet tableList, string fileName, string legalEntity, string period, string executingDatecomment, List<int> autosizeColumns)
+        public static void ExportDataTableToExcelUsingNPOI(DataTable headerTable, DataSet tableList, string fileName, string legalEntity, string period, string executingDatecomment, List<int> autosizeColumns, bool showZeroNumbers)
         {
             HSSFWorkbook workbook = new HSSFWorkbook();
             for (int t = 0; t < tableList.Tables.Count; t++)
             {
                 DataTable sourceTable = tableList.Tables[t];
 
-                workbook = CreateExcelFromDataTable(headerTable, sourceTable, ref workbook, legalEntity, period, executingDatecomment, null, 0, autosizeColumns);
+                workbook = CreateExcelFromDataTable(headerTable, sourceTable, ref workbook, legalEntity, period, executingDatecomment, null, 0, autosizeColumns, showZeroNumbers);
             }
 
             FileStream file = new FileStream(fileName, FileMode.Create);
@@ -2861,25 +2861,25 @@ namespace Crypt
             file.Close();
         }
 
-        public static void ExportDataTableToExcelUsingNPOI(DataTable headerTable, DataTable sourceTable, string fileName, string legalEntity, string period, string executingDatecomment, List<string> currencyColumnsList, int currencyValuta, List<int> autosizeColumns)
+        public static void ExportDataTableToExcelUsingNPOI(DataTable headerTable, DataTable sourceTable, string fileName, string legalEntity, string period, string executingDatecomment, List<string> currencyColumnsList, int currencyValuta, List<int> autosizeColumns, bool showZeroNumbers)
         {
             HSSFWorkbook workbook = new HSSFWorkbook();
 
-            workbook = CreateExcelFromDataTable(headerTable, sourceTable, ref workbook, legalEntity, period, executingDatecomment, currencyColumnsList, currencyValuta, autosizeColumns);
+            workbook = CreateExcelFromDataTable(headerTable, sourceTable, ref workbook, legalEntity, period, executingDatecomment, currencyColumnsList, currencyValuta, autosizeColumns, showZeroNumbers);
 
             FileStream file = new FileStream(fileName, FileMode.Create);
             workbook.Write(file);
             file.Close();
         }
 
-        public static void ExportDataTableToExcelUsingNPOI(DataTable headerTable, DataSet tableList, string fileName, string legalEntity, string period, string executingDatecomment, List<string> currencyColumnsList, int currencyValuta, List<int> autosizeColumns)
+        public static void ExportDataTableToExcelUsingNPOI(DataTable headerTable, DataSet tableList, string fileName, string legalEntity, string period, string executingDatecomment, List<string> currencyColumnsList, int currencyValuta, List<int> autosizeColumns, bool showZeroNumbers)
         {
             HSSFWorkbook workbook = new HSSFWorkbook();
             for (int t = 0; t < tableList.Tables.Count; t++)
             {
                 DataTable sourceTable = tableList.Tables[t];
 
-                workbook = CreateExcelFromDataTable(headerTable, sourceTable, ref workbook, legalEntity, period, executingDatecomment, currencyColumnsList, currencyValuta, autosizeColumns);
+                workbook = CreateExcelFromDataTable(headerTable, sourceTable, ref workbook, legalEntity, period, executingDatecomment, currencyColumnsList, currencyValuta, autosizeColumns , showZeroNumbers);
             }
 
             FileStream file = new FileStream(fileName, FileMode.Create);
@@ -2887,7 +2887,7 @@ namespace Crypt
             file.Close();
         }
 
-        private static HSSFWorkbook CreateExcelFromDataTable(DataTable headerTable, DataTable sourceTable, ref HSSFWorkbook workbook, string legalEntity, string period, string executingDatecomment, List<string> currencyColumnsList, int currencyValuta, List<int> autosizeColumns)
+        private static HSSFWorkbook CreateExcelFromDataTable(DataTable headerTable, DataTable sourceTable, ref HSSFWorkbook workbook, string legalEntity, string period, string executingDatecomment, List<string> currencyColumnsList, int currencyValuta, List<int> autosizeColumns, bool showZeroNumbers)
         {
             string tableName = sourceTable.TableName.Replace(":", " ").Replace("/", " ").Replace("\\", " ").Replace("?", " ").Replace("*", " ").Replace("]", " ").Replace("[", " ");
             NPOI.SS.UserModel.ISheet sheet = workbook.CreateSheet(tableName);
@@ -3047,7 +3047,7 @@ namespace Crypt
                                 double val = 0;
                                 Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
 
-                                if (val != 0)
+                                if (showZeroNumbers || val != 0)
                                     dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
                                 else
                                     dataRow.CreateCell(column.Ordinal, CellType.Blank);
@@ -3060,7 +3060,7 @@ namespace Crypt
                                 double val = 0;
                                 Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
 
-                                if (val != 0)
+                                if (showZeroNumbers || val != 0)
                                     dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
                                 else
                                     dataRow.CreateCell(column.Ordinal, CellType.Blank);
@@ -3072,7 +3072,7 @@ namespace Crypt
                                 double val = 0;
                                 Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
 
-                                if (val != 0)
+                                if (showZeroNumbers || val != 0)
                                     dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
                                 else
                                     dataRow.CreateCell(column.Ordinal, CellType.Blank);
@@ -3084,7 +3084,7 @@ namespace Crypt
                                 double val = 0;
                                 Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
 
-                                if (val != 0)
+                                if (showZeroNumbers || val != 0)
                                     dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
                                 else
                                     dataRow.CreateCell(column.Ordinal, CellType.Blank);
@@ -3096,7 +3096,7 @@ namespace Crypt
                                 double val = 0;
                                 Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
 
-                                if (val != 0)
+                                if (showZeroNumbers || val != 0)
                                     dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
                                 else
                                     dataRow.CreateCell(column.Ordinal, CellType.Blank);
@@ -3108,7 +3108,7 @@ namespace Crypt
                                 double val = 0;
                                 Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
 
-                                if (val != 0)
+                                if (showZeroNumbers || val != 0)
                                     dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
                                 else
                                     dataRow.CreateCell(column.Ordinal, CellType.Blank);
@@ -3120,7 +3120,7 @@ namespace Crypt
                                 double val = 0;
                                 Double.TryParse(row[column] != DBNull.Value ? row[column].ToString() : String.Empty, out val);
 
-                                if (val != 0)
+                                if (showZeroNumbers || val != 0)
                                     dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
                                 else
                                     dataRow.CreateCell(column.Ordinal, CellType.Blank);
@@ -3155,7 +3155,7 @@ namespace Crypt
                             {
                                 double val = (double)Crypt.Utils.MyDecimalParce(row[column] != DBNull.Value ? row[column].ToString() : String.Empty);
 
-                                if (val != 0)
+                                if (showZeroNumbers || val != 0)
                                     dataRow.CreateCell(column.Ordinal, CellType.Numeric).SetCellValue(val);
                                 else
                                     dataRow.CreateCell(column.Ordinal, CellType.String).SetCellValue(row[column] != DBNull.Value ? row[column].ToString() : String.Empty);
