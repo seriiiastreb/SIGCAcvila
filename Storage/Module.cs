@@ -269,7 +269,7 @@ namespace Store
             return result;
         }
 
-        public bool UpdateStok(string week, int product_id, int quantity)
+        public bool UpdateStok(string week, int product_id, decimal quantity)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
@@ -297,7 +297,8 @@ namespace Store
 
             return result;
         }
-        public bool UpdateInWey(string week, int product_id, int quantity)
+
+        public bool UpdateInWey(string week, int product_id, decimal quantity)
         {
             DateTime EmptyDate = DateTime.MinValue;
 

@@ -137,9 +137,7 @@ public partial class StorePage : System.Web.UI.Page
                     string coloritSTR = uploadFileGridView.Rows[i].Cells[5].Text;
                     decimal latime = Crypt.Utils.MyDecimalParce(uploadFileGridView.Rows[i].Cells[6].Text);
                     decimal lungime = Crypt.Utils.MyDecimalParce(uploadFileGridView.Rows[i].Cells[7].Text);
-
-                    int cantitate = 0;
-                    int.TryParse(uploadFileGridView.Rows[i].Cells[8].Text, out cantitate);
+                    decimal cantitate = Crypt.Utils.MyDecimalParce(uploadFileGridView.Rows[i].Cells[8].Text);
 
                     if (!week.Equals(string.Empty))
                     {
@@ -147,7 +145,7 @@ public partial class StorePage : System.Web.UI.Page
 
                         if (productID != 0)
                         {
-                            if (cantitate != 0)
+                            if (cantitate >= 0)
                             {
                                 if (destinationUpload.Equals("Stok"))
                                 {
