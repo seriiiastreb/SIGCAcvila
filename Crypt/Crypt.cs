@@ -1248,6 +1248,7 @@ namespace Crypt
         public static decimal MyDecimalParce(string value)
         {
             decimal defaultValue = 0m;
+            value = value.Replace("&nbsp;","");
 
             decimal result = 0;
             if (!string.IsNullOrEmpty(value))
