@@ -30,7 +30,7 @@
 
         <fieldset>
             <label>
-            <asp:DropDownList ID="inWeyDDL" runat="server"></asp:DropDownList> 
+            <asp:DropDownList ID="destinationDDL" runat="server"></asp:DropDownList> 
                  &nbsp; &nbsp; &nbsp;  
                 Week:<asp:DropDownList ID="weeksDDL" runat="server"></asp:DropDownList>  &nbsp; &nbsp; &nbsp;  
             File sheet: <asp:DropDownList ID="fileSheetsDDL" runat="server" ></asp:DropDownList>        &nbsp; &nbsp; &nbsp;         

@@ -52,10 +52,10 @@ public partial class Orders : System.Web.UI.Page
    
     protected void FIllOrdersGridView()
     {
-        DataTable ordersList = Utils.ModuleCustomers().GetClientOrdersShortDetails();
+        //DataTable ordersList = Utils.ModuleCustomers().GetClientOrdersShortDetails();
 
-        ordersListGridView.DataSource = ordersList;
-        ordersListGridView.DataBind();
+        //ordersListGridView.DataSource = ordersList;
+        //ordersListGridView.DataBind();
     }
 
     protected void ordersListGridView_RowCreated(object sender, GridViewRowEventArgs e)
@@ -77,22 +77,22 @@ public partial class Orders : System.Web.UI.Page
 
     protected void ordersListGridView_SelectedIndexChanged(object sender, EventArgs e)
     {
-        if (ordersListGridView.SelectedRow != null)
-        {
-            string orderID = ordersListGridView.SelectedRow.Cells[0].Text;
-            int order_id = 0;
-            int.TryParse(orderID, out order_id);
+        //if (ordersListGridView.SelectedRow != null)
+        //{
+        //    string orderID = ordersListGridView.SelectedRow.Cells[0].Text;
+        //    int order_id = 0;
+        //    int.TryParse(orderID, out order_id);
 
-            DataTable orderDetails = Utils.ModuleCustomers().GetClientOrderFullDetails(order_id);
+        //    DataTable orderDetails = Utils.ModuleCustomers().GetClientOrderFullDetails(order_id);
 
-            if (orderDetails != null && orderDetails.Rows.Count > 0)
-            {
-                ordersWorkPanel.Visible = true;
-                orderDetailsGridView.DataSource = orderDetails;
-                orderDetailsGridView.DataBind();
-            }
-            else
-            { ordersWorkPanel.Visible = false; }
-        }
+        //    if (orderDetails != null && orderDetails.Rows.Count > 0)
+        //    {
+        //        ordersWorkPanel.Visible = true;
+        //        orderDetailsGridView.DataSource = orderDetails;
+        //        orderDetailsGridView.DataBind();
+        //    }
+        //    else
+        //    { ordersWorkPanel.Visible = false; }
+        //}
     }
 }

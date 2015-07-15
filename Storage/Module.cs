@@ -227,17 +227,10 @@ namespace Store
                             ,ProdDet.""Tip""                             
                             ,ProdDet.""Colorit""   
                             ,ProdDet.""Latime""   
-                            ,ProdDet.""Lungime""   ";
+                            ,ProdDet.""Lungime"" 
+                            , coalesce(Kanban.quantity,0) as ""Kanban""  
+";
 
-                    query += " , dbo.MaxVAL(5, ( ";
-
-                    for (int i = 0; i < weeksInVinzari.Rows.Count && i < 5; i++)
-                    {
-                        if (i > 0) query += " + ";
-                        query += "coalesce(VZ" + (weeksInVinzari.Rows.Count - i - 1) + ".quantity, 0)";
-                    }
-
-                    query += " ) / 5 * 3) as \"Kanban\" \r\n ";
 
                     query += " , coalesce(IW.quantity,0)  as \"in Wey\" \r\n ";
 
@@ -246,19 +239,15 @@ namespace Store
                         query += ", coalesce(ST" + i + ".quantity,0) as \"" + weeksInStok.Rows[i]["week"].ToString() + "\"   \r\n ";
                     }
 
-
                     query += "  FROM MainTBL  \r\n ";
                     query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id \r\n ";
+                    query += " LEFT JOIN Kanban ON Kanban.product_id = MainTBL.product_id \r\n ";
+
                     for (int i = 0; i < weeksInStok.Rows.Count; i++)
                     {
                         query += " LEFT JOIN Stok as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
                     }
-
-                    for (int i = 0; i < weeksInVinzari.Rows.Count; i++)
-                    {
-                        query += " LEFT JOIN Vinzari as VZ" + i + " ON VZ" + i + ".product_id =  MainTBL.product_id AND VZ" + i + ".week = '" + weeksInVinzari.Rows[i]["week"].ToString() + "' \r\n ";
-                    }
-
+              
                     query += "  LEFT JOIN InWey as IW ON IW.product_id =  MainTBL.product_id AND IW.week = '" + weeksInStok.Rows[weeksInStok.Rows.Count - 1]["week"].ToString() + "' ";
 
                     result = mDataBridge.ExecuteQuery(query);
@@ -301,23 +290,50 @@ namespace Store
 
             return result;
         }
-
-        public bool UpdateInWey(string week, int product_id, decimal quantity)
+        public bool UpdateLivrari(string week, int product_id, decimal quantity)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
             bool result = false;
             try
             {
-                string nonQuery = @"UPDATE InWey  SET quantity = @quantity WHERE  product_id = @product_id AND week = @week 
+                string nonQuery = @"UPDATE Livrari  SET quantity = @quantity WHERE  product_id = @product_id AND week = @week 
 
-                                    INSERT INTO InWey(product_id, week, quantity)
+                                    INSERT INTO Livrari(product_id, week, quantity)
                                     SELECT @product_id, @week, @quantity 
-                                    WHERE not exists (select 1 from InWey WHERE product_id = @product_id AND week = @week) ";
+                                    WHERE not exists (select 1 from Livrari WHERE product_id = @product_id AND week = @week) ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@product_id", product_id);
                 parameters.Add("@week", week);
+                parameters.Add("@quantity", quantity);
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public bool UpdateKanban(int product_id, decimal quantity)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {
+                string nonQuery = @"UPDATE Kanban  SET quantity = @quantity WHERE  product_id = @product_id 
+
+                                    INSERT INTO Kanban(product_id, quantity)
+                                    SELECT @product_id, @quantity 
+                                    WHERE not exists (select 1 from InWey WHERE product_id = @product_id) ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@product_id", product_id);
                 parameters.Add("@quantity", quantity);
 
                 result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
@@ -410,17 +426,17 @@ namespace Store
                             ,ProdDet.""Colorit""   
                             ,ProdDet.""Latime""   
                             ,ProdDet.""Lungime""   
-                            ";
+                            , coalesce(Kanban.quantity,0) as ""Kanban""";
 
-                    query += " , dbo.MaxVAL(5, ( ";
+                    //query += " , dbo.MaxVAL(5, ( ";
 
-                    for (int i = 0; i < weeks.Rows.Count && i < 5; i++)
-                    {
-                        if (i > 0) query += " + ";
-                        query += "coalesce(ST" + (weeks.Rows.Count - i - 1) + ".quantity, 0)";
-                    }
+                    //for (int i = 0; i < weeks.Rows.Count && i < 5; i++)
+                    //{
+                    //    if (i > 0) query += " + ";
+                    //    query += "coalesce(ST" + (weeks.Rows.Count - i - 1) + ".quantity, 0)";
+                    //}
 
-                    query += " ) / 5 * 3) as \"Kanban\" \r\n ";
+                    //query += " ) / 5 * 3) as \"Kanban\" \r\n ";
 
 
                     query += " , cast ( ( ";
@@ -441,6 +457,7 @@ namespace Store
 
                     query += "  FROM MainTBL  \r\n ";
                     query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id ";
+                    query += " LEFT JOIN Kanban ON Kanban.product_id = MainTBL.product_id ";
                     for (int i = 0; i < weeks.Rows.Count; i++)
                     {
                         query += " LEFT JOIN Vinzari as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeks.Rows[i]["week"].ToString() + "' \r\n ";

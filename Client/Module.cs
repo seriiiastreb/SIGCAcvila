@@ -468,84 +468,84 @@ namespace Client
 
         #region Customers Orders
 
-        public DataTable GetClientOrdersShortDetails()
-        {
-            DataTable result = new DataTable();
-            mLastError = string.Empty;
+//        public DataTable GetClientOrdersShortDetails()
+//        {
+//            DataTable result = new DataTable();
+//            mLastError = string.Empty;
 
-            try
-            {
-                string query = @" WITH MainTBL as ( 
-                    Select order_id , 
-                    coalesce(Cl.FirstName,'') + CASE WHEN Cl.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + @" THEN ' ' + coalesce(Cl.LastName,'') ELSE '' END  as client_description
-                    FROM ClientOrders 
-                    LEFT JOIN Client as CL ON client_id = Cl.Clientid  ) 
+//            try
+//            {
+//                string query = @" WITH MainTBL as ( 
+//                    Select order_id , 
+//                    coalesce(Cl.FirstName,'') + CASE WHEN Cl.gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + @" THEN ' ' + coalesce(Cl.LastName,'') ELSE '' END  as client_description
+//                    FROM ClientOrders 
+//                    LEFT JOIN Client as CL ON client_id = Cl.Clientid  ) 
+//
+//                    SELECT 
+//                    MainTBL.order_id, 
+//                    MainTBL.client_description,
+//                    CO.nr as ""Nr"",  
+//                    (SELECT Name from Classifiers Where Code = Co.state) as state_name, 
+//                    CO.date,      
+//                    SUM(OD.bucati) as ""Total Comandat"" ,
+//                    0 as ""Total livrat"",
+//                    0 as ""Diferenta""  
+//
+//                    FROM MainTBL  
+//                    LEFT JOIN ClientOrders as CO ON CO.order_id = MainTBL.order_id 
+//                    LEFT JOIN OrdersDetails as OD ON OD.order_id = MainTBL.order_id  
+//                    GROUP BY MainTBL.order_id, MainTBL.client_description,  CO.nr , Co.state, CO.date
+//                    ";       
 
-                    SELECT 
-                    MainTBL.order_id, 
-                    MainTBL.client_description,
-                    CO.nr as ""Nr"",  
-                    (SELECT Name from Classifiers Where Code = Co.state) as state_name, 
-                    CO.date,      
-                    SUM(OD.bucati) as ""Total Comandat"" ,
-                    0 as ""Total livrat"",
-                    0 as ""Diferenta""  
+//                result = mDataBridge.ExecuteQuery(query);
+//                mLastError = mDataBridge.LastError;
+//            }
+//            catch (Exception exception)
+//            {
+//                mLastError += "Error using DataBridge. " + exception.Message;
+//            }
 
-                    FROM MainTBL  
-                    LEFT JOIN ClientOrders as CO ON CO.order_id = MainTBL.order_id 
-                    LEFT JOIN OrdersDetails as OD ON OD.order_id = MainTBL.order_id  
-                    GROUP BY MainTBL.order_id, MainTBL.client_description,  CO.nr , Co.state, CO.date
-                    ";       
+//            return result;
+//        }
 
-                result = mDataBridge.ExecuteQuery(query);
-                mLastError = mDataBridge.LastError;
-            }
-            catch (Exception exception)
-            {
-                mLastError += "Error using DataBridge. " + exception.Message;
-            }
+//        public DataTable GetClientOrderFullDetails(int orderID)
+//        {
+//            DataTable result = new DataTable();
+//            mLastError = string.Empty;
 
-            return result;
-        }
+//            try
+//            {
+//                string query = @" 
+//                          SELECT 
+//                        order_id
+//                        , articol
+//                        , (Select name From Classifiers WHERE Code = articol) as articol_name
+//                        , desen
+//                        , (Select name From Classifiers WHERE Code = desen) as desen_name
+//                        , tip
+//                        , (Select name From Classifiers WHERE Code = tip) as tip_name
+//                        , colorit
+//                        , (Select name From Classifiers WHERE Code = colorit) as colorit_name
+//                        , latime
+//                        , lungime
+//                        , metraj
+//                        , bucati
+//                        , festonare
+//                        , (Select name From Classifiers WHERE Code = festonare) as festonare_name
+//                        , ean13
+//
+//                         FROM  OrdersDetails as CO WHERE CO.order_id = " + orderID;       
 
-        public DataTable GetClientOrderFullDetails(int orderID)
-        {
-            DataTable result = new DataTable();
-            mLastError = string.Empty;
+//                result = mDataBridge.ExecuteQuery(query);
+//                mLastError = mDataBridge.LastError;
+//            }
+//            catch (Exception exception)
+//            {
+//                mLastError += "Error using DataBridge. " + exception.Message;
+//            }
 
-            try
-            {
-                string query = @" 
-                          SELECT 
-                        order_id
-                        , articol
-                        , (Select name From Classifiers WHERE Code = articol) as articol_name
-                        , desen
-                        , (Select name From Classifiers WHERE Code = desen) as desen_name
-                        , tip
-                        , (Select name From Classifiers WHERE Code = tip) as tip_name
-                        , colorit
-                        , (Select name From Classifiers WHERE Code = colorit) as colorit_name
-                        , latime
-                        , lungime
-                        , metraj
-                        , bucati
-                        , festonare
-                        , (Select name From Classifiers WHERE Code = festonare) as festonare_name
-                        , ean13
-
-                         FROM  OrdersDetails as CO WHERE CO.order_id = " + orderID;       
-
-                result = mDataBridge.ExecuteQuery(query);
-                mLastError = mDataBridge.LastError;
-            }
-            catch (Exception exception)
-            {
-                mLastError += "Error using DataBridge. " + exception.Message;
-            }
-
-            return result;
-        }
+//            return result;
+//        }
         //public DataTable GetClientOrdersList()
         //{
         //    DataTable result = new DataTable();

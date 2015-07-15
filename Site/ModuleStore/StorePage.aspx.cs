@@ -72,9 +72,10 @@ public partial class StorePage : System.Web.UI.Page
 
         List<string> inweySource = new List<string>();
         inweySource.Add("Stok");
-        inweySource.Add("In Wey");
-        inWeyDDL.DataSource = inweySource;
-        inWeyDDL.DataBind();
+        inweySource.Add("Kanban");
+        inweySource.Add("Livrari");
+        destinationDDL.DataSource = inweySource;
+        destinationDDL.DataBind();
 
 
         List<string> sheets = new List<string>();
@@ -121,7 +122,7 @@ public partial class StorePage : System.Web.UI.Page
     {
         if (uploadFileGridView.Rows.Count > 0)
         {
-            string destinationUpload = inWeyDDL.SelectedValue;
+            string destinationUpload = destinationDDL.SelectedValue;
 
             for (int i = 0; i < uploadFileGridView.Rows.Count; i++)
             {
@@ -147,27 +148,30 @@ public partial class StorePage : System.Web.UI.Page
                         {
                             if (cantitate >= 0)
                             {
-                                if (destinationUpload.Equals("Stok"))
+                                bool resultUpload = false;
+
+                                switch (destinationUpload)
                                 {
-                                    if (Utils.ModuleStore().UpdateStok(week, productID, cantitate))
-                                    {
-                                        resultUploadLabel.Text = "OK.";
-                                    }
-                                    else
-                                    {
-                                        resultUploadLabel.Text = "Error upload row." + Utils.ModuleStore().LastError;
-                                    }
+                                    case "Stok":
+                                        resultUpload = Utils.ModuleStore().UpdateStok(week, productID, cantitate);                                        
+                                        break;
+
+                                    case "Livrari":
+                                        resultUpload = Utils.ModuleStore().UpdateLivrari(week, productID, cantitate);     
+                                        break;
+
+                                    case "Kanban":
+                                        resultUpload = Utils.ModuleStore().UpdateKanban(productID, cantitate);                                        
+                                        break;
+                                }
+
+                                if (resultUpload)
+                                {
+                                    resultUploadLabel.Text = "OK.";
                                 }
                                 else
                                 {
-                                    if (Utils.ModuleStore().UpdateInWey(week, productID, cantitate))
-                                    {
-                                        resultUploadLabel.Text = "OK.";
-                                    }
-                                    else
-                                    {
-                                        resultUploadLabel.Text = "Error upload row." + Utils.ModuleStore().LastError;
-                                    }
+                                    resultUploadLabel.Text = "Error upload row." + Utils.ModuleStore().LastError;
                                 }
                             }
                             else
