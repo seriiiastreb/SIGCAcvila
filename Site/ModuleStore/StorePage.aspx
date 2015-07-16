@@ -21,7 +21,7 @@
         <asp:GridView ID="stokListGridView" runat="server" 
             AutoGenerateColumns="true"
             AlternatingRowStyle-CssClass="odd"
-            AllowPaging="false"   >
+            AllowPaging="false" OnRowDataBound="stokListGridView_RowDataBound"   >
         </asp:GridView>
     </asp:Panel>
 

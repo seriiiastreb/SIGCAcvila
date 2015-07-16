@@ -229,10 +229,14 @@ namespace Store
                             ,ProdDet.""Latime""   
                             ,ProdDet.""Lungime"" 
                             , coalesce(Kanban.quantity,0) as ""Kanban""  
-";
+, ";
 
-
-                    query += " , coalesce(IW.quantity,0)  as \"in Wey\" \r\n ";
+                    for (int i = 0; i < weeksInStok.Rows.Count && i < 3; i++)
+                    {
+                        if (i > 0) query += " + ";
+                        query += "  coalesce(ORD" + i + ".quantity,0) -   coalesce(LVR" + i + ".quantity,0)  ";
+                    }
+                    query += " as \"In Wey\" \r\n ";
 
                     for (int i = 0; i < weeksInStok.Rows.Count; i++)
                     {
@@ -247,8 +251,12 @@ namespace Store
                     {
                         query += " LEFT JOIN Stok as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
                     }
-              
-                    query += "  LEFT JOIN InWey as IW ON IW.product_id =  MainTBL.product_id AND IW.week = '" + weeksInStok.Rows[weeksInStok.Rows.Count - 1]["week"].ToString() + "' ";
+
+                    for (int i = 0; i < weeksInStok.Rows.Count && i < 3; i++)
+                    {
+                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStok.Rows[weeksInStok.Rows.Count - i - 1]["week"].ToString() + "' ";
+                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStok.Rows[weeksInStok.Rows.Count - i - 1]["week"].ToString() + "' ";
+                    }
 
                     result = mDataBridge.ExecuteQuery(query);
                     mLastError = mDataBridge.LastError;
@@ -302,6 +310,35 @@ namespace Store
                                     INSERT INTO Livrari(product_id, week, quantity)
                                     SELECT @product_id, @week, @quantity 
                                     WHERE not exists (select 1 from Livrari WHERE product_id = @product_id AND week = @week) ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@product_id", product_id);
+                parameters.Add("@week", week);
+                parameters.Add("@quantity", quantity);
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public bool UpdateOrders(string week, int product_id, decimal quantity)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {
+                string nonQuery = @"UPDATE Orders  SET quantity = @quantity WHERE  product_id = @product_id AND week = @week 
+
+                                    INSERT INTO Orders(product_id, week, quantity)
+                                    SELECT @product_id, @week, @quantity 
+                                    WHERE not exists (select 1 from Orders WHERE product_id = @product_id AND week = @week) ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@product_id", product_id);

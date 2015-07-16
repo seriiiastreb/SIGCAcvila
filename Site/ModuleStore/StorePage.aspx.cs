@@ -234,23 +234,36 @@ public partial class StorePage : System.Web.UI.Page
             if (selectedWeekIndexInGrid != -1)
             {
                 for (int i = 0; i < stokListGridView.Rows.Count; i++)
-                {
-                    excelDT.Rows.Add();
+                {               
+                    string articol = stokListGridView.Rows[i].Cells[0].Text;
+                    string desen =  stokListGridView.Rows[i].Cells[1].Text;
+                    string tip = stokListGridView.Rows[i].Cells[2].Text;
+                    string colorit = stokListGridView.Rows[i].Cells[3].Text;
+                    decimal latime = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[4].Text);
+                    decimal lungime = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[5].Text);
 
-                    excelDT.Rows[i]["Articol"] = stokListGridView.Rows[i].Cells[0].Text;
-                    excelDT.Rows[i]["desen"] = stokListGridView.Rows[i].Cells[1].Text;
-                    excelDT.Rows[i]["tip"] = stokListGridView.Rows[i].Cells[2].Text;
-                    excelDT.Rows[i]["colorit"] = stokListGridView.Rows[i].Cells[3].Text;
-                    excelDT.Rows[i]["latime"] = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[4].Text);
-                    excelDT.Rows[i]["lungime"] = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[5].Text);
+                    int productID = Utils.ModuleStore().DetectProduct(articol, desen, tip, colorit, latime, lungime);
 
-                    decimal kanban = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[6].Text);
-                    decimal inWey = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[7].Text);
-                    decimal stokInSelectedWeek = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[selectedWeekIndexInGrid].Text);
+                    if (productID != 0)
+                    {
+                        excelDT.Rows.Add();
+                        excelDT.Rows[i]["Articol"] = articol;
+                        excelDT.Rows[i]["desen"] = desen;
+                        excelDT.Rows[i]["tip"] = tip;
+                        excelDT.Rows[i]["colorit"] = colorit;
+                        excelDT.Rows[i]["latime"] = latime;
+                        excelDT.Rows[i]["lungime"] = lungime;
 
-                    decimal cantitate = kanban / 2 - stokInSelectedWeek - inWey;
+                        decimal kanban = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[6].Text);
+                        decimal inWey = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[7].Text);
+                        decimal stokInSelectedWeek = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[selectedWeekIndexInGrid].Text);
 
-                    excelDT.Rows[i]["cantitate"] = cantitate > 0 ? Math.Ceiling(cantitate) : 0;
+                        decimal cantitate = kanban / 2 - stokInSelectedWeek - inWey;
+
+                        excelDT.Rows[i]["cantitate"] = cantitate > 0 ? Math.Ceiling(cantitate) : 0;
+
+                        bool resultUpload = Utils.ModuleStore().UpdateOrders(selectedWeek, productID, cantitate);
+                    }
                 }
 
                 if (excelDT != null && excelDT.Rows.Count > 0)
@@ -270,6 +283,23 @@ public partial class StorePage : System.Web.UI.Page
             else
             {
                 Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Atentie", "Alegeti saptamina!");
+            }
+        }
+    }
+    protected void stokListGridView_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            for (int i = 8; i < e.Row.Cells.Count; i++)
+            {
+                int kanban = 0;
+                int.TryParse(e.Row.Cells[6].Text, out kanban);
+
+                decimal cantitatea = Crypt.Utils.MyDecimalParce(e.Row.Cells[i].Text);
+
+                if (((double)cantitatea) < (kanban * 0.3)) { e.Row.Cells[i].BackColor = System.Drawing.Color.Red; }
+                if ((kanban * 0.3) < ((double)cantitatea) && ((double)cantitatea) < (kanban * 0.7)) { e.Row.Cells[i].BackColor = System.Drawing.Color.Yellow; }
+                if (((double)cantitatea) > (kanban * 0.7)) { e.Row.Cells[i].BackColor = System.Drawing.Color.Green; }
             }
         }
     }
