@@ -184,6 +184,160 @@ namespace Store
             return result;
         }
 
+        #region Orders
+        public DataTable GetOrdersHistory()
+        {
+            DataTable result = new DataTable();
+            mLastError = string.Empty;
+
+            try
+            {
+                string wekssql = @"SELECT DISTINCT week FROM Orders order by week asc ";
+                DataTable weeksInOrders = mDataBridge.ExecuteQuery(wekssql);
+
+                if (weeksInOrders != null && weeksInOrders.Rows.Count > 0)
+                {
+                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Orders)
+                                , ProdDet as (SELECT 
+                                product_id
+                                , ClArt.Name as ""Articol"" 
+                                , ClDesen.Name as ""Desen"" 
+                                , ClTip.Name as ""Tip"" 
+                                , ClColorit.Name as ""Colorit"" 
+                                , latime as ""Latime""
+                                , lungime as ""Lungime""                
+                                FROM productdetails PD
+                                LEFT JOIN Classifiers as ClArt on ClArt.Code = PD.articol
+                                LEFT JOIN Classifiers as ClDesen on ClDesen.Code = PD.desen
+                                LEFT JOIN Classifiers as ClTip on ClTip.Code = PD.tip
+                                LEFT JOIN Classifiers as ClColorit on ClColorit.Code = PD.colorit )
+";
+                    query += @" SELECT  
+                             ProdDet.product_id
+                            ,ProdDet.""Articol""  
+                            ,ProdDet.""Desen""                             
+                            ,ProdDet.""Tip""                             
+                            ,ProdDet.""Colorit""   
+                            ,ProdDet.""Latime""   
+                            ,ProdDet.""Lungime""  ";
+
+                    for (int i = 0; i < weeksInOrders.Rows.Count; i++)
+                    {
+                        query += ", coalesce(ORD" + i + ".quantity,0) as \"Confirmat " + weeksInOrders.Rows[i]["week"].ToString() + "\"   \r\n ";
+                        query += ", coalesce(LVR" + i + ".quantity,0) as \"Livrat " + weeksInOrders.Rows[i]["week"].ToString() + "\"   \r\n ";
+                    }
+
+                    query += ", ";
+                    for (int i = 0; i < weeksInOrders.Rows.Count; i++)
+                    {
+                        if (i > 0) query += " + ";
+                        query += "  coalesce(ORD" + i + ".quantity,0) -   coalesce(LVR" + i + ".quantity,0)  \r\n ";
+                    }
+                    query += " as \"In Wey\" \r\n ";
+
+                    query += "  FROM MainTBL  \r\n ";
+
+                    query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id \r\n ";
+
+                    for (int i = 0; i < weeksInOrders.Rows.Count; i++)
+                    {
+                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInOrders.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInOrders.Rows[i]["week"].ToString() + "' \r\n ";
+                    }
+
+                    result = mDataBridge.ExecuteQuery(query);
+                    mLastError = mDataBridge.LastError;
+                }
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public DataTable CreateNewOrder(int clientID, string week)
+        {
+            DataTable result = new DataTable();
+
+            try
+            {
+                string wekssql = @"SELECT DISTINCT week FROM Stok WHERE week <= '" + week + "' order by week asc ";
+
+                DataTable weeksInStok = mDataBridge.ExecuteQuery(wekssql);
+
+
+                if (weeksInStok != null && weeksInStok.Rows.Count > 0)
+                {
+                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stok WHERE week <= '" + week + @"' )
+                                , ProdDet as (SELECT 
+                                product_id
+                                , ClArt.Name as ""Articol"" 
+                                , ClDesen.Name as ""Desen"" 
+                                , ClTip.Name as ""Tip"" 
+                                , ClColorit.Name as ""Colorit"" 
+                                , latime as ""Latime""
+                                , lungime as ""Lungime""                
+                                FROM productdetails PD
+                                LEFT JOIN Classifiers as ClArt on ClArt.Code = PD.articol
+                                LEFT JOIN Classifiers as ClDesen on ClDesen.Code = PD.desen
+                                LEFT JOIN Classifiers as ClTip on ClTip.Code = PD.tip
+                                LEFT JOIN Classifiers as ClColorit on ClColorit.Code = PD.colorit )
+";
+
+                    query += @" SELECT  
+                             ProdDet.product_id
+                            ,ProdDet.""Articol""  
+                            ,ProdDet.""Desen""                             
+                            ,ProdDet.""Tip""                             
+                            ,ProdDet.""Colorit""   
+                            ,ProdDet.""Latime""   
+                            ,ProdDet.""Lungime"" 
+                            , coalesce(Kanban.quantity,0) as ""Kanban""  
+, ";
+
+                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
+                    {
+                        if (i > 0) query += " + ";
+                        query += "  coalesce(ORD" + i + ".quantity,0) -   coalesce(LVR" + i + ".quantity,0)  \r\n ";
+                    }
+                    query += " as \"In Wey\" \r\n ";
+
+                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
+                    {
+                        query += ", coalesce(ST" + i + ".quantity,0) as \"" + weeksInStok.Rows[i]["week"].ToString() + "\"   \r\n ";
+                    }
+
+                    query += "  FROM MainTBL  \r\n ";
+                    query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id \r\n ";
+                    query += " LEFT JOIN Kanban ON Kanban.product_id = MainTBL.product_id \r\n ";
+
+                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
+                    {
+                        query += " LEFT JOIN Stok as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
+                    }
+
+                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
+                    {
+                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
+                    }
+
+                    result = mDataBridge.ExecuteQuery(query);
+                    mLastError = mDataBridge.LastError;
+                }
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+
+        #endregion Orders
 
         #region Stok
 
@@ -327,26 +481,37 @@ namespace Store
             return result;
         }
 
-        public bool UpdateOrders(string week, int product_id, decimal quantity)
+        public bool UpdateOrders(string week, DataTable productList)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
             bool result = false;
             try
             {
-                string nonQuery = @"UPDATE Orders  SET quantity = @quantity WHERE  product_id = @product_id AND week = @week 
+                string nonQuery = string.Empty;
+                    
+                if(productList != null && productList.Rows.Count > 0)
+                {
+                    Hashtable parameters = new Hashtable();
 
-                                    INSERT INTO Orders(product_id, week, quantity)
-                                    SELECT @product_id, @week, @quantity 
-                                    WHERE not exists (select 1 from Orders WHERE product_id = @product_id AND week = @week) ";
+                    for(int i=0; i< productList.Rows.Count; i++)
+                    {
+                        nonQuery += "UPDATE Orders  SET quantity = @quantity" + i + " WHERE  product_id = @product_id" + i + " AND week = @week" + i + " \r\n ";
+                        nonQuery += " INSERT INTO Orders(product_id, week, quantity) \r\n ";
+                        nonQuery += " SELECT @product_id" + i + ", @week" + i + ", @quantity" + i + " \r\n ";
+                        nonQuery += " WHERE not exists (select 1 from Orders WHERE product_id = @product_id" + i + " AND week = @week" + i + ") \r\n ";
 
-                Hashtable parameters = new Hashtable();
-                parameters.Add("@product_id", product_id);
-                parameters.Add("@week", week);
-                parameters.Add("@quantity", quantity);
+                        int product_id = (int)productList.Rows[i]["product_id"];
+                        decimal cantitate = (decimal)productList.Rows[i]["cantitate"];
 
-                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
-                mLastError = mDataBridge.LastError;
+                        parameters.Add("@product_id" + i, product_id);
+                        parameters.Add("@week" + i, week);
+                        parameters.Add("@quantity" + i, cantitate);
+                    }
+
+                    result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                    mLastError = mDataBridge.LastError;
+                }        
             }
             catch (Exception exception)
             {
@@ -355,7 +520,7 @@ namespace Store
 
             return result;
         }
-
+           
         public bool UpdateKanban(int product_id, decimal quantity)
         {
             DateTime EmptyDate = DateTime.MinValue;

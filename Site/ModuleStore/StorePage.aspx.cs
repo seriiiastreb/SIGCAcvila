@@ -207,84 +207,55 @@ public partial class StorePage : System.Web.UI.Page
     protected void createOrdersButton_Click(object sender, ImageClickEventArgs e)
     {
         string selectedWeek = generateCommandWeekDDL.SelectedValue;
-        int selectedWeekIndexInGrid = -1;
 
-        DataTable excelDT = new DataTable();
-        excelDT.Columns.Add("Articol", typeof(string));
-        excelDT.Columns.Add("desen", typeof(string));
-        excelDT.Columns.Add("tip", typeof(string));
-        excelDT.Columns.Add("colorit", typeof(string));
-        excelDT.Columns.Add("latime", typeof(decimal));
-        excelDT.Columns.Add("lungime", typeof(decimal));
-        excelDT.Columns.Add("cantitate", typeof(decimal));
-
-        if (stokListGridView.Rows.Count > 0)
+        if (!string.IsNullOrEmpty(selectedWeek))
         {
-            for (int c = 0; c < stokListGridView.Rows[0].Cells.Count; c++)
+            DataTable comanda = Utils.ModuleStore().CreateNewOrder(0, selectedWeek);
+
+            if (comanda != null && comanda.Rows.Count > 0)
             {
-                string ww = ((System.Web.UI.WebControls.DataControlFieldCell)(stokListGridView.Rows[0].Cells[c])).ContainingField.HeaderText;
-                if (ww.Equals(selectedWeek))
+                comanda.Columns.Add("cantitate", typeof(decimal));
+
+                for (int i = 0; i < comanda.Rows.Count; i++)
                 {
-                    selectedWeekIndexInGrid = c;
-                    c = stokListGridView.Rows[0].Cells.Count;
+                    int productID = (int)comanda.Rows[i]["product_id"];
+                    decimal kanban = (decimal)comanda.Rows[i]["Kanban"];
+                    decimal inWey = (decimal)comanda.Rows[i]["In Wey"];
+                    decimal stokInSelectedWeek = (decimal)comanda.Rows[i][selectedWeek]; 
+
+                    decimal cantitate = kanban / 2 - stokInSelectedWeek - inWey;
+                    comanda.Rows[i]["cantitate"] = cantitate > 0 ? Math.Ceiling(cantitate) : 0;                                     
                 }
-            }
+                Utils.ModuleStore().UpdateOrders(selectedWeek, comanda);  
 
+                for (int i = 0; i < comanda.Columns.Count; i++)
+                {
+                    string colName = comanda.Columns[i].ColumnName;
 
-            if (selectedWeekIndexInGrid != -1)
-            {
-                for (int i = 0; i < stokListGridView.Rows.Count; i++)
-                {               
-                    string articol = stokListGridView.Rows[i].Cells[0].Text;
-                    string desen =  stokListGridView.Rows[i].Cells[1].Text;
-                    string tip = stokListGridView.Rows[i].Cells[2].Text;
-                    string colorit = stokListGridView.Rows[i].Cells[3].Text;
-                    decimal latime = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[4].Text);
-                    decimal lungime = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[5].Text);
-
-                    int productID = Utils.ModuleStore().DetectProduct(articol, desen, tip, colorit, latime, lungime);
-
-                    if (productID != 0)
+                    if (!colName.Equals("Articol") && !colName.Equals("Desen") && !colName.Equals("Tip") && !colName.Equals("Colorit") && !colName.Equals("Latime") && !colName.Equals("Lungime") && !colName.Equals("cantitate"))
                     {
-                        excelDT.Rows.Add();
-                        excelDT.Rows[i]["Articol"] = articol;
-                        excelDT.Rows[i]["desen"] = desen;
-                        excelDT.Rows[i]["tip"] = tip;
-                        excelDT.Rows[i]["colorit"] = colorit;
-                        excelDT.Rows[i]["latime"] = latime;
-                        excelDT.Rows[i]["lungime"] = lungime;
-
-                        decimal kanban = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[6].Text);
-                        decimal inWey = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[7].Text);
-                        decimal stokInSelectedWeek = Crypt.Utils.MyDecimalParce(stokListGridView.Rows[i].Cells[selectedWeekIndexInGrid].Text);
-
-                        decimal cantitate = kanban / 2 - stokInSelectedWeek - inWey;
-
-                        excelDT.Rows[i]["cantitate"] = cantitate > 0 ? Math.Ceiling(cantitate) : 0;
-
-                        bool resultUpload = Utils.ModuleStore().UpdateOrders(selectedWeek, productID, cantitate > 0 ? Math.Ceiling(cantitate) : 0);
+                        comanda.Columns.Remove(colName);
+                        comanda.AcceptChanges();
                     }
-                }
+                }              
+                
+                comanda.TableName = "Comanda " + selectedWeek;
 
-                if (excelDT != null && excelDT.Rows.Count > 0)
-                {
-                    excelDT.TableName = "Comanda " + selectedWeek;
+                string documentName = "Comanda " + selectedWeek + ".xls";
+                string fileNameFullPath = Server.MapPath("~/" + tempDirectory + msDirectorySeparator + documentName);
 
-                    string documentName = "Comanda " + selectedWeek + ".xls";
-                    string fileNameFullPath = Server.MapPath("~/" + tempDirectory + msDirectorySeparator + documentName);
+                Crypt.Excel.ExportDataTableToExcelUsingNPOI(null, comanda, fileNameFullPath, string.Empty, string.Empty, string.Empty, null, 0, null, true);
 
-                    Crypt.Excel.ExportDataTableToExcelUsingNPOI(null, excelDT, fileNameFullPath, string.Empty, string.Empty, string.Empty, null, 0, null, true);
+                byte[] fileInByte = System.IO.File.ReadAllBytes(fileNameFullPath);
 
-                    byte[] fileInByte = System.IO.File.ReadAllBytes(fileNameFullPath);
-
-                    Utils.DownloadFile(fileInByte, this, documentName);
-                }
-            }
-            else
-            {
-                Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Atentie", "Alegeti saptamina!");
-            }
+                Utils.DownloadFile(fileInByte, this, documentName);
+            }            
         }
+        else
+        {
+            Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Warning, "Atentie", "Alegeti saptamina!");
+        }
+
     }
     protected void stokListGridView_RowDataBound(object sender, GridViewRowEventArgs e)
     {

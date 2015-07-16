@@ -52,47 +52,9 @@ public partial class Orders : System.Web.UI.Page
    
     protected void FIllOrdersGridView()
     {
-        //DataTable ordersList = Utils.ModuleCustomers().GetClientOrdersShortDetails();
+        DataTable ordersList = Utils.ModuleStore().GetOrdersHistory();
 
-        //ordersListGridView.DataSource = ordersList;
-        //ordersListGridView.DataBind();
-    }
-
-    protected void ordersListGridView_RowCreated(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.Header)
-        { e.Row.TableSection = TableRowSection.TableHeader; }
-
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            e.Row.Attributes["onmouseover"] = "this.style.cursor='pointer';this.style.textDecoration='underline';";
-            e.Row.Attributes["onmouseout"] = "this.style.textDecoration='none';";
-            e.Row.Attributes["onclick"] = Page.ClientScript.GetPostBackClientHyperlink(this.ordersListGridView, "Select$" + e.Row.RowIndex);
-        }
-    }
-
-
-
-
-
-    protected void ordersListGridView_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        //if (ordersListGridView.SelectedRow != null)
-        //{
-        //    string orderID = ordersListGridView.SelectedRow.Cells[0].Text;
-        //    int order_id = 0;
-        //    int.TryParse(orderID, out order_id);
-
-        //    DataTable orderDetails = Utils.ModuleCustomers().GetClientOrderFullDetails(order_id);
-
-        //    if (orderDetails != null && orderDetails.Rows.Count > 0)
-        //    {
-        //        ordersWorkPanel.Visible = true;
-        //        orderDetailsGridView.DataSource = orderDetails;
-        //        orderDetailsGridView.DataBind();
-        //    }
-        //    else
-        //    { ordersWorkPanel.Visible = false; }
-        //}
-    }
+        ordersListGridView.DataSource = ordersList;
+        ordersListGridView.DataBind();
+    }    
 }
