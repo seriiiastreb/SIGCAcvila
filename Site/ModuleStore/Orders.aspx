@@ -3,6 +3,25 @@
 <%--<%@ Register TagPrefix="csd" TagName="ClientSelectionControl" Src="~/Controls/ClientSelectionControl.ascx" %>--%>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" Runat="Server"> 
+    <script type="text/javascript">
+        $(document).ready(function () {
+            gridviewScroll();
+        });
+
+        $(window).resize(function () {
+            gridviewScroll();
+        });
+
+        function gridviewScroll() {
+            gridView1 = $('#<%=ordersListGridView.ClientID %>').gridviewScroll({
+                width: $(window).width() - 150,
+                height: $(window).height() - 200 ,
+                freezesize: 6,
+                headerrowcount: 1,
+            });
+        }
+    </script>
+
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server">   

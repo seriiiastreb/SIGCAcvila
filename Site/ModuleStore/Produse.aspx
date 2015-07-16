@@ -63,12 +63,13 @@
            });
        });        
 
-    </script>
+
+    </script> 
 
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server">  
- <asp:Panel runat="server" id="productsPanel" CssClass="grid_16 box context-menu-products" style="min-height:100px;">
+ <asp:Panel runat="server" id="productsPanel" CssClass="grid_16 box context-menu-products" style="min-height:100px; max-height:650px; overflow-y:scroll;">
         <h2>Registered Products List &nbsp;&nbsp;&nbsp;&nbsp;
         <asp:ImageButton ID="refreshButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Refresh" ImageUrl="../images/refresh.png"  runat="server" OnClick="refreshButton_Click" AlternateText="Refresh" /> 
         &nbsp;&nbsp;&nbsp;&nbsp;
@@ -145,6 +146,24 @@
 
 
      <asp:Panel ID="uploadFromFilePanel" runat="server">
+        <script type="text/javascript">
+               $(document).ready(function () {
+                   gridviewScroll();
+               });
+
+               $(window).resize(function () {
+                   gridviewScroll();
+               });
+
+               function gridviewScroll() {
+                   gridView1 = $('#<%=uploadFileGridView.ClientID %>').gridviewScroll({
+                    width: $(window).width() - 150,
+                    height: $(window).height() - 200,
+                    freezesize: 0,
+                    headerrowcount: 1,
+                });
+            }
+        </script> 
         <h2> Upload From excel file </h2>
 
         <fieldset>

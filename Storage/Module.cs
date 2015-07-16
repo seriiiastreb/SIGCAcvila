@@ -213,8 +213,7 @@ namespace Store
                                 LEFT JOIN Classifiers as ClColorit on ClColorit.Code = PD.colorit )
 ";
                     query += @" SELECT  
-                             ProdDet.product_id
-                            ,ProdDet.""Articol""  
+                             ProdDet.""Articol""  
                             ,ProdDet.""Desen""                             
                             ,ProdDet.""Tip""                             
                             ,ProdDet.""Colorit""   
