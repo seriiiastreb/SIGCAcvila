@@ -231,10 +231,10 @@ namespace Store
                             , coalesce(Kanban.quantity,0) as ""Kanban""  
 , ";
 
-                    for (int i = 0; i < weeksInStok.Rows.Count && i < 3; i++)
+                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
                     {
                         if (i > 0) query += " + ";
-                        query += "  coalesce(ORD" + i + ".quantity,0) -   coalesce(LVR" + i + ".quantity,0)  ";
+                        query += "  coalesce(ORD" + i + ".quantity,0) -   coalesce(LVR" + i + ".quantity,0)  \r\n ";
                     }
                     query += " as \"In Wey\" \r\n ";
 
@@ -252,10 +252,10 @@ namespace Store
                         query += " LEFT JOIN Stok as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
-                    for (int i = 0; i < weeksInStok.Rows.Count && i < 3; i++)
+                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
                     {
-                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStok.Rows[weeksInStok.Rows.Count - i - 1]["week"].ToString() + "' ";
-                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStok.Rows[weeksInStok.Rows.Count - i - 1]["week"].ToString() + "' ";
+                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
                     result = mDataBridge.ExecuteQuery(query);

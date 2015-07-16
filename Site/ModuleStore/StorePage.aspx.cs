@@ -262,7 +262,7 @@ public partial class StorePage : System.Web.UI.Page
 
                         excelDT.Rows[i]["cantitate"] = cantitate > 0 ? Math.Ceiling(cantitate) : 0;
 
-                        bool resultUpload = Utils.ModuleStore().UpdateOrders(selectedWeek, productID, cantitate);
+                        bool resultUpload = Utils.ModuleStore().UpdateOrders(selectedWeek, productID, cantitate > 0 ? Math.Ceiling(cantitate) : 0);
                     }
                 }
 
@@ -297,7 +297,7 @@ public partial class StorePage : System.Web.UI.Page
 
                 decimal cantitatea = Crypt.Utils.MyDecimalParce(e.Row.Cells[i].Text);
 
-                if (((double)cantitatea) < (kanban * 0.3)) { e.Row.Cells[i].BackColor = System.Drawing.Color.Red; }
+                if (((double)cantitatea) < (kanban * 0.3) || cantitatea == 0) { e.Row.Cells[i].BackColor = System.Drawing.Color.Red; }
                 if ((kanban * 0.3) < ((double)cantitatea) && ((double)cantitatea) < (kanban * 0.7)) { e.Row.Cells[i].BackColor = System.Drawing.Color.Yellow; }
                 if (((double)cantitatea) > (kanban * 0.7)) { e.Row.Cells[i].BackColor = System.Drawing.Color.Green; }
             }
