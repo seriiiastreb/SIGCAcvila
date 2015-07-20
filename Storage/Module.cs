@@ -263,9 +263,7 @@ namespace Store
             try
             {
                 string wekssql = @"SELECT DISTINCT week FROM Stok WHERE week < '" + week + "' order by week asc ";
-
                 DataTable weeksInStok = mDataBridge.ExecuteQuery(wekssql);
-
 
                 if (weeksInStok != null && weeksInStok.Rows.Count > 0)
                 {
