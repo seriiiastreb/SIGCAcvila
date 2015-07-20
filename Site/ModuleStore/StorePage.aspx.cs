@@ -263,13 +263,11 @@ public partial class StorePage : System.Web.UI.Page
         {
             for (int i = 8; i < e.Row.Cells.Count; i++)
             {
-                int kanban = 0;
-                int.TryParse(e.Row.Cells[6].Text, out kanban);
-
+                double kanban = (double)Crypt.Utils.MyDecimalParce(e.Row.Cells[6].Text);
                 decimal cantitatea = Crypt.Utils.MyDecimalParce(e.Row.Cells[i].Text);
 
                 if (((double)cantitatea) < (kanban * 0.3) || cantitatea == 0) { e.Row.Cells[i].BackColor = System.Drawing.Color.Red; }
-                if ((kanban * 0.3) < ((double)cantitatea) && ((double)cantitatea) < (kanban * 0.7)) { e.Row.Cells[i].BackColor = System.Drawing.Color.Yellow; }
+                if ((kanban * 0.3) <= ((double)cantitatea) && ((double)cantitatea) <= (kanban * 0.7)) { e.Row.Cells[i].BackColor = System.Drawing.Color.Yellow; }
                 if (((double)cantitatea) > (kanban * 0.7)) { e.Row.Cells[i].BackColor = System.Drawing.Color.Green; }
             }
         }

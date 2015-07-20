@@ -262,14 +262,14 @@ namespace Store
 
             try
             {
-                string wekssql = @"SELECT DISTINCT week FROM Stok WHERE week <= '" + week + "' order by week asc ";
+                string wekssql = @"SELECT DISTINCT week FROM Stok WHERE week < '" + week + "' order by week asc ";
 
                 DataTable weeksInStok = mDataBridge.ExecuteQuery(wekssql);
 
 
                 if (weeksInStok != null && weeksInStok.Rows.Count > 0)
                 {
-                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stok WHERE week <= '" + week + @"' )
+                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stok WHERE week < '" + week + @"' )
                                 , ProdDet as (SELECT 
                                 product_id
                                 , ClArt.Name as ""Articol"" 
