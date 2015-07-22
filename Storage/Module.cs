@@ -264,10 +264,12 @@ namespace Store
             {
                 string wekssql = @"SELECT DISTINCT week FROM Stok WHERE week < '" + week + "' order by week asc ";
                 DataTable weeksInStok = mDataBridge.ExecuteQuery(wekssql);
+                bool primaSaptamina = false;
+                if (weeksInStok != null && weeksInStok.Rows.Count == 0) { weeksInStok.Rows.Add("0000"); primaSaptamina = true; }
 
                 if (weeksInStok != null && weeksInStok.Rows.Count > 0)
                 {
-                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stok WHERE week < '" + week + @"' )
+                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stok WHERE week <= '" + week + @"' )
                                 , ProdDet as (SELECT 
                                 product_id
                                 , ClArt.Name as ""Articol"" 
@@ -303,7 +305,7 @@ namespace Store
 
                     for (int i = 0; i < weeksInStok.Rows.Count; i++)
                     {
-                        query += ", coalesce(ST" + i + ".quantity,0) as \"" + weeksInStok.Rows[i]["week"].ToString() + "\"   \r\n ";
+                        query += ", coalesce(ST" + i + ".quantity,0) as \"" + (primaSaptamina ? week : weeksInStok.Rows[i]["week"].ToString()) + "\"   \r\n ";
                     }
 
                     query += "  FROM MainTBL  \r\n ";
