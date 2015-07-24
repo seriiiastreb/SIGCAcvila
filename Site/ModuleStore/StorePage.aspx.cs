@@ -74,6 +74,7 @@ public partial class StorePage : System.Web.UI.Page
         inweySource.Add("Stok");
         inweySource.Add("Kanban");
         inweySource.Add("Livrari");
+        inweySource.Add("In Wey");
         destinationDDL.DataSource = inweySource;
         destinationDDL.DataBind();
 
@@ -162,6 +163,10 @@ public partial class StorePage : System.Web.UI.Page
 
                                     case "Kanban":
                                         resultUpload = Utils.ModuleStore().UpdateKanban(productID, cantitate);                                        
+                                        break;
+
+                                    case "In Wey":
+                                        resultUpload = Utils.ModuleStore().UpdateManualInWey(week, productID, cantitate);                                          
                                         break;
                                 }
 

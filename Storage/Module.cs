@@ -480,6 +480,35 @@ namespace Store
             return result;
         }
 
+        public bool UpdateManualInWey(string week, int product_id, decimal quantity)
+        {
+            DateTime EmptyDate = DateTime.MinValue;
+
+            bool result = false;
+            try
+            {
+                string nonQuery = @"UPDATE InWey  SET quantity = @quantity WHERE  product_id = @product_id AND week = @week 
+
+                                    INSERT INTO InWey(product_id, week, quantity)
+                                    SELECT @product_id, @week, @quantity 
+                                    WHERE not exists (select 1 from InWey WHERE product_id = @product_id AND week = @week) ";
+
+                Hashtable parameters = new Hashtable();
+                parameters.Add("@product_id", product_id);
+                parameters.Add("@week", week);
+                parameters.Add("@quantity", quantity);
+
+                result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
+                mLastError = mDataBridge.LastError;
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
         public bool UpdateOrders(string week, DataTable productList)
         {
             DateTime EmptyDate = DateTime.MinValue;
@@ -547,6 +576,8 @@ namespace Store
 
             return result;
         }
+      
+
         public int DetectProduct(string articol, string desen , string tip, string colorit, decimal latime, decimal lungime)
         {
             int result = 0;
