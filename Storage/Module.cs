@@ -348,11 +348,11 @@ namespace Store
 
             try
             {
-                string distinctDays = " SELECT DISTINCT week FROM Stok";
+                string distinctDays = " SELECT DISTINCT week FROM Stok order by week ASC";
                 DataTable weeksInStok = mDataBridge.ExecuteQuery(distinctDays);
                 mLastError = mDataBridge.LastError;
 
-                string distinctDaysVinzari = " SELECT DISTINCT week FROM Vinzari";
+                string distinctDaysVinzari = " SELECT DISTINCT week FROM Vinzari order by week ASC";
                 DataTable weeksInVinzari = mDataBridge.ExecuteQuery(distinctDaysVinzari);
                 mLastError = mDataBridge.LastError;
 
