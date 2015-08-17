@@ -241,6 +241,7 @@ public partial class StorePage : System.Web.UI.Page
                     {
                         comanda.Columns.Remove(colName);
                         comanda.AcceptChanges();
+                        i--;
                     }
                 }              
                 
