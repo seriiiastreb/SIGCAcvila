@@ -325,6 +325,8 @@ namespace Store
 
                     result = mDataBridge.ExecuteQuery(query);
                     mLastError = mDataBridge.LastError;
+
+                    if (result != null && !primaSaptamina) result.Columns.Add(week, typeof(decimal));
                 }
             }
             catch (Exception exception)
@@ -628,7 +630,7 @@ namespace Store
 
             try
             {
-                string distinctDays = " SELECT DISTINCT week FROM Vinzari";
+                string distinctDays = " SELECT DISTINCT week FROM Vinzari ORDER BY week ASC";
                 DataTable weeks = mDataBridge.ExecuteQuery(distinctDays);
                 mLastError = mDataBridge.LastError;
 

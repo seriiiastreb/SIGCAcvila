@@ -226,7 +226,7 @@ public partial class StorePage : System.Web.UI.Page
                     int productID = (int)comanda.Rows[i]["product_id"];
                     decimal kanban = (decimal)comanda.Rows[i]["Kanban"];
                     decimal inWey = (decimal)comanda.Rows[i]["In Wey"];
-                    decimal stokInSelectedWeek = (decimal)comanda.Rows[i][selectedWeek]; 
+                    decimal stokInSelectedWeek = comanda.Rows[i][selectedWeek] != System.DBNull.Value ? (decimal)comanda.Rows[i][selectedWeek] : 0; 
 
                     decimal cantitate = kanban / 2 - stokInSelectedWeek - inWey;
                     comanda.Rows[i]["cantitate"] = cantitate > 0 ? Math.Ceiling(cantitate) : 0;                                     
