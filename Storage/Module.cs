@@ -70,15 +70,15 @@ namespace Store
             return result;
         }
 
-        public bool AddProduct(int articol, int desen, int tip, int colorit, decimal latime, decimal lungime)
+        public bool AddProduct(int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, string short_description)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
             bool result = false;
             try
-            {              
-                string nonQuery = @"INSERT INTO ProductDetails ( articol, desen, tip, colorit, latime, lungime ) 
-                                    VALUES ( @articol, @desen, @tip, @colorit, @latime, @lungime); ";
+            {
+                string nonQuery = @"INSERT INTO ProductDetails ( articol, desen, tip, colorit, latime, lungime, short_description) 
+                                    VALUES ( @articol, @desen, @tip, @colorit, @latime, @lungime, @short_description); ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@articol", articol);
@@ -87,6 +87,7 @@ namespace Store
                 parameters.Add("@colorit", colorit);
                 parameters.Add("@latime", latime);
                 parameters.Add("@lungime", lungime);
+                parameters.Add("@short_description", short_description);
 
                 result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = mDataBridge.LastError;                                
@@ -99,7 +100,7 @@ namespace Store
             return result;
         }
 
-        public bool UpdateProduct(int product_id, int articol, int desen, int tip, int colorit, decimal latime, decimal lungime)
+        public bool UpdateProduct(int product_id, int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, string short_description)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
@@ -115,6 +116,7 @@ namespace Store
                               colorit = @colorit,
                               latime = @latime,
                               lungime = @lungime,
+                              short_description = @short_description
                             WHERE 
                               product_id = @product_id; ";
 
@@ -126,6 +128,7 @@ namespace Store
                 parameters.Add("@colorit", colorit);
                 parameters.Add("@latime", latime);
                 parameters.Add("@lungime", lungime);
+                parameters.Add("@short_description", short_description);
 
                 result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = mDataBridge.LastError;
@@ -363,26 +366,12 @@ namespace Store
                     string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stok)
                                 , ProdDet as (SELECT 
                                 product_id
-                                , ClArt.Name as ""Articol"" 
-                                , ClDesen.Name as ""Desen"" 
-                                , ClTip.Name as ""Tip"" 
-                                , ClColorit.Name as ""Colorit"" 
-                                , latime as ""Latime""
-                                , lungime as ""Lungime""                
-                                FROM productdetails PD
-                                LEFT JOIN Classifiers as ClArt on ClArt.Code = PD.articol
-                                LEFT JOIN Classifiers as ClDesen on ClDesen.Code = PD.desen
-                                LEFT JOIN Classifiers as ClTip on ClTip.Code = PD.tip
-                                LEFT JOIN Classifiers as ClColorit on ClColorit.Code = PD.colorit )
+                                , short_description            
+                                FROM productdetails PD )
 ";
 
                     query += @" SELECT  
-                            ProdDet.""Articol""  
-                            ,ProdDet.""Desen""                             
-                            ,ProdDet.""Tip""                             
-                            ,ProdDet.""Colorit""   
-                            ,ProdDet.""Latime""   
-                            ,ProdDet.""Lungime"" 
+                            ProdDet.short_description as ""___________Product___________""                            
                             , coalesce(Kanban.quantity,0) as ""Kanban""  
 , ";
 
@@ -431,11 +420,11 @@ namespace Store
 
             bool result = false;
             try
-            {        
-                string nonQuery = @"UPDATE stok  SET quantity = @quantity WHERE  product_id = @product_id AND week = @week 
+            {
+                string nonQuery = @"UPDATE stok  SET quantity = @quantity , product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id), kanban = (Select quantity FROM KanBan WHERE KanBan.product_id = @product_id) WHERE  product_id = @product_id AND week = @week 
 
-                                    INSERT INTO stok(product_id, week, quantity)
-                                    SELECT @product_id, @week, @quantity 
+                                    INSERT INTO stok(product_id, week, quantity, product_short_description, kanban)
+                                    SELECT @product_id, @week, @quantity , (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id), (Select quantity FROM KanBan WHERE KanBan.product_id = @product_id)
                                     WHERE not exists (select 1 from stok WHERE product_id = @product_id AND week = @week) ";
 
                 Hashtable parameters = new Hashtable();
@@ -453,6 +442,7 @@ namespace Store
 
             return result;
         }
+
         public bool UpdateLivrari(string week, int product_id, decimal quantity)
         {
             DateTime EmptyDate = DateTime.MinValue;
@@ -460,10 +450,10 @@ namespace Store
             bool result = false;
             try
             {
-                string nonQuery = @"UPDATE Livrari  SET quantity = @quantity WHERE  product_id = @product_id AND week = @week 
+                string nonQuery = @"UPDATE Livrari  SET quantity = @quantity , product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id) WHERE  product_id = @product_id AND week = @week 
 
-                                    INSERT INTO Livrari(product_id, week, quantity)
-                                    SELECT @product_id, @week, @quantity 
+                                    INSERT INTO Livrari(product_id, week, quantity, product_short_description)
+                                    SELECT @product_id, @week, @quantity, (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id)
                                     WHERE not exists (select 1 from Livrari WHERE product_id = @product_id AND week = @week) ";
 
                 Hashtable parameters = new Hashtable();
@@ -489,10 +479,10 @@ namespace Store
             bool result = false;
             try
             {
-                string nonQuery = @"UPDATE InWey  SET quantity = @quantity WHERE  product_id = @product_id AND week = @week 
+                string nonQuery = @"UPDATE InWey  SET quantity = @quantity, product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id) WHERE  product_id = @product_id AND week = @week 
 
-                                    INSERT INTO InWey(product_id, week, quantity)
-                                    SELECT @product_id, @week, @quantity 
+                                    INSERT INTO InWey(product_id, week, quantity, product_short_description)
+                                    SELECT @product_id, @week, @quantity, (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id)
                                     WHERE not exists (select 1 from InWey WHERE product_id = @product_id AND week = @week) ";
 
                 Hashtable parameters = new Hashtable();
@@ -550,7 +540,7 @@ namespace Store
 
             return result;
         }
-           
+
         public bool UpdateKanban(int product_id, decimal quantity)
         {
             DateTime EmptyDate = DateTime.MinValue;
@@ -558,10 +548,10 @@ namespace Store
             bool result = false;
             try
             {
-                string nonQuery = @"UPDATE Kanban  SET quantity = @quantity WHERE  product_id = @product_id 
+                string nonQuery = @"UPDATE Kanban  SET quantity = @quantity, product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id) WHERE  product_id = @product_id 
 
-                                    INSERT INTO Kanban(product_id, quantity)
-                                    SELECT @product_id, @quantity 
+                                    INSERT INTO Kanban(product_id, quantity, product_short_description)
+                                    SELECT @product_id, @quantity, (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id)
                                     WHERE not exists (select 1 from InWey WHERE product_id = @product_id) ";
 
                 Hashtable parameters = new Hashtable();
@@ -716,10 +706,10 @@ namespace Store
             bool result = false;
             try
             {
-                string nonQuery = @"UPDATE Vinzari  SET quantity = @quantity WHERE  product_id = @product_id AND week = @week 
+                string nonQuery = @"UPDATE Vinzari  SET quantity = @quantity , product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id) WHERE  product_id = @product_id AND week = @week 
 
-                                    INSERT INTO Vinzari(product_id, week, quantity)
-                                    SELECT @product_id, @week, @quantity 
+                                    INSERT INTO Vinzari(product_id, week, quantity, product_short_description)
+                                    SELECT @product_id, @week, @quantity, (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id)
                                     WHERE not exists (select 1 from Vinzari WHERE product_id = @product_id AND week = @week) ";
 
                 Hashtable parameters = new Hashtable();

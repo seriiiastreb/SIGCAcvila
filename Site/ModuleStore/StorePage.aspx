@@ -22,7 +22,7 @@
                 gridView1 = $('#<%=stokListGridView.ClientID %>').gridviewScroll({
                     width: $(window).width() - 150,
                     height: $(window).height() - 200,
-                    freezesize: 6,
+                    freezesize: 1,
                     headerrowcount: 1,
                 });
             }

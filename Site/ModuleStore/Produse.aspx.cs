@@ -206,13 +206,15 @@ public partial class Produse : System.Web.UI.Page
                 decimal latime = Crypt.Utils.MyDecimalParce(orderLatimeTextBox.Text);
                 decimal lungime = Crypt.Utils.MyDecimalParce(orderLungimeTextBox.Text);
 
+                string short_description = orderArticolDDL.SelectedItem.Text + " " + orderDesenDDL.SelectedItem.Text + " " + orderTipDDL.SelectedItem.Text + " " + orderColoritDDL.SelectedItem.Text + " " + latime.ToString() + "x" + lungime.ToString();
+
                 if (isNewAction)
                 {
-                    resultAction = Utils.ModuleStore().AddProduct(articol, desen, tip, colorit, latime, lungime);
+                    resultAction = Utils.ModuleStore().AddProduct(articol, desen, tip, colorit, latime, lungime, short_description);
                 }
                 else
                 {
-                    resultAction = Utils.ModuleStore().UpdateProduct(productID, articol, desen, tip, colorit, latime, lungime);
+                    resultAction = Utils.ModuleStore().UpdateProduct(productID, articol, desen, tip, colorit, latime, lungime, short_description);
                 }
 
 
@@ -319,6 +321,8 @@ public partial class Produse : System.Web.UI.Page
                     decimal latime = Crypt.Utils.MyDecimalParce(uploadFileGridView.Rows[i].Cells[6].Text);
                     decimal lungime = Crypt.Utils.MyDecimalParce(uploadFileGridView.Rows[i].Cells[7].Text);
 
+                    string short_description = articolSTR + " " + desenSTR + " " + tipSTR + " " + coloritSTR + " " + latime.ToString() + "x" + lungime.ToString();
+
                     if (!articolHashTable.Columns.Contains(articolSTR))
                     {
                         if (articolHashTable.Rows.Count == 0) articolHashTable.Rows.Add();
@@ -390,7 +394,7 @@ public partial class Produse : System.Web.UI.Page
 
                     if (Utils.ModuleStore().DetectProduct(articolSTR, desenSTR, tipSTR, coloritSTR, latime, lungime) == 0)
                     {
-                        if (Utils.ModuleStore().AddProduct(articolInt, desenINT, tipInt, coloritINt, latime, lungime))
+                        if (Utils.ModuleStore().AddProduct(articolInt, desenINT, tipInt, coloritINt, latime, lungime, short_description))
                         {
                             resultUploadLabel.Text = "OK.";
                         }
