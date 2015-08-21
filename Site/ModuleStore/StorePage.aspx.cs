@@ -267,9 +267,9 @@ public partial class StorePage : System.Web.UI.Page
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            for (int i = 8; i < e.Row.Cells.Count; i++)
+            for (int i = 3; i < e.Row.Cells.Count; i++)
             {
-                double kanban = (double)Crypt.Utils.MyDecimalParce(e.Row.Cells[6].Text);
+                double kanban = (double)Crypt.Utils.MyDecimalParce(e.Row.Cells[1].Text);
                 decimal cantitatea = Crypt.Utils.MyDecimalParce(e.Row.Cells[i].Text);
 
                 if (((double)cantitatea) < (kanban * 0.3) || cantitatea == 0) { e.Row.Cells[i].BackColor = System.Drawing.Color.Red; }
