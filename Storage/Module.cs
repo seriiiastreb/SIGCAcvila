@@ -235,7 +235,7 @@ namespace Store
                         if (i > 0) query += " + ";
                         query += "  coalesce(ORD" + i + ".quantity,0) -   coalesce(LVR" + i + ".quantity,0)  \r\n ";
                     }
-                    query += " as \"In Wey\" \r\n ";
+                    query += " as \"In Way\" \r\n ";
 
                     query += "  FROM MainTBL  \r\n ";
 
@@ -304,7 +304,7 @@ namespace Store
                         if (i > 0) query += " + ";
                         query += "  coalesce(ORD" + i + ".quantity,0) -   coalesce(LVR" + i + ".quantity,0)  \r\n ";
                     }
-                    query += " as \"In Wey\" \r\n ";
+                    query += " as \"In Way\" \r\n ";
 
                     for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
@@ -380,7 +380,7 @@ namespace Store
                         if (i > 0) query += " + ";
                         query += "  coalesce(ORD" + i + ".quantity,0) -   coalesce(LVR" + i + ".quantity,0)  \r\n ";
                     }
-                    query += " as \"In Wey\" \r\n ";
+                    query += " as \"In Way\" \r\n ";
 
                     for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
