@@ -265,14 +265,14 @@ namespace Store
 
             try
             {
-                string wekssql = @"SELECT DISTINCT week FROM Stok WHERE week < '" + week + "' order by week asc ";
-                DataTable weeksInStok = mDataBridge.ExecuteQuery(wekssql);
+                string wekssql = @"SELECT DISTINCT week FROM Stock WHERE week < '" + week + "' order by week asc ";
+                DataTable weeksInStock = mDataBridge.ExecuteQuery(wekssql);
                 bool primaSaptamina = false;
-                if (weeksInStok != null && weeksInStok.Rows.Count == 0) { weeksInStok.Rows.Add("0000"); primaSaptamina = true; }
+                if (weeksInStock != null && weeksInStock.Rows.Count == 0) { weeksInStock.Rows.Add("0000"); primaSaptamina = true; }
 
-                if (weeksInStok != null && weeksInStok.Rows.Count > 0)
+                if (weeksInStock != null && weeksInStock.Rows.Count > 0)
                 {
-                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stok WHERE week <= '" + week + @"' )
+                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stock WHERE week <= '" + week + @"' )
                                 , ProdDet as (SELECT 
                                 product_id
                                 , ClArt.Name as ""Articol"" 
@@ -299,31 +299,31 @@ namespace Store
                             , coalesce(Kanban.quantity,0) as ""Kanban""  
 , ";
 
-                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
+                    for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
                         if (i > 0) query += " + ";
                         query += "  coalesce(ORD" + i + ".quantity,0) -   coalesce(LVR" + i + ".quantity,0)  \r\n ";
                     }
                     query += " as \"In Wey\" \r\n ";
 
-                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
+                    for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
-                        query += ", coalesce(ST" + i + ".quantity,0) as \"" + (primaSaptamina ? week : weeksInStok.Rows[i]["week"].ToString()) + "\"   \r\n ";
+                        query += ", coalesce(ST" + i + ".quantity,0) as \"" + (primaSaptamina ? week : weeksInStock.Rows[i]["week"].ToString()) + "\"   \r\n ";
                     }
 
                     query += "  FROM MainTBL  \r\n ";
                     query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id \r\n ";
                     query += " LEFT JOIN Kanban ON Kanban.product_id = MainTBL.product_id \r\n ";
 
-                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
+                    for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
-                        query += " LEFT JOIN Stok as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += " LEFT JOIN Stock as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
-                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
+                    for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
-                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
-                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
                     result = mDataBridge.ExecuteQuery(query);
@@ -343,27 +343,27 @@ namespace Store
 
         #endregion Orders
 
-        #region Stok
+        #region Stock
 
 
-        public DataTable GetStokList()
+        public DataTable GetStockList()
         {
             DataTable result = new DataTable();
             mLastError = string.Empty;
 
             try
             {
-                string distinctDays = " SELECT DISTINCT week FROM Stok order by week ASC";
-                DataTable weeksInStok = mDataBridge.ExecuteQuery(distinctDays);
+                string distinctDays = " SELECT DISTINCT week FROM Stock order by week ASC";
+                DataTable weeksInStock = mDataBridge.ExecuteQuery(distinctDays);
                 mLastError = mDataBridge.LastError;
 
                 string distinctDaysVinzari = " SELECT DISTINCT week FROM Vinzari order by week ASC";
                 DataTable weeksInVinzari = mDataBridge.ExecuteQuery(distinctDaysVinzari);
                 mLastError = mDataBridge.LastError;
 
-                if (weeksInStok != null && weeksInStok.Rows.Count > 0)
+                if (weeksInStock != null && weeksInStock.Rows.Count > 0)
                 {
-                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stok)
+                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stock)
                                 , ProdDet as (SELECT 
                                 product_id
                                 , short_description            
@@ -375,31 +375,31 @@ namespace Store
                             , coalesce(Kanban.quantity,0) as ""Kanban""  
 , ";
 
-                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
+                    for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
                         if (i > 0) query += " + ";
                         query += "  coalesce(ORD" + i + ".quantity,0) -   coalesce(LVR" + i + ".quantity,0)  \r\n ";
                     }
                     query += " as \"In Wey\" \r\n ";
 
-                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
+                    for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
-                        query += ", coalesce(ST" + i + ".quantity,0) as \"" + weeksInStok.Rows[i]["week"].ToString() + "\"   \r\n ";
+                        query += ", coalesce(ST" + i + ".quantity,0) as \"" + weeksInStock.Rows[i]["week"].ToString() + "\"   \r\n ";
                     }
 
                     query += "  FROM MainTBL  \r\n ";
                     query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id \r\n ";
                     query += " LEFT JOIN Kanban ON Kanban.product_id = MainTBL.product_id \r\n ";
 
-                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
+                    for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
-                        query += " LEFT JOIN Stok as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += " LEFT JOIN Stock as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
-                    for (int i = 0; i < weeksInStok.Rows.Count; i++)
+                    for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
-                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
-                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStok.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
                     result = mDataBridge.ExecuteQuery(query);
@@ -414,18 +414,18 @@ namespace Store
             return result;
         }
 
-        public bool UpdateStok(string week, int product_id, decimal quantity)
+        public bool UpdateStock(string week, int product_id, decimal quantity)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
             bool result = false;
             try
             {
-                string nonQuery = @"UPDATE stok  SET quantity = @quantity , product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id), kanban = (Select quantity FROM KanBan WHERE KanBan.product_id = @product_id) WHERE  product_id = @product_id AND week = @week 
+                string nonQuery = @"UPDATE Stock  SET quantity = @quantity , product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id), kanban = (Select quantity FROM KanBan WHERE KanBan.product_id = @product_id) WHERE  product_id = @product_id AND week = @week 
 
-                                    INSERT INTO stok(product_id, week, quantity, product_short_description, kanban)
+                                    INSERT INTO Stock(product_id, week, quantity, product_short_description, kanban)
                                     SELECT @product_id, @week, @quantity , (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id), (Select quantity FROM KanBan WHERE KanBan.product_id = @product_id)
-                                    WHERE not exists (select 1 from stok WHERE product_id = @product_id AND week = @week) ";
+                                    WHERE not exists (select 1 from Stock WHERE product_id = @product_id AND week = @week) ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@product_id", product_id);
@@ -472,18 +472,18 @@ namespace Store
             return result;
         }
 
-        public bool UpdateManualInWey(string week, int product_id, decimal quantity)
+        public bool UpdateManualInWay(string week, int product_id, decimal quantity)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
             bool result = false;
             try
             {
-                string nonQuery = @"UPDATE InWey  SET quantity = @quantity, product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id) WHERE  product_id = @product_id AND week = @week 
+                string nonQuery = @"UPDATE InWay  SET quantity = @quantity, product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id) WHERE  product_id = @product_id AND week = @week 
 
-                                    INSERT INTO InWey(product_id, week, quantity, product_short_description)
+                                    INSERT INTO InWay(product_id, week, quantity, product_short_description)
                                     SELECT @product_id, @week, @quantity, (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id)
-                                    WHERE not exists (select 1 from InWey WHERE product_id = @product_id AND week = @week) ";
+                                    WHERE not exists (select 1 from InWay WHERE product_id = @product_id AND week = @week) ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@product_id", product_id);
@@ -552,7 +552,7 @@ namespace Store
 
                                     INSERT INTO Kanban(product_id, quantity, product_short_description)
                                     SELECT @product_id, @quantity, (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id)
-                                    WHERE not exists (select 1 from InWey WHERE product_id = @product_id) ";
+                                    WHERE not exists (select 1 from InWay WHERE product_id = @product_id) ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@product_id", product_id);
@@ -609,7 +609,7 @@ namespace Store
 
             return result;
         }
-        #endregion Stok
+        #endregion Stock
 
         #region Vinzari
 
@@ -728,7 +728,7 @@ namespace Store
             return result;
         }
 
-        #endregion Stok
+        #endregion Stock
     }
 
     namespace Domains

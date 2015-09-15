@@ -8,7 +8,7 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server">  
 
-    <asp:Panel runat="server" ID="stokListPanel" class="grid_16 box" Visible="false">
+    <asp:Panel runat="server" ID="StockListPanel" class="grid_16 box" Visible="false">
         <script type="text/javascript">
             $(document).ready(function () {
                 gridviewScroll();
@@ -19,7 +19,7 @@
             });
 
             function gridviewScroll() {
-                gridView1 = $('#<%=stokListGridView.ClientID %>').gridviewScroll({
+                gridView1 = $('#<%=StockListGridView.ClientID %>').gridviewScroll({
                     width: $(window).width() - 150,
                     height: $(window).height() - 200,
                     freezesize: 1,
@@ -28,7 +28,7 @@
             }
         </script> 
 
-        <h2>STOK &nbsp;&nbsp;
+        <h2>Stock &nbsp;&nbsp;
             <asp:ImageButton ID="refreshButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Refresh" ImageUrl="../images/refresh.png"  runat="server" OnClick="refreshButton_Click" AlternateText="Refresh" /> 
             &nbsp;&nbsp;&nbsp;&nbsp;
             <asp:ImageButton ID="uploadFromFileButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Upload From File" ImageUrl="../images/plus.png"  runat="server" OnClick="uploadFromFileButton_Click" AlternateText="Upload From File" />
@@ -38,10 +38,10 @@
             <asp:ImageButton ID="createOrdersButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Crearea comenzii in format excel" ImageUrl="../images/cartinput.png"  runat="server" OnClick="createOrdersButton_Click" AlternateText="Crearea comenzii in format excel" />
         
         </h2>
-        <asp:GridView ID="stokListGridView" runat="server" 
+        <asp:GridView ID="StockListGridView" runat="server" 
             AutoGenerateColumns="true"
             AlternatingRowStyle-CssClass="odd"
-            AllowPaging="false" OnRowDataBound="stokListGridView_RowDataBound"   >
+            AllowPaging="false" OnRowDataBound="StockListGridView_RowDataBound"   >
         </asp:GridView>
     </asp:Panel>
 
@@ -75,7 +75,7 @@
             File sheet: <asp:DropDownList ID="fileSheetsDDL" runat="server" ></asp:DropDownList>        &nbsp; &nbsp; &nbsp;         
             File:&nbsp;<asp:FileUpload ID="excelFileUpload" runat="server" />  <asp:Button ID="openFileButton" runat="server" Text="Open File"  OnClick="openFileButton_Click"/> </label>
             &nbsp; &nbsp; &nbsp; 
-            <asp:Button runat="server" Text="Back to Stok list" ID="backButton" OnClick="backButton_Click" />
+            <asp:Button runat="server" Text="Back to Stock list" ID="backButton" OnClick="backButton_Click" />
             <br />
 
             <asp:GridView ID="uploadFileGridView" runat="server" 

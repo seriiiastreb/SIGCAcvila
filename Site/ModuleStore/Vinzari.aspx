@@ -60,7 +60,7 @@
             File sheet: <asp:DropDownList ID="fileSheetsDDL" runat="server" ></asp:DropDownList>        &nbsp; &nbsp; &nbsp;         
             File:&nbsp;<asp:FileUpload ID="excelFileUpload" runat="server" />  <asp:Button ID="openFileButton" runat="server" Text="Open File"  OnClick="openFileButton_Click"/> </label>
             &nbsp; &nbsp; &nbsp; 
-            <asp:Button runat="server" Text="Back to Stok list" ID="backButton" OnClick="backButton_Click" />
+            <asp:Button runat="server" Text="Back to Stock list" ID="backButton" OnClick="backButton_Click" />
             <br />
           
             <asp:GridView ID="uploadFileGridView" runat="server" 

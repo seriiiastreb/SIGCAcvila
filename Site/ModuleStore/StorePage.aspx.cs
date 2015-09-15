@@ -30,7 +30,7 @@ public partial class StorePage : System.Web.UI.Page
                 if (!IsPostBack)
                 {
                     FillSheetsDDL();
-                    ShowPanel(stokListPanel.ID);
+                    ShowPanel(StockListPanel.ID);
                 }
             }
             else
@@ -45,15 +45,15 @@ public partial class StorePage : System.Web.UI.Page
 
     protected void ShowPanel(string panelID)
     {
-        stokListPanel.Visible = false;
+        StockListPanel.Visible = false;
         uploadFromFilePanel.Visible = false;
 
 
         switch (panelID)
         {
-            case "stokListPanel":
-                stokListPanel.Visible = true;
-                FillStokGridView();
+            case "StockListPanel":
+                StockListPanel.Visible = true;
+                FillStockGridView();
                 break;
 
             case "uploadFromFilePanel":
@@ -70,12 +70,12 @@ public partial class StorePage : System.Web.UI.Page
         Utils.FillSelector(generateCommandWeekDDL, weeksDT, "week", "week");
 
 
-        List<string> inweySource = new List<string>();
-        inweySource.Add("Stok");
-        inweySource.Add("Kanban");
-        inweySource.Add("Livrari");
-        inweySource.Add("In Wey");
-        destinationDDL.DataSource = inweySource;
+        List<string> InWaySource = new List<string>();
+        InWaySource.Add("Stock");
+        InWaySource.Add("Kanban");
+        InWaySource.Add("Livrari");
+        InWaySource.Add("In Way");
+        destinationDDL.DataSource = InWaySource;
         destinationDDL.DataBind();
 
 
@@ -89,11 +89,11 @@ public partial class StorePage : System.Web.UI.Page
         fileSheetsDDL.SelectedValue = "Sheet2";
     }
 
-    protected void FillStokGridView()
+    protected void FillStockGridView()
     {
-        DataTable dt = Utils.ModuleStore().GetStokList();
-        stokListGridView.DataSource = dt;
-        stokListGridView.DataBind();
+        DataTable dt = Utils.ModuleStore().GetStockList();
+        StockListGridView.DataSource = dt;
+        StockListGridView.DataBind();
     }
 
     protected void uploadFromFileButton_Click(object sender, ImageClickEventArgs e)
@@ -153,8 +153,8 @@ public partial class StorePage : System.Web.UI.Page
 
                                 switch (destinationUpload)
                                 {
-                                    case "Stok":
-                                        resultUpload = Utils.ModuleStore().UpdateStok(week, productID, cantitate);                                        
+                                    case "Stock":
+                                        resultUpload = Utils.ModuleStore().UpdateStock(week, productID, cantitate);                                        
                                         break;
 
                                     case "Livrari":
@@ -165,8 +165,8 @@ public partial class StorePage : System.Web.UI.Page
                                         resultUpload = Utils.ModuleStore().UpdateKanban(productID, cantitate);                                        
                                         break;
 
-                                    case "In Wey":
-                                        resultUpload = Utils.ModuleStore().UpdateManualInWey(week, productID, cantitate);                                          
+                                    case "In Way":
+                                        resultUpload = Utils.ModuleStore().UpdateManualInWay(week, productID, cantitate);                                          
                                         break;
                                 }
 
@@ -200,12 +200,12 @@ public partial class StorePage : System.Web.UI.Page
 
     protected void backButton_Click(object sender, EventArgs e)
     {
-        ShowPanel(stokListPanel.ID);
+        ShowPanel(StockListPanel.ID);
     }
 
     protected void refreshButton_Click(object sender, ImageClickEventArgs e)
     {
-        ShowPanel(stokListPanel.ID);
+        ShowPanel(StockListPanel.ID);
     }
 
 
@@ -225,10 +225,10 @@ public partial class StorePage : System.Web.UI.Page
                 {
                     int productID = (int)comanda.Rows[i]["product_id"];
                     decimal kanban = (decimal)comanda.Rows[i]["Kanban"];
-                    decimal inWey = (decimal)comanda.Rows[i]["In Wey"];
-                    decimal stokInSelectedWeek = comanda.Rows[i][selectedWeek] != System.DBNull.Value ? (decimal)comanda.Rows[i][selectedWeek] : 0; 
+                    decimal InWay = (decimal)comanda.Rows[i]["In Way"];
+                    decimal StockInSelectedWeek = comanda.Rows[i][selectedWeek] != System.DBNull.Value ? (decimal)comanda.Rows[i][selectedWeek] : 0; 
 
-                    decimal cantitate = kanban / 2 - stokInSelectedWeek - inWey;
+                    decimal cantitate = kanban / 2 - StockInSelectedWeek - InWay;
                     comanda.Rows[i]["cantitate"] = cantitate > 0 ? Math.Ceiling(cantitate) : 0;                                     
                 }
                 Utils.ModuleStore().UpdateOrders(selectedWeek, comanda);  
@@ -263,7 +263,7 @@ public partial class StorePage : System.Web.UI.Page
         }
 
     }
-    protected void stokListGridView_RowDataBound(object sender, GridViewRowEventArgs e)
+    protected void StockListGridView_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
