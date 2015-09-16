@@ -393,7 +393,7 @@ namespace Store
 
                     for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
-                        query += " LEFT JOIN Stock as ST" + i + " ON ST.client_ID = " + client_ID + " AND ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += " LEFT JOIN Stock as ST" + i + " ON ST" + i + ".client_ID = " + client_ID + " AND ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
                     for (int i = 0; i < weeksInStock.Rows.Count; i++)
