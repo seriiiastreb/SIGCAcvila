@@ -1,6 +1,6 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Produse.aspx.cs" Inherits="Produse" EnableEventValidation="false" %>
 <%@ Register TagPrefix="ajax" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit"%>
-
+<%@ Register TagPrefix="csd" TagName="ClientSelectionControl" Src="~/Controls/ClientSelectionControl.ascx" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" Runat="Server">   
 
@@ -69,7 +69,7 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="MainPlaceHolder" Runat="Server">  
- <asp:Panel runat="server" id="productsPanel" CssClass="grid_16 box context-menu-products" style="min-height:100px; max-height:650px; overflow-y:scroll;">
+ <asp:Panel runat="server" id="productsPanel" CssClass="grid_16 box context-menu-products" style="min-height:100px; max-height:650px; overflow-y:scroll;" Visible="false">
         <h2>Registered Products List &nbsp;&nbsp;&nbsp;&nbsp;
         <asp:ImageButton ID="refreshButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Refresh" ImageUrl="../images/refresh.png"  runat="server" OnClick="refreshButton_Click" AlternateText="Refresh" /> 
         &nbsp;&nbsp;&nbsp;&nbsp;
@@ -145,7 +145,7 @@
     </asp:Panel>  
 
 
-     <asp:Panel ID="uploadFromFilePanel" runat="server">
+     <asp:Panel ID="uploadFromFilePanel" runat="server" Visible="false">
         <script type="text/javascript">
                $(document).ready(function () {
                    gridviewScroll();
@@ -204,6 +204,6 @@
     </asp:Panel>
 
 
-
+     <csd:ClientSelectionControl ID="customerSelectionControl" runat="server" OnOnClientSelected="customerSelectionControl_OnClientSelected" />
 </asp:Content>
 

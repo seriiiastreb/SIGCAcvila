@@ -36,7 +36,7 @@ namespace Store
 
         #region Customers Products
 
-        public DataTable GetProductsList()
+        public DataTable GetProductsList(int client_id)
         {
             DataTable result = new DataTable();
             mLastError = string.Empty;
@@ -57,7 +57,7 @@ namespace Store
                       latime,
                       lungime                     
                     FROM 
-                      ProductDetails as PD ;  ";
+                      ProductDetails as PD WHERE client_id = " + client_id + " ;  ";
 
                 result = mDataBridge.ExecuteQuery(query);
                 mLastError = mDataBridge.LastError;
@@ -70,15 +70,15 @@ namespace Store
             return result;
         }
 
-        public bool AddProduct(int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, string short_description)
+        public bool AddProduct(int client_id, int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, string short_description)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
             bool result = false;
             try
             {
-                string nonQuery = @"INSERT INTO ProductDetails ( articol, desen, tip, colorit, latime, lungime, short_description) 
-                                    VALUES ( @articol, @desen, @tip, @colorit, @latime, @lungime, @short_description); ";
+                string nonQuery = @"INSERT INTO ProductDetails (client_id, articol, desen, tip, colorit, latime, lungime, short_description) 
+                                    VALUES (@client_id, @articol, @desen, @tip, @colorit, @latime, @lungime, @short_description); ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@articol", articol);
@@ -88,6 +88,7 @@ namespace Store
                 parameters.Add("@latime", latime);
                 parameters.Add("@lungime", lungime);
                 parameters.Add("@short_description", short_description);
+                parameters.Add("@client_id", client_id);
 
                 result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = mDataBridge.LastError;                                
@@ -100,7 +101,7 @@ namespace Store
             return result;
         }
 
-        public bool UpdateProduct(int product_id, int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, string short_description)
+        public bool UpdateProduct(int client_id, int product_id, int articol, int desen, int tip, int colorit, decimal latime, decimal lungime, string short_description)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
@@ -118,7 +119,7 @@ namespace Store
                               lungime = @lungime,
                               short_description = @short_description
                             WHERE 
-                              product_id = @product_id; ";
+                              product_id = @product_id AND client_id = @client_id ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@product_id", product_id);
@@ -129,6 +130,7 @@ namespace Store
                 parameters.Add("@latime", latime);
                 parameters.Add("@lungime", lungime);
                 parameters.Add("@short_description", short_description);
+                parameters.Add("@client_id", client_id);
 
                 result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = mDataBridge.LastError;
@@ -141,17 +143,18 @@ namespace Store
             return result;
         }
 
-        public bool DeleteProduct(int product_id)
+        public bool DeleteProduct(int client_id, int product_id)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
             bool result = false;
             try
             {
-                string nonQuery = @"DELETE FROM  ProductDetails  WHERE product_id = @product_id; ";
+                string nonQuery = @"DELETE FROM  ProductDetails  WHERE product_id = @product_id AND client_id = @client_id ";
 
                 Hashtable parameters = new Hashtable();
-                parameters.Add("@product_id", product_id);            
+                parameters.Add("@product_id", product_id);
+                parameters.Add("@client_id", client_id);       
 
                 result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = mDataBridge.LastError;

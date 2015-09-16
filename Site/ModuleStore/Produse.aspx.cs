@@ -14,6 +14,12 @@ public partial class Produse : System.Web.UI.Page
     bool allowView = false;
 
     string appPath = string.Empty;
+    DataObjects.Client ClientObject
+    {
+        get { return Session[Utils.SessionKey_ClientObject] != null ? (DataObjects.Client)Session[Utils.SessionKey_ClientObject] : new DataObjects.Client(); }
+        set { Session[Utils.SessionKey_ClientObject] = value; }
+    }
+
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -29,7 +35,19 @@ public partial class Produse : System.Web.UI.Page
                 if (!IsPostBack)
                 {
                     FillAllComboBox();
-                    ShowPanel(productsPanel.ID);
+
+                    Utils.GetMaster(this).ClearNavLinks();
+                    if (Request["act"] != null && !Request["act"].ToString().Equals(string.Empty))
+                    {
+                        string act = Request["act"].ToString();
+
+                        if (act.Equals("chooseclt"))
+                            customerSelectionControl.Show();
+                    }
+                    else
+                    {
+                        customerSelectionControl.Show();
+                    }           
                 }
                 else
                 {
@@ -83,7 +101,7 @@ public partial class Produse : System.Web.UI.Page
                                         int productID = 0;
                                         int.TryParse(productsListGridView.Rows[selectedIndexInProdusGrid].Cells[0].Text, out productID);
 
-                                        if (Utils.ModuleStore().DeleteProduct(productID))
+                                        if (Utils.ModuleStore().DeleteProduct(this.ClientObject.ClientID, productID))
                                         {
                                             FIllProductsGridView();
                                         }
@@ -142,9 +160,7 @@ public partial class Produse : System.Web.UI.Page
 
         fileSheetsDDL.SelectedValue = "Sheet1";
     }
-
-
-    
+        
     protected void FillAllComboBox()
     {
         DataTable articolList = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.Articol);
@@ -210,11 +226,11 @@ public partial class Produse : System.Web.UI.Page
 
                 if (isNewAction)
                 {
-                    resultAction = Utils.ModuleStore().AddProduct(articol, desen, tip, colorit, latime, lungime, short_description);
+                    resultAction = Utils.ModuleStore().AddProduct(this.ClientObject.ClientID, articol, desen, tip, colorit, latime, lungime, short_description);
                 }
                 else
                 {
-                    resultAction = Utils.ModuleStore().UpdateProduct(productID, articol, desen, tip, colorit, latime, lungime, short_description);
+                    resultAction = Utils.ModuleStore().UpdateProduct(this.ClientObject.ClientID, productID, articol, desen, tip, colorit, latime, lungime, short_description);
                 }
 
 
@@ -239,11 +255,10 @@ public partial class Produse : System.Web.UI.Page
     }
 
     #endregion new orders
-
-
+    
     protected void FIllProductsGridView()
     {
-        DataTable ordersList = Utils.ModuleStore().GetProductsList();
+        DataTable ordersList = Utils.ModuleStore().GetProductsList(this.ClientObject.ClientID);
         productsListGridView.DataSource = ordersList;
         productsListGridView.DataBind();
     }
@@ -394,7 +409,7 @@ public partial class Produse : System.Web.UI.Page
 
                     if (Utils.ModuleStore().DetectProduct(articolSTR, desenSTR, tipSTR, coloritSTR, latime, lungime) == 0)
                     {
-                        if (Utils.ModuleStore().AddProduct(articolInt, desenINT, tipInt, coloritINt, latime, lungime, short_description))
+                        if (Utils.ModuleStore().AddProduct(this.ClientObject.ClientID, articolInt, desenINT, tipInt, coloritINt, latime, lungime, short_description))
                         {
                             resultUploadLabel.Text = "OK.";
                         }
@@ -411,8 +426,20 @@ public partial class Produse : System.Web.UI.Page
             }
         }
     }
+    
     protected void uploadFromFileButton_Click(object sender, ImageClickEventArgs e)
     {
         ShowPanel(uploadFromFilePanel.ID);
+    }
+    
+    protected void customerSelectionControl_OnClientSelected(object sender, ClientSelectionControl.FilterWindowEventsArg e)
+    {
+        if (e.SelectedItem != 0)
+        {
+            DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(e.SelectedItem);
+            this.ClientObject = clientObject;
+            ShowPanel(productsPanel.ID);
+            Utils.GetMaster(this).AddNavlink("Vinzari pentru: " + clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleStore/Orders.aspx?act=chooseclt", Utils.Customer_HotNavogateKey);
+        }
     }
 }
