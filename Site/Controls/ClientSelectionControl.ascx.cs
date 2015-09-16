@@ -131,14 +131,14 @@ public partial class ClientSelectionControl : System.Web.UI.UserControl
         clientModalPopup.Show();
     }
 
-    protected void addNewClientButton_Click(object sender, EventArgs e)
-    {
-        clientModalPopup.Hide();
+    //protected void addNewClientButton_Click(object sender, EventArgs e)
+    //{
+    //    clientModalPopup.Hide();
 
-        FilterWindowEventsArg args = new FilterWindowEventsArg(0);
-        if (OnClientSelected != null)
-            OnClientSelected(this, args);
-    }
+    //    FilterWindowEventsArg args = new FilterWindowEventsArg(0);
+    //    if (OnClientSelected != null)
+    //        OnClientSelected(this, args);
+    //}
 
     protected void okButton_Click(object sender, EventArgs e)
     {

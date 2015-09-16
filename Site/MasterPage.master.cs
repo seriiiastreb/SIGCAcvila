@@ -234,7 +234,7 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
             {
                 for (int i = 0; i < shortNavLinksDT.Rows.Count; i++)
                 {
-                    result += " <li> <a id=\"" + shortNavLinksDT.Rows[i]["linkID"].ToString() + "\" href=\"" + (i < shortNavLinksDT.Rows.Count - 1 ? shortNavLinksDT.Rows[i]["linkURL"].ToString() : "#") + "\">" + shortNavLinksDT.Rows[i]["linkName"].ToString() + (i < shortNavLinksDT.Rows.Count - 1 ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//" : string.Empty) + "</a> </li>";
+                    result += " <li> <a id=\"" + shortNavLinksDT.Rows[i]["linkID"].ToString() + "\" href=\"" + shortNavLinksDT.Rows[i]["linkURL"].ToString()  + "\">" + shortNavLinksDT.Rows[i]["linkName"].ToString() + (i < shortNavLinksDT.Rows.Count - 1 ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//" : string.Empty) + "</a> </li>";
                 }
             }
         }

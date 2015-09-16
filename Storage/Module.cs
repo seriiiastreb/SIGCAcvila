@@ -188,14 +188,14 @@ namespace Store
         }
 
         #region Orders
-        public DataTable GetOrdersHistory()
+        public DataTable GetOrdersHistory(int client_id)
         {
             DataTable result = new DataTable();
             mLastError = string.Empty;
 
             try
             {
-                string wekssql = @"SELECT DISTINCT week FROM Orders order by week asc ";
+                string wekssql = @"SELECT DISTINCT week FROM Orders WHERE client_id = " + client_id + " order by week asc ";
                 DataTable weeksInOrders = mDataBridge.ExecuteQuery(wekssql);
 
                 if (weeksInOrders != null && weeksInOrders.Rows.Count > 0)
@@ -243,8 +243,8 @@ namespace Store
 
                     for (int i = 0; i < weeksInOrders.Rows.Count; i++)
                     {
-                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInOrders.Rows[i]["week"].ToString() + "' \r\n ";
-                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInOrders.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".client_id = " + client_id + " AND ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInOrders.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".client_id = " + client_id + " AND LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInOrders.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
                     result = mDataBridge.ExecuteQuery(query);
@@ -265,14 +265,14 @@ namespace Store
 
             try
             {
-                string wekssql = @"SELECT DISTINCT week FROM Stock WHERE week < '" + week + "' order by week asc ";
+                string wekssql = @"SELECT DISTINCT week FROM Stock WHERE client_id = " + clientID + " AND week < '" + week + "' order by week asc ";
                 DataTable weeksInStock = mDataBridge.ExecuteQuery(wekssql);
                 bool primaSaptamina = false;
                 if (weeksInStock != null && weeksInStock.Rows.Count == 0) { weeksInStock.Rows.Add("0000"); primaSaptamina = true; }
 
                 if (weeksInStock != null && weeksInStock.Rows.Count > 0)
                 {
-                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stock WHERE week <= '" + week + @"' )
+                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stock WHERE client_id = " + clientID + " AND week <= '" + week + @"' )
                                 , ProdDet as (SELECT 
                                 product_id
                                 , ClArt.Name as ""Articol"" 
@@ -317,13 +317,13 @@ namespace Store
 
                     for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
-                        query += " LEFT JOIN Stock as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += " LEFT JOIN Stock as ST" + i + " ON ST.client_id = " + clientID + " AND ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
                     for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
-                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
-                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".client_id = " + clientID + " AND ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".client_id = " + clientID + " AND LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
                     result = mDataBridge.ExecuteQuery(query);
@@ -346,14 +346,14 @@ namespace Store
         #region Stock
 
 
-        public DataTable GetStockList()
+        public DataTable GetStockList(int client_ID)
         {
             DataTable result = new DataTable();
             mLastError = string.Empty;
 
             try
             {
-                string distinctDays = " SELECT DISTINCT week FROM Stock order by week ASC";
+                string distinctDays = " SELECT DISTINCT week FROM Stock WHERE client_ID = " + client_ID + " order by week ASC";
                 DataTable weeksInStock = mDataBridge.ExecuteQuery(distinctDays);
                 mLastError = mDataBridge.LastError;
 
@@ -363,7 +363,7 @@ namespace Store
 
                 if (weeksInStock != null && weeksInStock.Rows.Count > 0)
                 {
-                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stock)
+                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stock WHERE client_ID = " + client_ID + @")
                                 , ProdDet as (SELECT 
                                 product_id
                                 , short_description            
@@ -393,13 +393,13 @@ namespace Store
 
                     for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
-                        query += " LEFT JOIN Stock as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += " LEFT JOIN Stock as ST" + i + " ON ST.client_ID = " + client_ID + " AND ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
                     for (int i = 0; i < weeksInStock.Rows.Count; i++)
                     {
-                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
-                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".client_ID = " + client_ID + " AND ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".client_ID = " + client_ID + " AND LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
                     result = mDataBridge.ExecuteQuery(query);
@@ -414,23 +414,24 @@ namespace Store
             return result;
         }
 
-        public bool UpdateStock(string week, int product_id, decimal quantity)
+        public bool UpdateStock(int client_id, string week, int product_id, decimal quantity)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
             bool result = false;
             try
             {
-                string nonQuery = @"UPDATE Stock  SET quantity = @quantity , product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id), kanban = (Select quantity FROM KanBan WHERE KanBan.product_id = @product_id) WHERE  product_id = @product_id AND week = @week 
+                string nonQuery = @"UPDATE Stock  SET quantity = @quantity , product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id), kanban = (Select quantity FROM KanBan WHERE KanBan.product_id = @product_id) WHERE client_id=@client_id AND product_id = @product_id AND week = @week 
 
-                                    INSERT INTO Stock(product_id, week, quantity, product_short_description, kanban)
-                                    SELECT @product_id, @week, @quantity , (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id), (Select quantity FROM KanBan WHERE KanBan.product_id = @product_id)
-                                    WHERE not exists (select 1 from Stock WHERE product_id = @product_id AND week = @week) ";
+                                    INSERT INTO Stock(client_id, product_id, week, quantity, product_short_description, kanban)
+                                    SELECT @client_id, @product_id, @week, @quantity , (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id), (Select quantity FROM KanBan WHERE KanBan.product_id = @product_id)
+                                    WHERE not exists (select 1 from Stock WHERE client_id=@client_id AND product_id = @product_id AND week = @week) ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@product_id", product_id);
                 parameters.Add("@week", week);
                 parameters.Add("@quantity", quantity);
+                parameters.Add("@client_id", client_id);
 
                 result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = mDataBridge.LastError;
@@ -443,23 +444,24 @@ namespace Store
             return result;
         }
 
-        public bool UpdateLivrari(string week, int product_id, decimal quantity)
+        public bool UpdateLivrari(int clinet_id, string week, int product_id, decimal quantity)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
             bool result = false;
             try
             {
-                string nonQuery = @"UPDATE Livrari  SET quantity = @quantity , product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id) WHERE  product_id = @product_id AND week = @week 
+                string nonQuery = @"UPDATE Livrari  SET quantity = @quantity , product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id) WHERE  client_id=@client_id AND product_id = @product_id AND week = @week 
 
-                                    INSERT INTO Livrari(product_id, week, quantity, product_short_description)
-                                    SELECT @product_id, @week, @quantity, (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id)
-                                    WHERE not exists (select 1 from Livrari WHERE product_id = @product_id AND week = @week) ";
+                                    INSERT INTO Livrari(clinet_id, product_id, week, quantity, product_short_description)
+                                    SELECT @clinet_id, @product_id, @week, @quantity, (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id)
+                                    WHERE not exists (select 1 from Livrari WHERE client_id=@client_id AND product_id = @product_id AND week = @week) ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@product_id", product_id);
                 parameters.Add("@week", week);
                 parameters.Add("@quantity", quantity);
+                parameters.Add("@client_id", clinet_id);
 
                 result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = mDataBridge.LastError;
@@ -472,23 +474,24 @@ namespace Store
             return result;
         }
 
-        public bool UpdateManualInWay(string week, int product_id, decimal quantity)
+        public bool UpdateManualInWay(int client_id, string week, int product_id, decimal quantity)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
             bool result = false;
             try
             {
-                string nonQuery = @"UPDATE InWay  SET quantity = @quantity, product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id) WHERE  product_id = @product_id AND week = @week 
+                string nonQuery = @"UPDATE InWay  SET quantity = @quantity, product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id) WHERE client_id=@client_id AND product_id = @product_id AND week = @week 
 
-                                    INSERT INTO InWay(product_id, week, quantity, product_short_description)
-                                    SELECT @product_id, @week, @quantity, (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id)
-                                    WHERE not exists (select 1 from InWay WHERE product_id = @product_id AND week = @week) ";
+                                    INSERT INTO InWay(client_id, product_id, week, quantity, product_short_description)
+                                    SELECT @client_id,  @product_id, @week, @quantity, (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id)
+                                    WHERE not exists (select 1 from InWay WHERE client_id=@client_id AND product_id = @product_id AND week = @week) ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@product_id", product_id);
                 parameters.Add("@week", week);
                 parameters.Add("@quantity", quantity);
+                parameters.Add("@client_id", client_id);
 
                 result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = mDataBridge.LastError;
@@ -501,7 +504,7 @@ namespace Store
             return result;
         }
 
-        public bool UpdateOrders(string week, DataTable productList)
+        public bool UpdateOrders(int client_id, string week, DataTable productList)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
@@ -516,10 +519,10 @@ namespace Store
 
                     for(int i=0; i< productList.Rows.Count; i++)
                     {
-                        nonQuery += "UPDATE Orders  SET quantity = @quantity" + i + " WHERE  product_id = @product_id" + i + " AND week = @week" + i + " \r\n ";
-                        nonQuery += " INSERT INTO Orders(product_id, week, quantity) \r\n ";
-                        nonQuery += " SELECT @product_id" + i + ", @week" + i + ", @quantity" + i + " \r\n ";
-                        nonQuery += " WHERE not exists (select 1 from Orders WHERE product_id = @product_id" + i + " AND week = @week" + i + ") \r\n ";
+                        nonQuery += "UPDATE Orders  SET quantity = @quantity" + i + " WHERE client_id = @client_id AND product_id = @product_id" + i + " AND week = @week" + i + " \r\n ";
+                        nonQuery += " INSERT INTO Orders(client_id, product_id, week, quantity) \r\n ";
+                        nonQuery += " SELECT @client_id, @product_id" + i + ", @week" + i + ", @quantity" + i + " \r\n ";
+                        nonQuery += " WHERE not exists (select 1 from Orders WHERE client_id = @client_id AND product_id = @product_id" + i + " AND week = @week" + i + ") \r\n ";
 
                         int product_id = (int)productList.Rows[i]["product_id"];
                         decimal cantitate = (decimal)productList.Rows[i]["cantitate"];
@@ -527,6 +530,7 @@ namespace Store
                         parameters.Add("@product_id" + i, product_id);
                         parameters.Add("@week" + i, week);
                         parameters.Add("@quantity" + i, cantitate);
+                        parameters.Add("@client_id", client_id);
                     }
 
                     result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
@@ -613,20 +617,20 @@ namespace Store
 
         #region Vinzari
 
-        public DataTable GetVinzariList()
+        public DataTable GetVinzariList(int client_id)
         {
             DataTable result = new DataTable();
             mLastError = string.Empty;
 
             try
             {
-                string distinctDays = " SELECT DISTINCT week FROM Vinzari ORDER BY week ASC";
+                string distinctDays = " SELECT DISTINCT week FROM Vinzari WHERE client_id = " + client_id + " ORDER BY week ASC";
                 DataTable weeks = mDataBridge.ExecuteQuery(distinctDays);
                 mLastError = mDataBridge.LastError;
 
                 if (weeks != null && weeks.Rows.Count > 0)
                 {
-                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Vinzari)
+                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Vinzari WHERE client_id = " + client_id + @")
                                 , ProdDet as (SELECT 
                                 product_id
                                 , ClArt.Name as ""Articol"" 
@@ -684,7 +688,7 @@ namespace Store
                     query += " LEFT JOIN Kanban ON Kanban.product_id = MainTBL.product_id ";
                     for (int i = 0; i < weeks.Rows.Count; i++)
                     {
-                        query += " LEFT JOIN Vinzari as ST" + i + " ON ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeks.Rows[i]["week"].ToString() + "' \r\n ";
+                        query += " LEFT JOIN Vinzari as ST" + i + " ON ST" + i + ".client_id = " + client_id + " AND ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeks.Rows[i]["week"].ToString() + "' \r\n ";
                     }
 
                     result = mDataBridge.ExecuteQuery(query);
@@ -699,23 +703,24 @@ namespace Store
             return result;
         }
 
-        public bool UpdateVinzari(string week, int product_id, decimal quantity)
+        public bool UpdateVinzari(int client_id, string week, int product_id, decimal quantity)
         {
             DateTime EmptyDate = DateTime.MinValue;
 
             bool result = false;
             try
             {
-                string nonQuery = @"UPDATE Vinzari  SET quantity = @quantity , product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id) WHERE  product_id = @product_id AND week = @week 
+                string nonQuery = @"UPDATE Vinzari  SET quantity = @quantity , product_short_description = (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id) WHERE client_id=@client_id AND product_id = @product_id AND week = @week 
 
-                                    INSERT INTO Vinzari(product_id, week, quantity, product_short_description)
-                                    SELECT @product_id, @week, @quantity, (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id)
-                                    WHERE not exists (select 1 from Vinzari WHERE product_id = @product_id AND week = @week) ";
+                                    INSERT INTO Vinzari(client_id, product_id, week, quantity, product_short_description)
+                                    SELECT @client_id, @product_id, @week, @quantity, (SELECT short_description FROM ProductDetails WHERE ProductDetails.product_id = @product_id)
+                                    WHERE not exists (select 1 from Vinzari WHERE client_id=@client_id AND product_id = @product_id AND week = @week) ";
 
                 Hashtable parameters = new Hashtable();
                 parameters.Add("@product_id", product_id);
                 parameters.Add("@week", week);
                 parameters.Add("@quantity", quantity);
+                parameters.Add("@client_id", client_id);
 
                 result = mDataBridge.ExecuteNonQuery(nonQuery, parameters); // PG compliant
                 mLastError = mDataBridge.LastError;

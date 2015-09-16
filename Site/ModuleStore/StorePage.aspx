@@ -1,5 +1,6 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="StorePage.aspx.cs" Inherits="StorePage" %>
 <%@ Register TagPrefix="ajax" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit"%>
+<%@ Register TagPrefix="csd" TagName="ClientSelectionControl" Src="~/Controls/ClientSelectionControl.ascx" %>
 
 
 <asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" Runat="Server">
@@ -28,12 +29,13 @@
             }
         </script> 
 
-        <h2>Stock &nbsp;&nbsp;
+        <h2>Stock:
+            &nbsp;&nbsp;&nbsp;&nbsp;
             <asp:ImageButton ID="refreshButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Refresh" ImageUrl="../images/refresh.png"  runat="server" OnClick="refreshButton_Click" AlternateText="Refresh" /> 
             &nbsp;&nbsp;&nbsp;&nbsp;
             <asp:ImageButton ID="uploadFromFileButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Upload From File" ImageUrl="../images/plus.png"  runat="server" OnClick="uploadFromFileButton_Click" AlternateText="Upload From File" />
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <asp:DropDownList ID="generateCommandWeekDDL" runat="server"></asp:DropDownList>
+            <asp:DropDownList ID="generateCommandWeekDDL" runat="server" Height="16px"></asp:DropDownList>
             &nbsp;
             <asp:ImageButton ID="createOrdersButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Crearea comenzii in format excel" ImageUrl="../images/cartinput.png"  runat="server" OnClick="createOrdersButton_Click" AlternateText="Crearea comenzii in format excel" />
         
@@ -45,7 +47,7 @@
         </asp:GridView>
     </asp:Panel>
 
-    <asp:Panel ID="uploadFromFilePanel" runat="server">
+    <asp:Panel ID="uploadFromFilePanel" runat="server" Visible="false">
         <script type="text/javascript">
             $(document).ready(function () {
                 gridviewScroll();
@@ -90,7 +92,7 @@
                         <ItemTemplate>
                             <asp:CheckBox runat="server" ID="rowCheckBox" />
                         </ItemTemplate>
-                    </asp:TemplateField>
+                    </asp:TemplateField> 
                     <asp:TemplateField HeaderText="Upload Status">
                         <ItemTemplate>
                             <asp:Label runat="server" ID="resultUploadLabel" Text=""></asp:Label>
@@ -106,6 +108,7 @@
     
     </asp:Panel>
 
-
+    
+    <csd:ClientSelectionControl ID="customerSelectionControl" runat="server" OnOnClientSelected="customerSelectionControl_OnClientSelected" />
 </asp:Content>
 

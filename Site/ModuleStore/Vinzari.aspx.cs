@@ -13,9 +13,16 @@ public partial class Vinzari : System.Web.UI.Page
 
     bool allowEdit = false;
     bool allowView = false;
-    
-    protected void Page_Load(object sender, EventArgs e)
+    string appPath = string.Empty;
+    DataObjects.Client ClientObject
     {
+        get { return Session[Utils.SessionKey_ClientObject] != null ? (DataObjects.Client)Session[Utils.SessionKey_ClientObject] : new DataObjects.Client(); }
+        set { Session[Utils.SessionKey_ClientObject] = value; }
+    }
+
+    protected void Page_Load(object sender, EventArgs e)
+    {        
+        appPath = Utils.GetApplicationPath(Request);    
         Utils.GetMaster(this).PerformPreloadActions(mCurrentModule, mPageName);
 
         allowEdit = Utils.PermissionAllowed(mCurrentModule, Store.Domains.WarehouseManagement.Name, Constants.Classifiers.Permissions_Edit);
@@ -27,7 +34,18 @@ public partial class Vinzari : System.Web.UI.Page
             {
                 if (!IsPostBack)
                 {
-                    ShowPanel(vinzariListPanel.ID);
+                    Utils.GetMaster(this).ClearNavLinks();
+                    if (Request["act"] != null && !Request["act"].ToString().Equals(string.Empty))
+                    {
+                        string act = Request["act"].ToString();
+
+                        if (act.Equals("chooseclt"))
+                            customerSelectionControl.Show();  
+                    }
+                    else
+                    {
+                        customerSelectionControl.Show();
+                    }            
                 }      
             }
             else
@@ -77,7 +95,7 @@ public partial class Vinzari : System.Web.UI.Page
 
     protected void FillVinzariGridView()
     {
-        DataTable dt = Utils.ModuleStore().GetVinzariList();
+        DataTable dt = Utils.ModuleStore().GetVinzariList(this.ClientObject.ClientID);
         vinzariListGridView.DataSource = dt;
         vinzariListGridView.DataBind();
     }
@@ -109,6 +127,8 @@ public partial class Vinzari : System.Web.UI.Page
     {
         if (uploadFileGridView.Rows.Count > 0)
         {
+            int client_id = this.ClientObject.ClientID;
+
             for (int i = 0; i < uploadFileGridView.Rows.Count; i++)
             {
                 CheckBox rowCheckBox = (CheckBox)uploadFileGridView.Rows[i].Cells[0].FindControl("rowCheckBox");
@@ -133,7 +153,7 @@ public partial class Vinzari : System.Web.UI.Page
                         {
                             if (cantitate >= 0)
                             {
-                                if (Utils.ModuleStore().UpdateVinzari(week, productID, cantitate))
+                                if (Utils.ModuleStore().UpdateVinzari(client_id, week, productID, cantitate))
                                 {
                                     resultUploadLabel.Text = "OK.";
                                 }
@@ -169,5 +189,16 @@ public partial class Vinzari : System.Web.UI.Page
     protected void refreshButton_Click(object sender, ImageClickEventArgs e)
     {
         ShowPanel(vinzariListPanel.ID);
+    }
+
+    protected void customerSelectionControl_OnClientSelected(object sender, ClientSelectionControl.FilterWindowEventsArg e)
+    {
+        if (e.SelectedItem != 0)
+        {
+            DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(e.SelectedItem);
+            this.ClientObject = clientObject;
+            ShowPanel(vinzariListPanel.ID);
+            Utils.GetMaster(this).AddNavlink("Vinzari pentru: " + clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleStore/Vinzari.aspx?act=chooseclt", Utils.Customer_HotNavogateKey);
+        }
     }
 }

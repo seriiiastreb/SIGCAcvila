@@ -15,9 +15,17 @@ public partial class StorePage : System.Web.UI.Page
 
     bool allowEdit = false;
     bool allowView = false;
+    string appPath = string.Empty;
+
+    DataObjects.Client ClientObject
+    {
+        get { return Session[Utils.SessionKey_ClientObject] != null ? (DataObjects.Client)Session[Utils.SessionKey_ClientObject] : new DataObjects.Client(); }
+        set { Session[Utils.SessionKey_ClientObject] = value; }
+    }
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        appPath = Utils.GetApplicationPath(Request);    
         Utils.GetMaster(this).PerformPreloadActions(mCurrentModule, mPageName);
 
         allowEdit = Utils.PermissionAllowed(mCurrentModule, Store.Domains.WarehouseManagement.Name, Constants.Classifiers.Permissions_Edit);
@@ -29,8 +37,20 @@ public partial class StorePage : System.Web.UI.Page
             {
                 if (!IsPostBack)
                 {
+                    Utils.GetMaster(this).ClearNavLinks();
                     FillSheetsDDL();
-                    ShowPanel(StockListPanel.ID);
+
+                    if (Request["act"] != null && !Request["act"].ToString().Equals(string.Empty))
+                    {
+                        string act = Request["act"].ToString();
+
+                        if (act.Equals("chooseclt"))
+                            customerSelectionControl.Show();
+                    }
+                    else
+                    {
+                        customerSelectionControl.Show();
+                    }        
                 }
             }
             else
@@ -47,7 +67,6 @@ public partial class StorePage : System.Web.UI.Page
     {
         StockListPanel.Visible = false;
         uploadFromFilePanel.Visible = false;
-
 
         switch (panelID)
         {
@@ -91,7 +110,7 @@ public partial class StorePage : System.Web.UI.Page
 
     protected void FillStockGridView()
     {
-        DataTable dt = Utils.ModuleStore().GetStockList();
+        DataTable dt = Utils.ModuleStore().GetStockList(this.ClientObject.ClientID);
         StockListGridView.DataSource = dt;
         StockListGridView.DataBind();
     }
@@ -124,6 +143,7 @@ public partial class StorePage : System.Web.UI.Page
         if (uploadFileGridView.Rows.Count > 0)
         {
             string destinationUpload = destinationDDL.SelectedValue;
+            int client_id = this.ClientObject.ClientID;
 
             for (int i = 0; i < uploadFileGridView.Rows.Count; i++)
             {
@@ -154,11 +174,11 @@ public partial class StorePage : System.Web.UI.Page
                                 switch (destinationUpload)
                                 {
                                     case "Stock":
-                                        resultUpload = Utils.ModuleStore().UpdateStock(week, productID, cantitate);                                        
+                                        resultUpload = Utils.ModuleStore().UpdateStock(client_id, week, productID, cantitate);                                        
                                         break;
 
                                     case "Livrari":
-                                        resultUpload = Utils.ModuleStore().UpdateLivrari(week, productID, cantitate);     
+                                        resultUpload = Utils.ModuleStore().UpdateLivrari(client_id, week, productID, cantitate);     
                                         break;
 
                                     case "Kanban":
@@ -166,7 +186,7 @@ public partial class StorePage : System.Web.UI.Page
                                         break;
 
                                     case "In Way":
-                                        resultUpload = Utils.ModuleStore().UpdateManualInWay(week, productID, cantitate);                                          
+                                        resultUpload = Utils.ModuleStore().UpdateManualInWay(client_id, week, productID, cantitate);                                          
                                         break;
                                 }
 
@@ -215,7 +235,9 @@ public partial class StorePage : System.Web.UI.Page
 
         if (!string.IsNullOrEmpty(selectedWeek))
         {
-            DataTable comanda = Utils.ModuleStore().CreateNewOrder(0, selectedWeek);
+            int client_id = this.ClientObject.ClientID;
+
+            DataTable comanda = Utils.ModuleStore().CreateNewOrder(client_id, selectedWeek);
 
             if (comanda != null && comanda.Rows.Count > 0)
             {
@@ -231,7 +253,7 @@ public partial class StorePage : System.Web.UI.Page
                     decimal cantitate = kanban / 2 - StockInSelectedWeek - InWay;
                     comanda.Rows[i]["cantitate"] = cantitate > 0 ? Math.Ceiling(cantitate) : 0;                                     
                 }
-                Utils.ModuleStore().UpdateOrders(selectedWeek, comanda);  
+                Utils.ModuleStore().UpdateOrders(client_id, selectedWeek, comanda);  
 
                 for (int i = 0; i < comanda.Columns.Count; i++)
                 {
@@ -277,5 +299,15 @@ public partial class StorePage : System.Web.UI.Page
                 if (((double)cantitatea) > (kanban * 0.7)) { e.Row.Cells[i].BackColor = System.Drawing.Color.Green; }
             }
         }
+    }
+    protected void customerSelectionControl_OnClientSelected(object sender, ClientSelectionControl.FilterWindowEventsArg e)
+    {
+        if (e.SelectedItem != 0)
+        {
+            DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(e.SelectedItem);
+            this.ClientObject = clientObject;
+            ShowPanel(StockListPanel.ID);
+            Utils.GetMaster(this).AddNavlink("Vinzari pentru: " + clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleStore/StorePage.aspx?act=chooseclt", Utils.Customer_HotNavogateKey);
+        }        
     }
 }
