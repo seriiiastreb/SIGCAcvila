@@ -56,7 +56,7 @@
        });
 
        $(function () {
-           $("#productsDIV").mousedown(function (e) {
+           $("#<%= productsPanel.ClientID %>").mousedown(function (e) {
                if (e.which == 3) {
                    $(".context-menu-products").contextMenu({ x: e.pageX, y: e.pageY });
                }
