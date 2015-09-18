@@ -18,6 +18,7 @@
     </ajax:ModalPopupExtender>   
 
     <asp:Panel runat="server" ID="newClientPanel" CssClass="grid_5 box" style="display:none; width: auto; border:1px solid #000;">
+        <asp:HiddenField ID="clientPurposeHiddenField" runat="server" />
         <h2 style="cursor:move;" runat="server" id="newClientHeader">New Client  <asp:Image ID="users_CancelButton" runat="server" ImageUrl="~/images/dialog_close.png"  Width="23px" Height="23px" style="float:right; cursor:default; margin-top: -5px;"/></h2>
         <fieldset>	
             <p>
@@ -72,7 +73,7 @@
                 </p>
             </asp:Panel>
 
-                <asp:Panel ID="newCleint_juridPersonPanel" runat="server" Visible="true">
+            <asp:Panel ID="newCleint_juridPersonPanel" runat="server" Visible="true">
                 <p>
                     <label>Full Name:</label>
                     <asp:TextBox runat="server" ID="newClient_juridFullNameTextBox" ></asp:TextBox>
@@ -117,6 +118,7 @@
 
     <asp:Panel ID="clientWorkPanel" Visible="false" runat="server">
         <ajax:TabContainer ID="detailsClientTabContainer"  runat="server" cssclass="ajax__myTab"  ActiveTabIndex="0" >  
+
             <ajax:TabPanel ID="generalInfoTabPanel" runat="server">                
                 <HeaderTemplate>&nbsp; General Info&nbsp; </HeaderTemplate>                	
                 <ContentTemplate>
@@ -291,7 +293,7 @@
                 </ContentTemplate>
             </ajax:TabPanel>
 
-        <ajax:TabPanel ID="contractsTabPanel" runat="server">                
+            <ajax:TabPanel ID="contractsTabPanel" runat="server">                
                 <HeaderTemplate>&nbsp; Client contracts&nbsp; </HeaderTemplate>                	
                 <ContentTemplate>
                     
@@ -420,7 +422,89 @@
                 </ContentTemplate>
             </ajax:TabPanel>
             
+            <ajax:TabPanel ID="subclientiTabPanel" runat="server">                
+                <HeaderTemplate>&nbsp; Subclienti&nbsp; </HeaderTemplate>                	
+                <ContentTemplate>
+                    
+                    <script language="javascript" type="text/javascript">
+                        $(function () {
+                            $.contextMenu({
+                                selector: '.context-menu-clientcontracts',
+                                trigger: 'none',
+                                callback: function (key, options) {
+                                    if (key == "delete") {
+                                        if (confirm("Are you sure you want to delete?")) {
+                                            doPost("clientContractsGridClik", key);
+                                        }
+                                    }
+                                    else {
+                                        doPost("clientContractsGridClik", key);
+                                    }
+                                },
+                                items: {
+                                    "add": { name: "Add", icon: "add", className: 'resetMarginLeft' },
+                                    "edit": { name: "Edit", icon: "edit", className: 'resetMarginLeft' },                                   
+                                    "delete": { name: "Delete", icon: "delete", className: 'resetMarginLeft' }
+                                }
+                            });
+                        });
 
+
+                        $(function () {
+                            $("[id*=<%= clientContractsGridView.ClientID %>] td").mousedown(function (e) {
+
+                                var selectedRowIndex = $(this).parent().index();
+                                var hiddField = document.getElementById('<%= clientContracts_SelectedIndex_HiddenValue.ClientID %>');
+                                hiddField.value = selectedRowIndex;
+
+                                var gridID = '<%= clientContractsGridView.ClientID %>';
+                                ResetGridSelection(gridID);
+
+                                $(this).closest("tr").removeClass('odd');
+                                $(this).closest("tr").toggleClass("selectedRow");
+
+                                if (e.which == 3) //1: left, 2: middle, 3: right
+                                {
+                                    $(".context-menu-clientcontracts").contextMenu({ x: e.pageX, y: e.pageY });
+                                }
+                            });
+                        });
+
+                        $(function () {
+                            $("#<%= contractsTabPanel.ClientID %>").mousedown(function (e) {
+                                if (e.which == 3) {
+                                    $(".context-menu-clientcontracts").contextMenu({ x: e.pageX, y: e.pageY });
+                                }
+                            });
+                        });                           
+                    </script>
+                    
+                    <div class="box grid_8 context-menu-subclient" style="min-height:200px; width:450px;">
+                        <h2> Lista Subclientilor: <asp:ImageButton ID="addSubClientButton" BorderWidth="0px" 
+                                    ImageAlign="AbsMiddle" Width="16px" ToolTip="Add new subclient" 
+                                    ImageUrl="../images/plus.png"  runat="server" AlternateText="Add new subclient" 
+                                    onclick="addSubClientButton_Click" /></h2>
+                        <asp:HiddenField ID="subcliet_SelectedIndex_HiddenValue" runat="server" />
+
+                        <asp:GridView ID="subclientiGridView" runat="server"
+                            AutoGenerateColumns="false"
+                            AlternatingRowStyle-CssClass="odd"
+                            OnRowCreated="subclientiGridView_RowCreated"
+                            AllowPaging="false"  
+                            SelectedRowStyle-CssClass = "selectedRow">
+                            <Columns>
+                                <asp:BoundField DataField="client_id" HeaderText="client_id"  HeaderStyle-CssClass="hidden"  ItemStyle-CssClass="hidden" />
+                                <asp:BoundField DataField="contract_id" HeaderText="contract_id"  HeaderStyle-CssClass="hidden"  ItemStyle-CssClass="hidden" />                              
+                            </Columns>
+                        </asp:GridView>
+                    </div>
+
+                  
+                    
+
+
+                </ContentTemplate>
+            </ajax:TabPanel>
         </ajax:TabContainer>
 
     </asp:Panel>

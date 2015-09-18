@@ -152,12 +152,12 @@ public partial class Customers : System.Web.UI.Page
 
             ShowPanel(clientWorkPanel.ID);
 
-            Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + e.SelectedItem, Utils.Customer_HotNavogateKey);
-
+            Utils.GetMaster(this).AddNavlink(clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleCustomers/Customers.aspx?clid=" + e.SelectedItem, Utils.Customer_HotNavogateKey);        
         }
         else
         {
             ClearNewClientForm((int)Constants.Classifiers.ClientType_PersoanaJuridica);
+            clientPurposeHiddenField.Value = "Client";
             newClientPopupExtender.Show();
         }
     }
@@ -303,6 +303,7 @@ public partial class Customers : System.Web.UI.Page
     {
         newCleint_simplePersonPanel.Visible = false;
         newCleint_juridPersonPanel.Visible = false;
+        clientPurposeHiddenField.Value = string.Empty;
 
         if (gender == (int)Constants.Classifiers.ClientType_PersoanaFizica)
         {
@@ -377,6 +378,8 @@ public partial class Customers : System.Web.UI.Page
                 newClientObject.TelefonMobil = newClient_juridTelefonMobilTextBox.Text.Trim();
                 newClientObject.Email = newClient_juridEmailTextBox.Text.Trim();
             }
+
+            if ("SubClient")
 
             if (Utils.ModuleCustomers().AddNewClient(ref newClientObject))
             {
@@ -795,5 +798,11 @@ public partial class Customers : System.Web.UI.Page
     protected void newOrderButton_Click(object sender, ImageClickEventArgs e)
     {
         Response.Redirect(appPath + "/ModuleCustomers/Orders.aspx?ord=n");        
+    }
+    protected void addSubClientButton_Click(object sender, ImageClickEventArgs e)
+    {
+        ClearNewClientForm((int)Constants.Classifiers.ClientType_PersoanaJuridica);
+        clientPurposeHiddenField.Value = "SubClient";
+        newClientPopupExtender.Show();
     }
 }

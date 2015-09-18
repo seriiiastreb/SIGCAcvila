@@ -151,8 +151,8 @@ namespace Client
 
             return result;
         }
-              
-        public DataTable GetClientList(int category, List<int> genderList)
+
+        public DataTable GetClientList(int category, List<int> genderList, int parentClientID)
         {
             DataTable result = new DataTable();
             mLastError = string.Empty;
@@ -172,6 +172,7 @@ namespace Client
 
                             + " FROM CLIENT \r\n "
                             + " WHERE gender in (" + genderListSTR + ") "
+                            + " AND parentClientID = " + parentClientID
                             + (category != 0 ? " AND sortGroup = " + category : string.Empty)
                             + " Order BY FirstName, LastName ";
 

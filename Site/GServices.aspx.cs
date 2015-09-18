@@ -31,7 +31,7 @@ public partial class GServices : System.Web.UI.Page
 
 
     [System.Web.Services.WebMethod]
-    public static string GetCustomersListAsHTMLTable(int category, bool juridicPerson, string additionalGridID)
+    public static string GetCustomersListAsHTMLTable(int parentClientID, int category, bool juridicPerson, string additionalGridID)
     {
         string result = String.Empty;
 
@@ -49,7 +49,7 @@ public partial class GServices : System.Web.UI.Page
                 genderList.Add((int)Constants.Classifiers.ClientType_PersoanaFizica);
             }
 
-            DataTable clientdt = Utils.ModuleCustomers().GetClientList(category, genderList);
+            DataTable clientdt = Utils.ModuleCustomers().GetClientList(category, genderList, parentClientID);
 
             if (clientdt != null && clientdt.Rows.Count > 0)
             {

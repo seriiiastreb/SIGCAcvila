@@ -48,7 +48,7 @@
         <div style="text-align:center;">        
             <asp:HiddenField ID="selectedClientIDHiddenField" runat="server" />   
             <asp:Button ID="okButton" runat="server" Text="Ok" onclick="okButton_Click" Width="100px" CausesValidation="false" />
-<%--            <asp:Button ID="addNewClientButton" runat="server" Text="Add new client" Width="100px" CausesValidation="false" OnClick="addNewClientButton_Click" />--%>
+            <asp:Button ID="addNewClientButton" runat="server" Text="Add new client" Width="100px" CausesValidation="false" OnClick="addNewClientButton_Click" />
         </div>
     </fieldset>  
 </asp:Panel>

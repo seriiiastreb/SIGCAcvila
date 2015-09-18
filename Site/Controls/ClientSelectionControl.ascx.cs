@@ -69,33 +69,33 @@ public partial class ClientSelectionControl : System.Web.UI.UserControl
     {
         if (Utils.AutentificatedUser)
         {
-            if (!Page.ClientScript.IsClientScriptBlockRegistered(typeof(Page), "ClientSelecttionControlScript"))
-            {
-                StringBuilder cstext2 = new StringBuilder();
-                cstext2.Append("<script type=text/javascript> \r\n ");
-                cstext2.Append("function GetCustomersList(varcategory) { \r\n ");
-                cstext2.Append("    var varjuridicPerson = document.getElementById('" + juridicPersonRadio.ClientID + "').checked;    \r\n \r\n ");
-                cstext2.Append("    var params = { category: varcategory, juridicPerson: varjuridicPerson, additionalGridID : '" + this.ClientID + "'}; \r\n ");
-                cstext2.Append("             $.ajax({ \r\n ");
-                cstext2.Append("                type: \"POST\", \r\n ");
-                cstext2.Append("                url: \"" + appPath + "/GServices.aspx/GetCustomersListAsHTMLTable\", \r\n ");
-                cstext2.Append("                data: JSON.stringify(params) , \r\n ");
-                cstext2.Append("                contentType: \"application/json; charset=utf-8\", \r\n ");
-                cstext2.Append("                dataType: \"json\", \r\n ");
-                cstext2.Append("                success: OnSuccess, \r\n ");
-                cstext2.Append("                failure: function (response) {    } \r\n ");
-                cstext2.Append("            }); \r\n ");
-                cstext2.Append("        } \r\n\r\n\r\n ");
-                cstext2.Append("       function OnSuccess(response) { \r\n ");
-                cstext2.Append("           var resp = response.d; \r\n ");
-                cstext2.Append("           var divelement = document.getElementById('" + customersDiv .ClientID + "'); \r\n ");
-                cstext2.Append("           divelement.innerHTML = resp;  \r\n ");
-                cstext2.Append("           document.getElementById('" + txtSearch.ClientID + "').value = ''; \r\n ");
-                cstext2.Append("           document.getElementById('" + selectedClientIDHiddenField.ClientID + "').value = ''; \r\n ");
-                cstext2.Append("       }\r\n\r\n");
-                cstext2.Append("</script>  \r\n ");
-                Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "ClientSelecttionControlScript", cstext2.ToString(), false);
-            }
+            //if (!Page.ClientScript.IsClientScriptBlockRegistered(typeof(Page), "ClientSelecttionControlScript"))
+            //{
+            //    StringBuilder cstext2 = new StringBuilder();
+            //    cstext2.Append("<script type=text/javascript> \r\n ");
+            //    cstext2.Append("function GetCustomersList(varcategory) { \r\n ");
+            //    cstext2.Append("    var varjuridicPerson = document.getElementById('" + juridicPersonRadio.ClientID + "').checked;    \r\n \r\n ");
+            //    cstext2.Append("    var params = { category: varcategory, juridicPerson: varjuridicPerson, additionalGridID : '" + this.ClientID + "'}; \r\n ");
+            //    cstext2.Append("             $.ajax({ \r\n ");
+            //    cstext2.Append("                type: \"POST\", \r\n ");
+            //    cstext2.Append("                url: \"" + appPath + "/GServices.aspx/GetCustomersListAsHTMLTable\", \r\n ");
+            //    cstext2.Append("                data: JSON.stringify(params) , \r\n ");
+            //    cstext2.Append("                contentType: \"application/json; charset=utf-8\", \r\n ");
+            //    cstext2.Append("                dataType: \"json\", \r\n ");
+            //    cstext2.Append("                success: OnSuccess, \r\n ");
+            //    cstext2.Append("                failure: function (response) {    } \r\n ");
+            //    cstext2.Append("            }); \r\n ");
+            //    cstext2.Append("        } \r\n\r\n\r\n ");
+            //    cstext2.Append("       function OnSuccess(response) { \r\n ");
+            //    cstext2.Append("           var resp = response.d; \r\n ");
+            //    cstext2.Append("           var divelement = document.getElementById('" + customersDiv .ClientID + "'); \r\n ");
+            //    cstext2.Append("           divelement.innerHTML = resp;  \r\n ");
+            //    cstext2.Append("           document.getElementById('" + txtSearch.ClientID + "').value = ''; \r\n ");
+            //    cstext2.Append("           document.getElementById('" + selectedClientIDHiddenField.ClientID + "').value = ''; \r\n ");
+            //    cstext2.Append("       }\r\n\r\n");
+            //    cstext2.Append("</script>  \r\n ");
+            //    Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "ClientSelecttionControlScript", cstext2.ToString(), false);
+            //}
 
             if (!Page.ClientScript.IsClientScriptBlockRegistered(typeof(Page), "clickGrid"))
             {
@@ -131,14 +131,14 @@ public partial class ClientSelectionControl : System.Web.UI.UserControl
         clientModalPopup.Show();
     }
 
-    //protected void addNewClientButton_Click(object sender, EventArgs e)
-    //{
-    //    clientModalPopup.Hide();
+    protected void addNewClientButton_Click(object sender, EventArgs e)
+    {
+        clientModalPopup.Hide();
 
-    //    FilterWindowEventsArg args = new FilterWindowEventsArg(0);
-    //    if (OnClientSelected != null)
-    //        OnClientSelected(this, args);
-    //}
+        FilterWindowEventsArg args = new FilterWindowEventsArg(0);
+        if (OnClientSelected != null)
+            OnClientSelected(this, args);
+    }
 
     protected void okButton_Click(object sender, EventArgs e)
     {

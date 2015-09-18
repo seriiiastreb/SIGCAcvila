@@ -26,6 +26,37 @@
     <script src="../scripts/gridviewScroll.min.js"  type="text/javascript"></script>
     <script src="../scripts/helper.js" type="text/javascript"></script>
 
+
+    <script language="javascript" type="text/javascript">
+
+        function GetCustomersList(varcategory) {
+            var varjuridicPerson = document.getElementById('ctl00_MainPlaceHolder_customerSelectionControl_juridicPersonRadio').checked;
+
+            var params = { category: varcategory, juridicPerson: varjuridicPerson, additionalGridID: 'ctl00_MainPlaceHolder_customerSelectionControl' };
+            $.ajax({
+                type: "POST",
+                url: "/GServices.aspx/GetCustomersListAsHTMLTable",
+                data: JSON.stringify(params),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: OnSuccess,
+                failure: function (response) { }
+            });
+        }
+
+
+        function OnSuccess(response) {
+            var resp = response.d;
+            var divelement = document.getElementById('ctl00_MainPlaceHolder_customerSelectionControl_customersDiv');
+            divelement.innerHTML = resp;
+            document.getElementById('ctl00_MainPlaceHolder_customerSelectionControl_txtSearch').value = '';
+            document.getElementById('ctl00_MainPlaceHolder_customerSelectionControl_selectedClientIDHiddenField').value = '';
+        }
+
+
+
+    </script>
+
     <asp:ContentPlaceHolder id="headPlaceHolder" runat="server">
     </asp:ContentPlaceHolder>
 </head>
