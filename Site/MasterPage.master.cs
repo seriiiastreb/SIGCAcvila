@@ -29,9 +29,40 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        
-    }
+        newClientSimple_BirthDateCalendarExtender.Format = Constants.ISODateBackwardDotsFormat;
 
+        if (Utils.AutentificatedUser)
+        {
+            if (!IsPostBack)
+            {
+                DataTable gendersList = Security.MainModule.GetClassifierByTypeID((int)Constants.ClassifierTypes.ClientType_Juridic_Fizic);
+                Utils.FillSelector(newClientGenderListDDL, gendersList, "Name", "Code");
+            }
+
+            if (Session["currentSelectedClientObject"] != null)
+            {
+                DataObjects.Client clientObject = (DataObjects.Client)Session["currentSelectedClientObject"];
+                if (clientObject != null)
+                {
+                    clientSelectionLink.Text = "Client: " + clientObject.FirstName + " " + clientObject.LastName;
+                }
+
+                ClearNavLinks();
+                List<DataObjects.Client> subClientsList = Utils.ModuleCustomers().GetSubclientsObjectsList(clientObject.ClientID);
+
+                AddNavlink(clientObject.FirstName + " " + clientObject.LastName, Request.Path + "?clt=" + clientObject.ClientID, clientObject.ClientID.ToString());
+
+                if (subClientsList != null && subClientsList.Count > 0)
+                {
+                    for (int i = 0; i < subClientsList.Count; i++)
+                    {
+                        AddNavlink(subClientsList[i].FirstName + " " + subClientsList[i].LastName, Request.Path + "?clt=" + subClientsList[i].ClientID, subClientsList[i].ClientID.ToString());
+                    }
+                }
+            }
+        }
+    }
+       
     void IMasterItems.PerformPreloadActions(string currentModuleId, string pageName)
     {   
         bool isAutentificatedUser = Utils.AutentificatedUser;
@@ -88,6 +119,7 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
 
 
             emailBoxButton.Visible = true;
+            clientSelectionLink.Visible = true;
 
             #endregion Create Menu
         }
@@ -111,6 +143,7 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
 
             #endregion CLEAR ALL MENIU
 
+            clientSelectionLink.Visible = false;
 
             FormsAuthentication.RedirectToLoginPage(Utils.GetQueryString(this.Page.Request, this.Page));
             Response.End();
@@ -118,32 +151,12 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
 
     }
 
-    bool IMasterItems.IsEmptyNavLinks
-    {
-        get
-        {
-            bool isEmpty = true;
-
-            if (Session["NavLinks"] != null)
-            {
-                DataTable navDT = (DataTable)Session["NavLinks"];
-
-                if (navDT != null && navDT.Rows.Count > 0)
-                {
-                    isEmpty = false; ;
-                }
-            }
-
-            return isEmpty;
-        }
-    }
-
-    void IMasterItems.ClearNavLinks()
+    private void ClearNavLinks()
     {
         Session["NavLinks"] = null;
     }
 
-    void IMasterItems.AddNavlink(string linkName, string linkURL, string linkID)
+    private void AddNavlink(string linkName, string linkURL, string linkID)
     {
         #region Check Autentifications
 
@@ -218,6 +231,8 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
         
         if (Utils.AutentificatedUser)
         {
+            DataObjects.Client currentClient = Utils.SelectedClient; 
+
             if (Session["NavLinks"] == null)
             {
                 DataTable navLinksDT = new DataTable();
@@ -234,7 +249,8 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
             {
                 for (int i = 0; i < shortNavLinksDT.Rows.Count; i++)
                 {
-                    result += " <li> <a id=\"" + shortNavLinksDT.Rows[i]["linkID"].ToString() + "\" href=\"" + shortNavLinksDT.Rows[i]["linkURL"].ToString()  + "\">" + shortNavLinksDT.Rows[i]["linkName"].ToString() + (i < shortNavLinksDT.Rows.Count - 1 ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//" : string.Empty) + "</a> </li>";
+                    string backGriound = currentClient.ClientID.ToString().Equals(shortNavLinksDT.Rows[i]["linkID"].ToString()) ? "style='background-color: darkgrey;'" : string.Empty;
+                    result += " <li> <a id=\"" + shortNavLinksDT.Rows[i]["linkID"].ToString() + "\" href=\"" + shortNavLinksDT.Rows[i]["linkURL"].ToString() + "\" " + backGriound + ">" + shortNavLinksDT.Rows[i]["linkName"].ToString() + (i < shortNavLinksDT.Rows.Count - 1 ? "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//" : string.Empty) + "</a> </li>";
                 }
             }
         }
@@ -247,5 +263,179 @@ public partial class MasterPage : System.Web.UI.MasterPage, IMasterItems
 
         return result;
     }
+
+    protected void clientSelectionLink_Click(object sender, EventArgs e)
+    {
+        clientModalPopup.Show();
+        ScriptManager.RegisterStartupScript(programmaticPopup, typeof(string), "GetCustomersList", "GetCustomersList(0);", true);
+
+        txtSearch.Attributes["onkeyup"] = "Search('" + txtSearch.ClientID + "', '" + this.ClientID + "customersList');";
+        customersDiv.Attributes["onscroll"] = "SetDivPosition('" + customersDiv.ClientID + "');";
+
+        txtSearch.Value = txtSearch.Value;
+        ScriptManager.RegisterStartupScript(programmaticPopup, typeof(string), "Search", "Search('" + txtSearch.ClientID + "', '" + this.ClientID + "customersList');", true);
+        ScriptManager.RegisterStartupScript(programmaticPopup, typeof(string), "Scroll", "SetLastScrollPosition('" + customersDiv.ClientID + "');", true);
+    }
     
+    void IMasterItems.AddSubClientForm()
+    {
+        ClearNewClientForm((int)Constants.Classifiers.ClientType_PersoanaJuridica);
+        clientPurposeHiddenField.Value = "SubClient";
+        newClientPopupExtender.Show();
+    }
+
+    protected void okButton_Click(object sender, EventArgs e)
+    {
+        int selectedCelinID = 0;
+        int.TryParse(selectedClientIDHiddenField.Value, out selectedCelinID);
+
+        DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(selectedCelinID);
+
+        clientSelectionLink.Text = "Client: " + clientObject.FirstName + " " + clientObject.LastName;
+
+        Session["currentSelectedClientObject"] = clientObject;
+
+        ClearNavLinks();
+        List<DataObjects.Client> subClientsList = Utils.ModuleCustomers().GetSubclientsObjectsList(selectedCelinID);
+
+        AddNavlink(clientObject.FirstName + " " + clientObject.LastName, Request.RawUrl + "?clt=" + selectedCelinID, Request.RawUrl);
+
+        if (subClientsList != null && subClientsList.Count > 0)
+        {
+            for (int i = 0; i < subClientsList.Count; i++)
+            {
+                AddNavlink(subClientsList[i].FirstName + " " + subClientsList[i].LastName, Request.RawUrl + "?clt=" + subClientsList[i].ClientID, Request.RawUrl);
+            }
+        }
+
+
+        //Utils.GetMaster(this).AddNavlink("Vinzari pentru: " + clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleStore/Orders.aspx?act=chooseclt", Utils.Customer_HotNavogateKey);
+    }
+
+    protected void cancelButton_Click(object sender, EventArgs e)
+    {
+        clientModalPopup.Hide();
+        DataObjects.Client clientObject = (DataObjects.Client)Session["currentSelectedClientObject"];
+        selectedClientIDHiddenField.Value = clientObject != null ? clientObject.ClientID.ToString() : "";
+    }
+    
+    protected void addNewClientButton_Click(object sender, EventArgs e)
+    {
+        ClearNewClientForm((int)Constants.Classifiers.ClientType_PersoanaJuridica);
+        clientPurposeHiddenField.Value = string.Empty;
+        newClientPopupExtender.Show();
+    }
+    
+    protected void newClientGenderList_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        int selectedGender = 0;
+        int.TryParse(newClientGenderListDDL.SelectedValue, out selectedGender);
+
+        ClearNewClientForm(selectedGender);
+        newClientPopupExtender.Show();
+    }
+
+    protected void ClearNewClientForm(int gender)
+    {
+        newCleint_simplePersonPanel.Visible = false;
+        newCleint_juridPersonPanel.Visible = false;
+        clientPurposeHiddenField.Value = string.Empty;
+
+        if (gender == (int)Constants.Classifiers.ClientType_PersoanaFizica)
+        {
+            newCleint_simplePersonPanel.Visible = true;
+
+            try
+            { newClientGenderListDDL.SelectedValue = ((int)Constants.Classifiers.ClientType_PersoanaFizica).ToString(); }
+            catch { }
+
+            newClientSimple_FirstNameTextBox.Text = string.Empty;
+            newClientSimple_LastNameTextBox.Text = string.Empty;
+            newClientSimple_BirthDateTextBox.Text = string.Empty;
+            newClientSimple_IDNPTextBox.Text = string.Empty;
+            newClientSimple_BuletinTextBox.Text = string.Empty;
+            newClientSimple_TelefonFixTextBox.Text = string.Empty;
+            newClientSimple_TelefonMobilTextBox.Text = string.Empty;
+            newClientSimple_EmailTextBox.Text = string.Empty;
+        }
+        else
+        {
+            newCleint_juridPersonPanel.Visible = true;
+
+            try
+            { newClientGenderListDDL.SelectedValue = ((int)Constants.Classifiers.ClientType_PersoanaJuridica).ToString(); }
+            catch { }
+
+            newClient_juridFullNameTextBox.Text = string.Empty;
+            newClient_juridRegistrationNRTextBox.Text = string.Empty;
+            newClient_juridContactPersonTextBox.Text = string.Empty;
+            newClient_juridTelefonFixTextBox.Text = string.Empty;
+            newClient_juridTelefonMobilTextBox.Text = string.Empty;
+            newClient_juridEmailTextBox.Text = string.Empty;
+        }
+    }
+
+    //protected void newClientSaveBurtton_Click(object sender, EventArgs e)
+    //{       
+        //DataObjects.Client newClientObject = new DataObjects.Client();
+
+        //bool doByPass = false;
+        //if (clientPurposeHiddenField.Value.EndsWith("SubClient") && Session["currentSelectedClientObject"] != null)
+        //{
+        //    DataObjects.Client parentClient = (DataObjects.Client)Session["currentSelectedClientObject"];
+
+        //    if (parentClient != null && parentClient.ClientID != 0)
+        //    {
+        //        newClientObject.ParentClientID = parentClient.ClientID;
+        //        doByPass = true;
+        //    }
+        //}
+        //else
+        //{
+        //    doByPass = true;
+        //}
+
+        //if (doByPass)
+        //{
+        //    int gender = 0;
+        //    int.TryParse(newClientGenderListDDL.SelectedValue, out gender);
+
+        //    newClientObject.Gender = gender;
+        //    newClientObject.Gender_String = newClientGenderListDDL.SelectedItem.Text;
+
+
+        //    if (gender == (int)Constants.Classifiers.ClientType_PersoanaFizica)
+        //    {
+        //        newClientObject.FirstName = newClientSimple_FirstNameTextBox.Text.Trim();
+        //        newClientObject.LastName = newClientSimple_LastNameTextBox.Text.Trim();
+        //        newClientObject.BirthDate = Crypt.Utils.ToDateTime(newClientSimple_BirthDateTextBox.Text, Constants.ISODateBackwardDotsFormat);
+        //        newClientObject.PersonalID = newClientSimple_IDNPTextBox.Text.Trim();
+        //        newClientObject.BuletinSeria = newClientSimple_BuletinTextBox.Text.Trim();
+        //        newClientObject.TelefonFix = newClientSimple_TelefonFixTextBox.Text.Trim();
+        //        newClientObject.TelefonMobil = newClientSimple_TelefonMobilTextBox.Text.Trim();
+        //        newClientObject.Email = newClientSimple_EmailTextBox.Text.Trim();
+        //    }
+        //    else
+        //    {
+        //        newClientObject.FirstName = newClient_juridFullNameTextBox.Text.Trim();
+        //        newClientObject.LastName = newClient_juridContactPersonTextBox.Text.Trim();
+        //        newClientObject.PersonalID = newClient_juridRegistrationNRTextBox.Text.Trim();
+        //        newClientObject.TelefonFix = newClient_juridTelefonFixTextBox.Text.Trim();
+        //        newClientObject.TelefonMobil = newClient_juridTelefonMobilTextBox.Text.Trim();
+        //        newClientObject.Email = newClient_juridEmailTextBox.Text.Trim();
+        //    }
+
+        //    if (Utils.ModuleCustomers().AddNewClient(ref newClientObject))
+        //    {
+        //        newClientPopupExtender.Hide();
+
+        //        if (!clientPurposeHiddenField.Value.EndsWith("SubClient"))
+        //        {
+        //            clientSelectionLink.Text = "Client: " + newClientObject.FirstName + " " + newClientObject.LastName;
+        //            Session["currentSelectedClientObject"] = newClientObject;
+        //        }
+        //    }
+        //}
+    
+
 }

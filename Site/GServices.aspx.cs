@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Collections.Generic;
+using System.Web;
 
 
 public partial class GServices : System.Web.UI.Page
@@ -29,9 +30,94 @@ public partial class GServices : System.Web.UI.Page
         return result;
     }
 
+    [System.Web.Services.WebMethod]
+    public static string SetSelectedClient(int id)
+    {
+        string result = String.Empty;
+
+        bool allowHere = Utils.PermissionAllowed(Client.Module.ID, Client.Domains.CustomersPersonalData.Name, Constants.Classifiers.Permissions_View);
+
+        if (IsAutentificatedUser() && allowHere)
+        {
+            DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(id);
+            HttpContext.Current.Session["currentSelectedClientObject"] = clientObject;
+        }
+
+        return result;
+    }
 
     [System.Web.Services.WebMethod]
-    public static string GetCustomersListAsHTMLTable(int parentClientID, int category, bool juridicPerson, string additionalGridID)
+    public static string AddClient(string purpose, string genderSTR, string firstName, string lastName, string personalID, string telefonFix, string telefonMobil, string email, string birtDate, string buletin)
+    {
+        string result = String.Empty;
+
+        bool allowHere = Utils.PermissionAllowed(Client.Module.ID, Client.Domains.CustomersPersonalData.Name, Constants.Classifiers.Permissions_View);
+
+        if (IsAutentificatedUser() && allowHere)
+        {
+            DataObjects.Client newClientObject = new DataObjects.Client();
+
+            bool doByPass = false;
+            if (purpose.EndsWith("SubClient") && HttpContext.Current.Session["currentSelectedClientObject"] != null)
+            {
+                DataObjects.Client parentClient = (DataObjects.Client)HttpContext.Current.Session["currentSelectedClientObject"];
+
+                if (parentClient != null && parentClient.ClientID != 0)
+                {
+                    newClientObject.ParentClientID = parentClient.ClientID;
+                    doByPass = true;
+                }
+            }
+            else
+            {
+                doByPass = true;
+            }
+
+            if (doByPass)
+            {
+                int gender = 0;
+                int.TryParse(genderSTR, out gender);
+
+                newClientObject.Gender = gender;
+
+
+                if (gender == (int)Constants.Classifiers.ClientType_PersoanaFizica)
+                {
+                    newClientObject.FirstName = firstName.Trim();
+                    newClientObject.LastName = lastName.Trim();
+                    newClientObject.BirthDate = Crypt.Utils.ToDateTime(birtDate, Constants.ISODateBackwardDotsFormat);
+                    newClientObject.PersonalID = personalID.Trim();
+                    newClientObject.BuletinSeria = buletin.Trim();
+                    newClientObject.TelefonFix = telefonFix.Trim();
+                    newClientObject.TelefonMobil = telefonMobil.Trim();
+                    newClientObject.Email = email.Trim();
+                }
+                else
+                {
+                    newClientObject.FirstName = firstName.Trim();
+                    newClientObject.LastName = lastName.Trim();
+                    newClientObject.PersonalID = personalID.Trim();
+                    newClientObject.TelefonFix = telefonFix.Trim();
+                    newClientObject.TelefonMobil = telefonMobil.Trim();
+                    newClientObject.Email = email.Trim();
+                }
+
+                if (Utils.ModuleCustomers().AddNewClient(ref newClientObject))
+                {
+                    if (!purpose.EndsWith("SubClient"))
+                    {
+                        HttpContext.Current.Session["currentSelectedClientObject"] = newClientObject;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+
+    [System.Web.Services.WebMethod]
+    public static string GetCustomersListAsHTMLTable(int category, bool juridicPerson)
     {
         string result = String.Empty;
 
@@ -49,11 +135,11 @@ public partial class GServices : System.Web.UI.Page
                 genderList.Add((int)Constants.Classifiers.ClientType_PersoanaFizica);
             }
 
-            DataTable clientdt = Utils.ModuleCustomers().GetClientList(category, genderList, parentClientID);
+            DataTable clientdt = Utils.ModuleCustomers().GetClientList(category, genderList, 0);
 
             if (clientdt != null && clientdt.Rows.Count > 0)
             {
-                result += " <table id='" + additionalGridID + "customersList'> \r\n";
+                result += " <table id='customersList'> \r\n";
                 result += "     <thead> \r\n ";
                 result += "         <tr> \r\n ";
 

@@ -7,14 +7,16 @@ public partial class Login : System.Web.UI.Page
 {
     protected void ClearSessionObject()
     {
-        Session[Utils.SessionKey_UserObject] = null;
-        Session[Utils.SessionKey_ModuleSecurity] = null;
-        Session[Utils.SessionKey_ModuleMain] = null;
-        Session[Utils.SessionKey_ModuleCustomers] = null;
-        Session[Utils.SessionKey_ModuleStore] = null;
-        Session[Utils.SessionKey_HeadModuleSlector] = null;
-        Session[Utils.SessionKey_ClientObject] = null;
-        Session[Utils.SessionKey_OrderObject] = null;
+        Session.Clear();
+
+        //Session[Utils.SessionKey_UserObject] = null;
+        //Session[Utils.SessionKey_ModuleSecurity] = null;
+        //Session[Utils.SessionKey_ModuleMain] = null;
+        //Session[Utils.SessionKey_ModuleCustomers] = null;
+        //Session[Utils.SessionKey_ModuleStore] = null;
+        //Session[Utils.SessionKey_HeadModuleSlector] = null;
+        //Session[Utils.SessionKey_ClientObject] = null;
+        //Session[Utils.SessionKey_OrderObject] = null;
     }
 
     protected void Page_Load(object sender, EventArgs e)

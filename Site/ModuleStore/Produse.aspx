@@ -1,6 +1,5 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Produse.aspx.cs" Inherits="Produse" EnableEventValidation="false" %>
 <%@ Register TagPrefix="ajax" Namespace="AjaxControlToolkit" Assembly="AjaxControlToolkit"%>
-<%@ Register TagPrefix="csd" TagName="ClientSelectionControl" Src="~/Controls/ClientSelectionControl.ascx" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" Runat="Server">   
 
@@ -62,7 +61,7 @@
                }
            });
        });        
-
+        
 
     </script> 
 
@@ -75,6 +74,26 @@
         &nbsp;&nbsp;&nbsp;&nbsp;
         <asp:ImageButton ID="uploadFromFileButton" BorderWidth="0px" ImageAlign="AbsMiddle" Width="16px" ToolTip="Upload From File" ImageUrl="../images/plus.png"  runat="server" OnClick="uploadFromFileButton_Click" AlternateText="Upload From File" /> </h2>
         <asp:HiddenField ID="selectedProductsListGridViewIndexHiddenField" runat="server"></asp:HiddenField>
+
+       <script language="javascript" type="text/javascript">
+           $(document).ready(function () {
+               gridviewProdScroll();
+           });
+
+           $(window).resize(function () {
+               gridviewProdScroll();
+           });
+
+           function gridviewProdScroll() {
+               gridView1 = $('#<%=productsListGridView.ClientID %>').gridviewScroll({
+                   width: $(window).width() - 150,
+                   height: $(window).height() - 200,
+                   freezesize: 0,
+                   headerrowcount: 1,
+               });
+           }
+       </script>
+
         <asp:GridView ID="productsListGridView" runat="server" 
             AutoGenerateColumns="false"
             AlternatingRowStyle-CssClass="odd"
@@ -167,7 +186,7 @@
         <h2> Upload From excel file </h2>
 
         <fieldset>
-            <label><%--Week:<asp:DropDownList ID="weeksDDL" runat="server"></asp:DropDownList>  &nbsp; &nbsp; &nbsp;  --%>
+            <label>
             File sheet: <asp:DropDownList ID="fileSheetsDDL" runat="server" ></asp:DropDownList>        &nbsp; &nbsp; &nbsp;         
             File:&nbsp;<asp:FileUpload ID="excelFileUpload" runat="server" />  <asp:Button ID="openFileButton" runat="server" Text="Open File"  OnClick="openFileButton_Click"/> </label>
             &nbsp; &nbsp; &nbsp; 
@@ -202,8 +221,6 @@
         </fieldset>
     
     </asp:Panel>
-
-
-     <csd:ClientSelectionControl ID="customerSelectionControl" runat="server" OnOnClientSelected="customerSelectionControl_OnClientSelected" />
+    
 </asp:Content>
 

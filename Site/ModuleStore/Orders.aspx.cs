@@ -13,20 +13,7 @@ public partial class Orders : System.Web.UI.Page
     bool allowEdit = false;
     bool allowView = false;
 
-    //DataObjects.Order OrderObject
-    //{
-    //    get { return Session[Utils.SessionKey_OrderObject] != null ? (DataObjects.Order)Session[Utils.SessionKey_OrderObject] : new DataObjects.Order(); }
-    //    set { Session[Utils.SessionKey_OrderObject] = value; }
-    //}
-
-    DataObjects.Client ClientObject
-    {
-        get { return Session[Utils.SessionKey_ClientObject] != null ? (DataObjects.Client)Session[Utils.SessionKey_ClientObject] : new DataObjects.Client(); }
-        set { Session[Utils.SessionKey_ClientObject] = value; }
-    }
-
     string appPath = string.Empty;
-
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -41,21 +28,14 @@ public partial class Orders : System.Web.UI.Page
 
             if (allowView)
             {
-                if (!IsPostBack)
+                if (Request["clt"] != null && !Request["clt"].ToString().Equals(string.Empty))
                 {
-                    Utils.GetMaster(this).ClearNavLinks();
-                    if (Request["act"] != null && !Request["act"].ToString().Equals(string.Empty))
-                    {
-                        string act = Request["act"].ToString();
-
-                        if (act.Equals("chooseclt"))
-                            customerSelectionControl.Show();
-                    }
-                    else
-                    {
-                        customerSelectionControl.Show();
-                    }            
+                    int clID = 0;
+                    int.TryParse(Request["clt"].ToString(), out clID);
+                    if (clID != 0) Utils.SelectedSubClientID = clID;
                 }
+
+                ShowPanel(ordersPanel.ID);
             }
             else
             {
@@ -81,21 +61,10 @@ public partial class Orders : System.Web.UI.Page
    
     protected void FIllOrdersGridView()
     {
-        DataTable ordersList = Utils.ModuleStore().GetOrdersHistory(this.ClientObject.ClientID);
+        DataTable ordersList = Utils.ModuleStore().GetOrdersHistory(Utils.ClientObject.ClientID);
 
         ordersListGridView.DataSource = ordersList;
         ordersListGridView.DataBind();
     }
-
-
-    protected void customerSelectionControl_OnClientSelected(object sender, ClientSelectionControl.FilterWindowEventsArg e)
-    {
-        if (e.SelectedItem != 0)
-        {
-            DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(e.SelectedItem);
-            this.ClientObject = clientObject;
-            ShowPanel(ordersPanel.ID);
-            Utils.GetMaster(this).AddNavlink("Vinzari pentru: " + clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleStore/Orders.aspx?act=chooseclt", Utils.Customer_HotNavogateKey);
-        }
-    }
+     
 }

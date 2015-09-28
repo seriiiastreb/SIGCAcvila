@@ -145,3 +145,4 @@ function removeEntryValue(inptValue, hiddenFieldID) {
 function DoNav(url) {
     document.location.href = url;
 };
+

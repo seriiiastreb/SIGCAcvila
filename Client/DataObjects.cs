@@ -6,8 +6,9 @@ public class DataObjects
 {
     [Serializable]
     public class Client
-    {
+    {        
         int mClientID = 0;
+        int mParentClientID = 0;
         int mGender = 0;
         string mGender_String = string.Empty;
         bool mAllowDelete = false;
@@ -35,6 +36,11 @@ public class DataObjects
         {
             get { return mClientID; }
             set { mClientID = value; }
+        }
+        public int ParentClientID
+        {
+            get { return mParentClientID; }
+            set { mParentClientID = value; }
         }
 
         public bool AllowDelete
@@ -225,6 +231,7 @@ public class DataObjects
             if (clientInfoRow != null)
             {
                 mClientID = clientInfoRow["clientID"] != System.DBNull.Value ? (int)clientInfoRow["clientID"] : 0;
+                ParentClientID = clientInfoRow["ParentClientID"] != System.DBNull.Value ? (int)clientInfoRow["ParentClientID"] : 0;
                 mAllowDelete = clientInfoRow["AllowDelete"] != System.DBNull.Value ? (bool)clientInfoRow["AllowDelete"] : false;
                 mFirstName = clientInfoRow["FirstName"] != System.DBNull.Value ? (string)clientInfoRow["FirstName"] : string.Empty;
                 mLastName = clientInfoRow["LastName"] != System.DBNull.Value ? (string)clientInfoRow["LastName"] : string.Empty;

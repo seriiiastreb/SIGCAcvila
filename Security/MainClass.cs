@@ -71,10 +71,9 @@ namespace Security
             return result;
         }
 
-        public System.Data.DataTable GetClassifierByTypeID(int typeID)
+        public static System.Data.DataTable GetClassifierByTypeID(int typeID)
         {
             System.Data.DataTable result = new System.Data.DataTable();
-            mLastError = string.Empty;
 
             try
             {                
@@ -87,13 +86,11 @@ namespace Security
                         //+ " OR Classifiers.Code = 0 "
                         + " ORDER BY Classifiers.Name ASC";
 
-                    result = Security.MainModule.DataBridge.ExecuteQuery(query);
-                    mLastError = Security.MainModule.DataBridge.LastError;
+                    result = Security.MainModule.DataBridge.ExecuteQuery(query);                    
                
             }
             catch (Exception exception)
             {
-                mLastError += "Error using DataBridge. " + exception.Message;
             }           
 
             return result;

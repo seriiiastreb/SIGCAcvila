@@ -16,13 +16,7 @@ public partial class StorePage : System.Web.UI.Page
     bool allowEdit = false;
     bool allowView = false;
     string appPath = string.Empty;
-
-    DataObjects.Client ClientObject
-    {
-        get { return Session[Utils.SessionKey_ClientObject] != null ? (DataObjects.Client)Session[Utils.SessionKey_ClientObject] : new DataObjects.Client(); }
-        set { Session[Utils.SessionKey_ClientObject] = value; }
-    }
-
+    
     protected void Page_Load(object sender, EventArgs e)
     {
         appPath = Utils.GetApplicationPath(Request);    
@@ -35,23 +29,15 @@ public partial class StorePage : System.Web.UI.Page
         {
             if (allowView)
             {
-                if (!IsPostBack)
+                if (Request["clt"] != null && !Request["clt"].ToString().Equals(string.Empty))
                 {
-                    Utils.GetMaster(this).ClearNavLinks();
-                    FillSheetsDDL();
+                    int clID = 0;
+                    int.TryParse(Request["clt"].ToString(), out clID);
+                    if (clID != 0) Utils.SelectedSubClientID = clID;
+                }    
 
-                    if (Request["act"] != null && !Request["act"].ToString().Equals(string.Empty))
-                    {
-                        string act = Request["act"].ToString();
-
-                        if (act.Equals("chooseclt"))
-                            customerSelectionControl.Show();
-                    }
-                    else
-                    {
-                        customerSelectionControl.Show();
-                    }        
-                }
+                FillSheetsDDL();                   
+                ShowPanel(StockListPanel.ID);                          
             }
             else
             {
@@ -61,8 +47,7 @@ public partial class StorePage : System.Web.UI.Page
         catch (Exception ex)
         { Utils.GetMaster(this).ShowMessage((int)Constants.InfoBoxMessageType.Error, "Attention! Error in system!", ex.Message); }
     }
-
-
+    
     protected void ShowPanel(string panelID)
     {
         StockListPanel.Visible = false;
@@ -110,7 +95,7 @@ public partial class StorePage : System.Web.UI.Page
 
     protected void FillStockGridView()
     {
-        DataTable dt = Utils.ModuleStore().GetStockList(this.ClientObject.ClientID);
+        DataTable dt = Utils.ModuleStore().GetStockList(Utils.SelectedClient.ClientID);
         StockListGridView.DataSource = dt;
         StockListGridView.DataBind();
     }
@@ -119,6 +104,7 @@ public partial class StorePage : System.Web.UI.Page
     {
         ShowPanel(uploadFromFilePanel.ID);
     }
+
     protected void openFileButton_Click(object sender, EventArgs e)
     {
         if (excelFileUpload.HasFile)
@@ -138,12 +124,13 @@ public partial class StorePage : System.Web.UI.Page
             }
         }
     }
+
     protected void confirmUploadButton_Click(object sender, EventArgs e)
     {
         if (uploadFileGridView.Rows.Count > 0)
         {
             string destinationUpload = destinationDDL.SelectedValue;
-            int client_id = this.ClientObject.ClientID;
+            int client_id = Utils.SelectedClient.ClientID;
 
             for (int i = 0; i < uploadFileGridView.Rows.Count; i++)
             {
@@ -227,15 +214,14 @@ public partial class StorePage : System.Web.UI.Page
     {
         ShowPanel(StockListPanel.ID);
     }
-
-
+    
     protected void createOrdersButton_Click(object sender, ImageClickEventArgs e)
     {
         string selectedWeek = generateCommandWeekDDL.SelectedValue;
 
         if (!string.IsNullOrEmpty(selectedWeek))
         {
-            int client_id = this.ClientObject.ClientID;
+            int client_id = Utils.SelectedClient.ClientID;
 
             DataTable comanda = Utils.ModuleStore().CreateNewOrder(client_id, selectedWeek);
 
@@ -285,6 +271,7 @@ public partial class StorePage : System.Web.UI.Page
         }
 
     }
+
     protected void StockListGridView_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
@@ -300,14 +287,15 @@ public partial class StorePage : System.Web.UI.Page
             }
         }
     }
-    protected void customerSelectionControl_OnClientSelected(object sender, ClientSelectionControl.FilterWindowEventsArg e)
-    {
-        if (e.SelectedItem != 0)
-        {
-            DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(e.SelectedItem);
-            this.ClientObject = clientObject;
-            ShowPanel(StockListPanel.ID);
-            Utils.GetMaster(this).AddNavlink("Vinzari pentru: " + clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleStore/StorePage.aspx?act=chooseclt", Utils.Customer_HotNavogateKey);
-        }        
-    }
+
+    //protected void customerSelectionControl_OnClientSelected(object sender, ClientSelectionControl.FilterWindowEventsArg e)
+    //{
+    //    if (e.SelectedItem != 0)
+    //    {
+    //        DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(e.SelectedItem);
+    //        this.ClientObject = clientObject;
+    //        ShowPanel(StockListPanel.ID);
+    //        Utils.GetMaster(this).AddNavlink("Vinzari pentru: " + clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleStore/StorePage.aspx?act=chooseclt", Utils.Customer_HotNavogateKey);
+    //    }        
+    //}
 }

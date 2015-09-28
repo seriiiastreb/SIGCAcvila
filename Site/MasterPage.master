@@ -29,10 +29,85 @@
 
     <script language="javascript" type="text/javascript">
 
-        function GetCustomersList(varcategory) {
-            var varjuridicPerson = document.getElementById('ctl00_MainPlaceHolder_customerSelectionControl_juridicPersonRadio').checked;
+        function validateEmail(email) {
+            var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+            return re.test(email);
+        }
 
-            var params = { category: varcategory, juridicPerson: varjuridicPerson, additionalGridID: 'ctl00_MainPlaceHolder_customerSelectionControl' };
+
+        function SetSelectedClient() {
+            var strID = document.getElementById('ctl00_selectedClientIDHiddenField').value;
+            if (strID != null && strID != '') {
+                var id = parseInt(strID);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/GServices.aspx/SetSelectedClient",
+                    data: '{ id: "' + id + '" }',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) { DoNav(window.location.href); },
+                    failure: function (response) { }
+                });
+            }
+        }
+         
+        function AddNewClient() {
+            var purpose = document.getElementById('ctl00_clientPurposeHiddenField').value;
+
+            var genderDDL = document.getElementById('ctl00_newClientGenderListDDL');
+            var genderSTR = genderDDL.options[genderDDL.selectedIndex].value;
+            var firstName = '';
+            var lastName = '';
+            var personalID = '';
+            var telefonFix = '';
+            var telefonMobil = '';
+            var email = '';
+            var birtDate = '';
+            var buletin = '';
+
+
+            if (genderSTR == '270') {
+                firstName = document.getElementById('ctl00_newClient_juridFullNameTextBox').value;
+                lastName = document.getElementById('ctl00_newClient_juridContactPersonTextBox').value;
+                personalID = document.getElementById('ctl00_newClient_juridRegistrationNRTextBox').value;
+                telefonFix = document.getElementById('ctl00_newClient_juridTelefonFixTextBox').value;
+                telefonMobil = document.getElementById('ctl00_newClient_juridTelefonMobilTextBox').value;
+                email = document.getElementById('ctl00_newClient_juridEmailTextBox').value;
+            }
+            else {
+                firstName = document.getElementById('ctl00_newClientSimple_FirstNameTextBox').value;
+                lastName = document.getElementById('ctl00_newClientSimple_LastNameTextBox').value;
+                personalID = document.getElementById('ctl00_newClientSimple_IDNPTextBox').value;
+                telefonFix = document.getElementById('ctl00_newClientSimple_TelefonFixTextBox').value;
+                telefonMobil = document.getElementById('ctl00_newClientSimple_TelefonMobilTextBox').value;
+                email = document.getElementById('ctl00_newClientSimple_EmailTextBox').value;
+                birtDate = document.getElementById('ctl00_newClientSimple_BirthDateTextBox').value;
+                buletin = document.getElementById('ctl00_newClientSimple_BuletinTextBox').value;
+            }
+            
+
+            if (validateEmail(email) && firstName != '' && lastName != '' && telefonFix != '') {
+                $.ajax({
+                    type: "POST",
+                    url: "/GServices.aspx/AddClient",
+                    data: '{ purpose: "' + purpose + '", genderSTR: "' + genderSTR + '", firstName: "' + firstName + '", lastName: "' + lastName + '", personalID: "' + personalID + '", telefonFix: "' + telefonFix + '", telefonMobil: "' + telefonMobil + '", email: "' + email + '", birtDate: "' + birtDate + '", buletin: "' + buletin + '"}',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) { DoNav(window.location.href); },
+                    failure: function (response) { }
+                });
+            }
+            else {
+                alert('Careva cimpuri nu sunt completate, sau formatul la EMAIL nu este corect!');                
+            }
+        }
+
+
+        function GetCustomersList(varcategory) {
+            var varjuridicPerson = document.getElementById('ctl00_juridicPersonRadio').checked;
+
+            var params = { category: varcategory, juridicPerson: varjuridicPerson };
             $.ajax({
                 type: "POST",
                 url: "/GServices.aspx/GetCustomersListAsHTMLTable",
@@ -44,16 +119,22 @@
             });
         }
 
+      
 
         function OnSuccess(response) {
             var resp = response.d;
-            var divelement = document.getElementById('ctl00_MainPlaceHolder_customerSelectionControl_customersDiv');
+            var divelement = document.getElementById('ctl00_customersDiv');
             divelement.innerHTML = resp;
-            document.getElementById('ctl00_MainPlaceHolder_customerSelectionControl_txtSearch').value = '';
-            document.getElementById('ctl00_MainPlaceHolder_customerSelectionControl_selectedClientIDHiddenField').value = '';
+            document.getElementById('ctl00_txtSearch').value = '';
+            //document.getElementById('ctl00_selectedClientIDHiddenField').value = '';
         }
 
 
+        function clickGrid(ckikedRow) {
+            ResetGridSelection('customersList');
+            ckikedRow.className = "selectedRow";
+            document.getElementById('ctl00_selectedClientIDHiddenField').value = ckikedRow.id;
+        }
 
     </script>
 
@@ -75,7 +156,11 @@
                     </ul>                  
                 </div>  
                 <div style="float:right; width:39%; padding-top:7px;"> 
+                    <div style="float:left; margin-top: 7px; ">
+                        <asp:LinkButton ID="clientSelectionLink" Visible="false" runat="server" Text="Client:" OnClick="clientSelectionLink_Click" > </asp:LinkButton>     
+                    </div>
                     <div style="float:right; /*margin-right:10px; */ margin-top: 7px;   " >
+                        
                         <asp:HyperLink ID="LogInLogOutLinkButton" CssClass="button black bigrounded" runat="server" > </asp:HyperLink>                   
                     </div>       
                     <div id="emailRegion" runat="server" style="float:right; margin-right:10px; "> 
@@ -97,6 +182,175 @@
 
 			<div class="clear"></div>
 		</div>
+               
+
+        <asp:Button runat="server" ID="hiddenTargetControlClientModalPopup" Style="display: none" />
+        <ajax:ModalPopupExtender 
+            runat="server" 
+            ID="clientModalPopup" 
+            TargetControlID="hiddenTargetControlClientModalPopup" 
+            PopupControlID="programmaticPopup"
+            DropShadow="True" 
+            CancelControlID="cancelButton"
+            OkControlID="okButton"
+            PopupDragHandleControlID="programmaticPopupDragHandle"
+            RepositionMode="RepositionOnWindowScroll">
+        </ajax:ModalPopupExtender>
+
+        <asp:Panel runat="server" ID="programmaticPopup" CssClass="box" style="display:none; width:750px; border:1px solid #000;">
+            <h2 style="cursor:move;" runat="server" id="programmaticPopupDragHandle">Client List  <asp:Image ID="cancelButton" runat="server" ImageUrl="~/images/dialog_close.png"  Width="23px" Height="23px" style="float:right; cursor:default; margin-top: -5px;" /></h2>
+            <fieldset>	
+                <div style="height:270px; width:150px; overflow:auto; float:left;">
+           
+                   <asp:RadioButton ID="juridicPersonRadio" runat="server" OnClick="GetCustomersList(0)" GroupName="clientSelecDialTypeCl" Text="Legal entity" Checked="true" />
+                   <br />
+                   <asp:RadioButton ID="fizicPersonRadio" runat="server" OnClick="GetCustomersList(0)" GroupName="clientSelecDialTypeCl" Text="Individualy" Checked="false" />
+                   <br /><br />
+                   <h5>Filter by Category</h5>
+                   <ul class="menu">
+				        <li>
+					        <a onclick="GetCustomersList(0)" style="cursor:pointer;">All customers</a>
+				        </li>
+				        <%--<li>
+					        <a onclick="GetCustomersList(1)" style="cursor:pointer;">Category 1</a>
+				        </li>
+				        <li>
+					        <a onclick="GetCustomersList(2)" style="cursor:pointer;">Category 2</a>
+				        </li>--%>
+			        </ul>        
+                </div>
+
+                <div  style="height:270px; width:560px;  overflow:auto; padding-left:15px;">
+                    <asp:Label ID="Label1" runat="server" Text="Live Filter"></asp:Label>
+                    <input type="text" runat="server" id="txtSearch" />   
+
+                   <div id="customersDiv" runat="server">
+                   </div>
+
+                </div>
+
+                <div style="text-align:center;">        
+                    <asp:HiddenField ID="selectedClientIDHiddenField" runat="server" />   
+                    <asp:Button ID="okButton" runat="server" Text="Ok" OnClientClick="SetSelectedClient()" Width="100px" CausesValidation="false" />
+                    <asp:Button ID="addNewClientButton" runat="server" Text="Add new client" Width="100px" CausesValidation="false" OnClick="addNewClientButton_Click" />
+                </div>
+            </fieldset>  
+        </asp:Panel>
+
+
+        <asp:HyperLink ID="newClientHyperLink" runat="server" Style=" display:none;"></asp:HyperLink>
+
+        <ajax:ModalPopupExtender ID="newClientPopupExtender" runat="server"     
+            TargetControlID="newClientHyperLink"
+            PopupControlID = "newClientPanel" 
+            PopupDragHandleControlID="newClientHeader"
+            OkControlID="newClientSaveBurtton"
+            BehaviorID="mpe"
+            CancelControlID="newclient_CancelButton"
+            DropShadow="true" >
+        </ajax:ModalPopupExtender>   
+
+            <asp:Panel runat="server" ID="newClientPanel" CssClass="grid_5 box" style="display:none; width: auto; border:1px solid #000;">
+                <asp:HiddenField ID="clientPurposeHiddenField" runat="server" />
+                <h2 style="cursor:move;" runat="server" id="newClientHeader">New Client  <asp:Image ID="newclient_CancelButton" runat="server" ImageUrl="~/images/dialog_close.png"  Width="23px" Height="23px" style="float:right; cursor:default; margin-top: -5px;"/></h2>
+                <fieldset>	
+                    <p>
+                        <label>Gender:</label>
+                        <asp:DropDownList ID="newClientGenderListDDL" runat="server" AutoPostBack="true" CausesValidation="false" OnSelectedIndexChanged="newClientGenderList_SelectedIndexChanged"></asp:DropDownList>
+                    </p>
+                    
+                    <asp:Panel ID="newCleint_simplePersonPanel" runat="server" Visible="false">
+                        <p>
+                            <label>Firts Name:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_FirstNameTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Last Name:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_LastNameTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Birth Date:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_BirthDateTextBox" ></asp:TextBox>
+                            <ajax:CalendarExtender ID="newClientSimple_BirthDateCalendarExtender" runat="server" TargetControlID="newClientSimple_BirthDateTextBox"></ajax:CalendarExtender>
+                        </p>
+
+                        <p>
+                            <label>Personal number (IDNP):</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_IDNPTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Buletin:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_BuletinTextBox" ></asp:TextBox>
+                        </p>
+
+                        <p>
+                            <label>Telefon / Fax:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_TelefonFixTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Telefon mobil:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_TelefonMobilTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Email:</label>
+                            <asp:TextBox runat="server" ID="newClientSimple_EmailTextBox" ></asp:TextBox>
+                            <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" 
+                                ErrorMessage="Wrong email!" ControlToValidate="newClientSimple_EmailTextBox" 
+                                Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
+                            <ajax:ValidatorCalloutExtender 
+                                runat="Server"
+                                ID="PNReqE"                     
+                                TargetControlID="RegularExpressionValidator1" 
+                                Width="250px"
+                                PopupPosition="Right" />
+                        </p>
+                    </asp:Panel>
+
+                    <asp:Panel ID="newCleint_juridPersonPanel" runat="server" Visible="true">
+                        <p>
+                            <label>Full Name:</label>
+                            <asp:TextBox runat="server" ID="newClient_juridFullNameTextBox" ></asp:TextBox>
+                        </p>    
+                        <p>
+                            <label>Registration nr.:</label>
+                            <asp:TextBox runat="server" ID="newClient_juridRegistrationNRTextBox" ></asp:TextBox>
+                        </p>                 
+                        <p>
+                            <label>Contact Person:</label>
+                            <asp:TextBox runat="server" ID="newClient_juridContactPersonTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Telefon / Fax:</label>
+                            <asp:TextBox runat="server" ID="newClient_juridTelefonFixTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Telefon mobil:</label>
+                            <asp:TextBox runat="server" ID="newClient_juridTelefonMobilTextBox" ></asp:TextBox>
+                        </p>
+                        <p>
+                            <label>Email:</label>
+                            <asp:TextBox runat="server" ID="newClient_juridEmailTextBox" ></asp:TextBox>
+                            <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" 
+                                ErrorMessage="Wrong email!" ControlToValidate="newClient_juridEmailTextBox" 
+                                Display="None" ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"></asp:RegularExpressionValidator>
+                            <ajax:ValidatorCalloutExtender 
+                                runat="Server"
+                                ID="ValidatorCalloutExtender1"                     
+                                TargetControlID="RegularExpressionValidator2" 
+                                Width="250px"
+                                PopupPosition="Right" />
+                        </p>
+                    </asp:Panel>
+
+                    <div style="text-align:right;">
+                        <asp:Button runat="server" ID="newClientSaveBurtton" Text="Save" OnClientClick="AddNewClient();"  Width="100px" CausesValidation="true"  /> <%--onclick="newClientSaveBurtton_Click"--%>
+                    </div>
+                </fieldset>
+            </asp:Panel>
+
+
+
+
 
     </form>
 </body>

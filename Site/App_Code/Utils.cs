@@ -603,8 +603,43 @@ public class Utils
     {
         Store.Module mModuleStore = (Store.Module)HttpContext.Current.Session[SessionKey_ModuleStore];
         return mModuleStore;
-    } 
+    }
 
+    public static DataObjects.Client ClientObject
+    {
+        get { DataObjects.Client clientObj = (DataObjects.Client)HttpContext.Current.Session[SessionKey_ClientObject];   return clientObj;  }
+        set { HttpContext.Current.Session[Utils.SessionKey_ClientObject] = value; }
+    }
+
+    public static DataObjects.Client SelectedClient
+    {
+        get
+        {
+            DataObjects.Client clientObject = HttpContext.Current.Session["currentSelectedSubClientObject"] != null ? (DataObjects.Client)HttpContext.Current.Session["currentSelectedSubClientObject"] : (DataObjects.Client)HttpContext.Current.Session["currentSelectedClientObject"];
+            return clientObject != null ? clientObject : new DataObjects.Client();
+        }
+
+        set
+        {
+            DataObjects.Client clientObject = value;
+            HttpContext.Current.Session["currentSelectedSubClientObject"] = null;
+
+            if (clientObject != null)
+            {
+                //clientSelectionLink.Text = "Client: " + clientObject.FirstName + " " + clientObject.LastName;
+                HttpContext.Current.Session["currentSelectedClientObject"] = clientObject;
+                //selectedClientIDHiddenField.Value = clientObject.ClientID.ToString();
+            }
+        }
+    }
+
+    public static int SelectedSubClientID
+    {
+        set
+        {
+            HttpContext.Current.Session["currentSelectedSubClientObject"] = Utils.ModuleCustomers().GetCleintObjectByID((int)value);
+        }
+    }
 
     public static bool PermissionAllowed(string moduleName, string domainName, Constants.Classifiers permission)
     {

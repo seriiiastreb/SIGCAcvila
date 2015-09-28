@@ -361,7 +361,7 @@ public partial class SystemSeqAdmin : System.Web.UI.Page
     
     protected void FillDDLOnUsersFroms()
     {
-        DataTable recordStatus = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.SystemUserRecordStatus);
+        DataTable recordStatus = Security.MainModule.GetClassifierByTypeID((int)Constants.ClassifierTypes.SystemUserRecordStatus);
         Utils.FillSelector(userDetails_RecordStatusDDL, recordStatus, "Name", "Code");
     }
 

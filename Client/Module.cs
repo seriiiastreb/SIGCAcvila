@@ -47,11 +47,12 @@ namespace Client
                 {
 
 
-                    string nonQuery = "INSERT INTO Client (gender,FirstName,LastName,           DateOfBirth,                                               personalID,    buletinSeria,                         dataEliberarii,                                                                                 dataExpirarii,                                                  eliberatDe,  telefonFix,  telefonMobil,   viza_country, viza_raion,  viza_localitatea,   viza_stradaAdresa,  email,  sortGroup)  "
+                    string nonQuery = "INSERT INTO Client (parentClientID, gender,FirstName,LastName,           DateOfBirth,                                               personalID,    buletinSeria,                         dataEliberarii,                                                                                 dataExpirarii,                                                  eliberatDe,  telefonFix,  telefonMobil,   viza_country, viza_raion,  viza_localitatea,   viza_stradaAdresa,  email,  sortGroup)  "
                                 + " OUTPUT INSERTED.ClientID "
-                                + " VALUES (@gender, @FirstName, @LastName, " + (clientObject.BirthDate.Equals(EmptyDate) ? "NULL" : "@DateOfBirth") + ", @personalID, @buletinSeria, " + (clientObject.DataEliberariiBuletin.Equals(EmptyDate) ? "NULL" : "@dataEliberarii") + ", " + (clientObject.DataExpirariiBuletin.Equals(EmptyDate) ? "NULL" : "@dataExpirarii") + ", @eliberatDe, @telefonFix, @telefonMobil, @viza_country, @viza_raion,   @viza_localitatea, @viza_stradaAdresa, @email, @sortGroup ); ";
+                                + " VALUES (@parentClientID, @gender, @FirstName, @LastName, " + (clientObject.BirthDate.Equals(EmptyDate) ? "NULL" : "@DateOfBirth") + ", @personalID, @buletinSeria, " + (clientObject.DataEliberariiBuletin.Equals(EmptyDate) ? "NULL" : "@dataEliberarii") + ", " + (clientObject.DataExpirariiBuletin.Equals(EmptyDate) ? "NULL" : "@dataExpirarii") + ", @eliberatDe, @telefonFix, @telefonMobil, @viza_country, @viza_raion,   @viza_localitatea, @viza_stradaAdresa, @email, @sortGroup ); ";
 
                     Hashtable parameters = new Hashtable();
+                    parameters.Add("@parentClientID", clientObject.ParentClientID);
                     parameters.Add("@FirstName", clientObject.FirstName);
                     parameters.Add("@LastName", clientObject.LastName);
                     if (!clientObject.BirthDate.Equals(EmptyDate)) parameters.Add("@DateOfBirth", clientObject.BirthDate);
@@ -1037,6 +1038,95 @@ namespace Client
 
 
         #endregion Customers Delivery Orders
+
+        #region Subclienti 
+
+        public DataTable GetSubclientsList(int clientID)
+        {
+            DataTable result = new DataTable();
+            mLastError = string.Empty;
+
+            try
+            {
+                if (clientID != 0)
+                {
+                    string query = "Select * "
+                                + " , coalesce(firstName, '') " + Plus + " (CASE WHEN gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN LastName ELSE '' END) as \"Client Full Name\" "
+                                + " , (select Name From Classifiers Where Code = gender) as gender_string "
+                                + " , (select Name From Classifiers Where Code = viza_country) as viza_country_string "
+                                + " , (select Name From Classifiers Where Code = viza_raion) as viza_raion_string "
+                                + " , coalesce(telefonMobil, '') " + Plus + " coalesce(telefonFix, '') as telefon "
+                                + " , (select Name From Classifiers Where Code = SortGroup) as SortGroup_string "
+
+                                + " FROM CLIENT \r\n "
+                                + " WHERE parentClientID = " + clientID
+                                + " Order BY FirstName, LastName ";
+
+                    Hashtable parameters = new Hashtable();
+                    parameters.Add("@AllowDelete", true);
+                    parameters.Add("@NotAllowDelete", false);
+
+                    result = mDataBridge.ExecuteQuery(query, parameters);
+                    mLastError = mDataBridge.LastError;
+                }
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+        public List<DataObjects.Client> GetSubclientsObjectsList(int clientID)
+        {
+            List<DataObjects.Client> result = new List<DataObjects.Client>();
+            mLastError = string.Empty;
+
+            try
+            {
+                if (clientID != 0)
+                {
+                    string query = "Select * "
+                                + " , coalesce(firstName, '') " + Plus + " (CASE WHEN gender = " + (int)Constants.Classifiers.ClientType_PersoanaFizica + " THEN LastName ELSE '' END) as \"Client Full Name\" "
+                                + " , (select Name From Classifiers Where Code = gender) as gender_string "
+                                + " , (select Name From Classifiers Where Code = viza_country) as viza_country_string "
+                                + " , (select Name From Classifiers Where Code = viza_raion) as viza_raion_string "
+                                + " , coalesce(telefonMobil, '') " + Plus + " coalesce(telefonFix, '') as telefon "
+                                + " , (select Name From Classifiers Where Code = SortGroup) as SortGroup_string "
+                                 + " , @AllowDelete as AllowDelete  \r\n "
+
+                                + " FROM CLIENT \r\n "
+                                + " WHERE parentClientID = " + clientID
+                                + " Order BY FirstName, LastName ";
+
+                    Hashtable parameters = new Hashtable();
+                    parameters.Add("@AllowDelete", true);
+                    parameters.Add("@NotAllowDelete", false);
+
+                    DataTable tempResult = mDataBridge.ExecuteQuery(query, parameters);
+                    mLastError = mDataBridge.LastError;
+
+                    if (tempResult != null && tempResult.Rows.Count > 0)
+                    {
+                        for (int i = 0; i < tempResult.Rows.Count; i++)
+                        {
+                            DataObjects.Client subLcint = new DataObjects.Client(tempResult.Rows[i]);
+                            result.Add(subLcint);
+                        } 
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                mLastError += "Error using DataBridge. " + exception.Message;
+            }
+
+            return result;
+        }
+
+
+        #endregion Subclienti 
     }
 
     namespace Domains

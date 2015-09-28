@@ -14,12 +14,6 @@ public partial class Produse : System.Web.UI.Page
     bool allowView = false;
 
     string appPath = string.Empty;
-    DataObjects.Client ClientObject
-    {
-        get { return Session[Utils.SessionKey_ClientObject] != null ? (DataObjects.Client)Session[Utils.SessionKey_ClientObject] : new DataObjects.Client(); }
-        set { Session[Utils.SessionKey_ClientObject] = value; }
-    }
-
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -32,22 +26,21 @@ public partial class Produse : System.Web.UI.Page
         {
             if (allowView)
             {
+                if (Request["clt"] != null && !Request["clt"].ToString().Equals(string.Empty))
+                {
+                    int clID = 0;
+                    int.TryParse(Request["clt"].ToString(), out clID);
+                    if (clID != 0) Utils.SelectedSubClientID = clID;
+                }
+
+                if (!IsPostBack)
+                { FillAllComboBox(); }
+
+                ShowPanel(productsPanel.ID);
+
+
                 if (!IsPostBack)
                 {
-                    FillAllComboBox();
-
-                    Utils.GetMaster(this).ClearNavLinks();
-                    if (Request["act"] != null && !Request["act"].ToString().Equals(string.Empty))
-                    {
-                        string act = Request["act"].ToString();
-
-                        if (act.Equals("chooseclt"))
-                            customerSelectionControl.Show();
-                    }
-                    else
-                    {
-                        customerSelectionControl.Show();
-                    }           
                 }
                 else
                 {
@@ -101,7 +94,7 @@ public partial class Produse : System.Web.UI.Page
                                         int productID = 0;
                                         int.TryParse(productsListGridView.Rows[selectedIndexInProdusGrid].Cells[0].Text, out productID);
 
-                                        if (Utils.ModuleStore().DeleteProduct(this.ClientObject.ClientID, productID))
+                                        if (Utils.ModuleStore().DeleteProduct(Utils.SelectedClient.ClientID, productID))
                                         {
                                             FIllProductsGridView();
                                         }
@@ -148,9 +141,6 @@ public partial class Produse : System.Web.UI.Page
 
     protected void FillSheetsDDL()
     {
-    //    DataTable weeksDT = Utils.ModuleStore().GetWeeksList();
-    //    Utils.FillSelector(weeksDDL, weeksDT, "week", "week");
-
         List<string> sheets = new List<string>();
         sheets.Add("Sheet1");
         sheets.Add("Sheet2");
@@ -160,19 +150,19 @@ public partial class Produse : System.Web.UI.Page
 
         fileSheetsDDL.SelectedValue = "Sheet1";
     }
-        
+
     protected void FillAllComboBox()
     {
-        DataTable articolList = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.Articol);
+        DataTable articolList = Security.MainModule.GetClassifierByTypeID((int)Constants.ClassifierTypes.Articol);
         Utils.FillSelector(orderArticolDDL, articolList, "Name", "Code");
 
-        DataTable desene = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.Desen);
+        DataTable desene = Security.MainModule.GetClassifierByTypeID((int)Constants.ClassifierTypes.Desen);
         Utils.FillSelector(orderDesenDDL, desene, "Name", "Code");
 
-        DataTable tips = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.Tip);
+        DataTable tips = Security.MainModule.GetClassifierByTypeID((int)Constants.ClassifierTypes.Tip);
         Utils.FillSelector(orderTipDDL, tips, "Name", "Code");
 
-        DataTable colorit = Utils.ModuleMain().GetClassifierByTypeID((int)Constants.ClassifierTypes.Colorit);
+        DataTable colorit = Security.MainModule.GetClassifierByTypeID((int)Constants.ClassifierTypes.Colorit);
         Utils.FillSelector(orderColoritDDL, colorit, "Name", "Code");
     }
 
@@ -226,11 +216,11 @@ public partial class Produse : System.Web.UI.Page
 
                 if (isNewAction)
                 {
-                    resultAction = Utils.ModuleStore().AddProduct(this.ClientObject.ClientID, articol, desen, tip, colorit, latime, lungime, short_description);
+                    resultAction = Utils.ModuleStore().AddProduct(Utils.SelectedClient.ClientID, articol, desen, tip, colorit, latime, lungime, short_description);
                 }
                 else
                 {
-                    resultAction = Utils.ModuleStore().UpdateProduct(this.ClientObject.ClientID, productID, articol, desen, tip, colorit, latime, lungime, short_description);
+                    resultAction = Utils.ModuleStore().UpdateProduct(Utils.SelectedClient.ClientID, productID, articol, desen, tip, colorit, latime, lungime, short_description);
                 }
 
 
@@ -255,10 +245,10 @@ public partial class Produse : System.Web.UI.Page
     }
 
     #endregion new orders
-    
+
     protected void FIllProductsGridView()
     {
-        DataTable ordersList = Utils.ModuleStore().GetProductsList(this.ClientObject.ClientID);
+        DataTable ordersList = Utils.ModuleStore().GetProductsList(Utils.SelectedClient.ClientID);
         productsListGridView.DataSource = ordersList;
         productsListGridView.DataBind();
     }
@@ -409,7 +399,7 @@ public partial class Produse : System.Web.UI.Page
 
                     if (Utils.ModuleStore().DetectProduct(articolSTR, desenSTR, tipSTR, coloritSTR, latime, lungime) == 0)
                     {
-                        if (Utils.ModuleStore().AddProduct(this.ClientObject.ClientID, articolInt, desenINT, tipInt, coloritINt, latime, lungime, short_description))
+                        if (Utils.ModuleStore().AddProduct(Utils.SelectedClient.ClientID, articolInt, desenINT, tipInt, coloritINt, latime, lungime, short_description))
                         {
                             resultUploadLabel.Text = "OK.";
                         }
@@ -426,20 +416,9 @@ public partial class Produse : System.Web.UI.Page
             }
         }
     }
-    
+
     protected void uploadFromFileButton_Click(object sender, ImageClickEventArgs e)
     {
         ShowPanel(uploadFromFilePanel.ID);
-    }
-    
-    protected void customerSelectionControl_OnClientSelected(object sender, ClientSelectionControl.FilterWindowEventsArg e)
-    {
-        if (e.SelectedItem != 0)
-        {
-            DataObjects.Client clientObject = Utils.ModuleCustomers().GetCleintObjectByID(e.SelectedItem);
-            this.ClientObject = clientObject;
-            ShowPanel(productsPanel.ID);
-            Utils.GetMaster(this).AddNavlink("Vinzari pentru: " + clientObject.FirstName + " " + clientObject.LastName, appPath + "/ModuleStore/Orders.aspx?act=chooseclt", Utils.Customer_HotNavogateKey);
-        }
     }
 }
