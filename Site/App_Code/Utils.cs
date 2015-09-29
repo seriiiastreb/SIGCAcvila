@@ -605,11 +605,11 @@ public class Utils
         return mModuleStore;
     }
 
-    public static DataObjects.Client ClientObject
-    {
-        get { DataObjects.Client clientObj = (DataObjects.Client)HttpContext.Current.Session[SessionKey_ClientObject];   return clientObj;  }
-        set { HttpContext.Current.Session[Utils.SessionKey_ClientObject] = value; }
-    }
+    //public static DataObjects.Client ClientObject
+    //{
+    //    get { DataObjects.Client clientObj = (DataObjects.Client)HttpContext.Current.Session[SessionKey_ClientObject];   return clientObj;  }
+    //    set { HttpContext.Current.Session[Utils.SessionKey_ClientObject] = value; }
+    //}
 
     public static DataObjects.Client SelectedClient
     {

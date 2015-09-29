@@ -61,7 +61,7 @@ public partial class Orders : System.Web.UI.Page
    
     protected void FIllOrdersGridView()
     {
-        DataTable ordersList = Utils.ModuleStore().GetOrdersHistory(Utils.ClientObject.ClientID);
+        DataTable ordersList = Utils.ModuleStore().GetOrdersHistory(Utils.SelectedClient.ClientID);
 
         ordersListGridView.DataSource = ordersList;
         ordersListGridView.DataBind();

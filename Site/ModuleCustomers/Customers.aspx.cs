@@ -33,8 +33,7 @@ public partial class Customers : System.Web.UI.Page
             {
                 if (!IsPostBack)  FillAllComboBox();
                 ShowPanel(clientWorkPanel.ID);
-
-
+                
                 if (!IsPostBack)
                 {
                 }

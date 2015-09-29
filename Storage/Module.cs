@@ -198,12 +198,14 @@ namespace Store
 
             try
             {
-                string wekssql = @"SELECT DISTINCT week FROM Orders WHERE client_id = " + client_id + " order by week asc ";
-                DataTable weeksInOrders = mDataBridge.ExecuteQuery(wekssql);
-
-                if (weeksInOrders != null && weeksInOrders.Rows.Count > 0)
+                if (client_id != 0)
                 {
-                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Orders)
+                    string wekssql = @"SELECT DISTINCT week FROM Orders WHERE client_id in (SELECT " + client_id + " UNION ALL SELECT clientid FROM Client WHERE parentClientID = " + client_id + @") order by week asc ";
+                    DataTable weeksInOrders = mDataBridge.ExecuteQuery(wekssql);
+
+                    if (weeksInOrders != null && weeksInOrders.Rows.Count > 0)
+                    {
+                        string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Orders WHERE client_id in (SELECT " + client_id + " UNION ALL SELECT clientid FROM Client WHERE parentClientID = " + client_id + @"))
                                 , ProdDet as (SELECT 
                                 product_id
                                 , ClArt.Name as ""Articol"" 
@@ -218,7 +220,7 @@ namespace Store
                                 LEFT JOIN Classifiers as ClTip on ClTip.Code = PD.tip
                                 LEFT JOIN Classifiers as ClColorit on ClColorit.Code = PD.colorit )
 ";
-                    query += @" SELECT  
+                        query += @" SELECT  
                              ProdDet.""Articol""  
                             ,ProdDet.""Desen""                             
                             ,ProdDet.""Tip""                             
@@ -226,32 +228,35 @@ namespace Store
                             ,ProdDet.""Latime""   
                             ,ProdDet.""Lungime""  ";
 
-                    for (int i = 0; i < weeksInOrders.Rows.Count; i++)
-                    {
-                        query += ", coalesce(ORD" + i + ".quantity,0) as \"Confirmat " + weeksInOrders.Rows[i]["week"].ToString() + "\"   \r\n ";
-                        query += ", coalesce(LVR" + i + ".quantity,0) as \"Livrat " + weeksInOrders.Rows[i]["week"].ToString() + "\"   \r\n ";
+                        for (int i = 0; i < weeksInOrders.Rows.Count; i++)
+                        {
+                            query += ", coalesce(SUM(ORD" + i + ".quantity),0) as \"Confirmat " + weeksInOrders.Rows[i]["week"].ToString() + "\"   \r\n ";
+                            query += ", coalesce(SUM(LVR" + i + ".quantity),0) as \"Livrat " + weeksInOrders.Rows[i]["week"].ToString() + "\"   \r\n ";
+                        }
+
+                        query += ", ";
+                        for (int i = 0; i < weeksInOrders.Rows.Count; i++)
+                        {
+                            if (i > 0) query += " + ";
+                            query += "  coalesce(SUM(ORD" + i + ".quantity),0) -   coalesce(SUM(LVR" + i + ".quantity),0)  \r\n ";
+                        }
+                        query += " as \"In Way\" \r\n ";
+
+                        query += "  FROM MainTBL  \r\n ";
+
+                        query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id \r\n ";
+
+                        for (int i = 0; i < weeksInOrders.Rows.Count; i++)
+                        {
+                            query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".client_id in (SELECT " + client_id + " UNION ALL SELECT clientid FROM Client WHERE parentClientID = " + client_id + @") AND ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInOrders.Rows[i]["week"].ToString() + "' \r\n ";
+                            query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".client_id in (SELECT " + client_id + " UNION ALL SELECT clientid FROM Client WHERE parentClientID = " + client_id + @")AND LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInOrders.Rows[i]["week"].ToString() + "' \r\n ";
+                        }
+
+                        query += @" GROUP BY ProdDet.""Articol"" ,ProdDet.""Desen"" ,ProdDet.""Tip"" ,ProdDet.""Colorit"" ,ProdDet.""Latime"" ,ProdDet.""Lungime"" ";
+
+                        result = mDataBridge.ExecuteQuery(query);
+                        mLastError = mDataBridge.LastError;
                     }
-
-                    query += ", ";
-                    for (int i = 0; i < weeksInOrders.Rows.Count; i++)
-                    {
-                        if (i > 0) query += " + ";
-                        query += "  coalesce(ORD" + i + ".quantity,0) -   coalesce(LVR" + i + ".quantity,0)  \r\n ";
-                    }
-                    query += " as \"In Way\" \r\n ";
-
-                    query += "  FROM MainTBL  \r\n ";
-
-                    query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id \r\n ";
-
-                    for (int i = 0; i < weeksInOrders.Rows.Count; i++)
-                    {
-                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".client_id = " + client_id + " AND ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInOrders.Rows[i]["week"].ToString() + "' \r\n ";
-                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".client_id = " + client_id + " AND LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInOrders.Rows[i]["week"].ToString() + "' \r\n ";
-                    }
-
-                    result = mDataBridge.ExecuteQuery(query);
-                    mLastError = mDataBridge.LastError;
                 }
             }
             catch (Exception exception)
@@ -356,57 +361,62 @@ namespace Store
 
             try
             {
-                string distinctDays = " SELECT DISTINCT week FROM Stock WHERE client_ID = " + client_ID + " order by week ASC";
-                DataTable weeksInStock = mDataBridge.ExecuteQuery(distinctDays);
-                mLastError = mDataBridge.LastError;
-
-                string distinctDaysVinzari = " SELECT DISTINCT week FROM Vinzari order by week ASC";
-                DataTable weeksInVinzari = mDataBridge.ExecuteQuery(distinctDaysVinzari);
-                mLastError = mDataBridge.LastError;
-
-                if (weeksInStock != null && weeksInStock.Rows.Count > 0)
+                if (client_ID != 0)
                 {
-                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stock WHERE client_ID = " + client_ID + @")
+                    string distinctDays = " SELECT DISTINCT week FROM Stock WHERE client_ID in (SELECT " + client_ID + " UNION ALL SELECT clientid FROM Client WHERE parentClientID = " + client_ID + ") order by week ASC";
+                    DataTable weeksInStock = mDataBridge.ExecuteQuery(distinctDays);
+                    mLastError = mDataBridge.LastError;
+
+                    string distinctDaysVinzari = " SELECT DISTINCT week FROM Vinzari WHERE client_id in (SELECT " + client_ID + " UNION ALL SELECT clientid FROM Client WHERE parentClientID = " + client_ID + ") order by week ASC";
+                    DataTable weeksInVinzari = mDataBridge.ExecuteQuery(distinctDaysVinzari);
+                    mLastError = mDataBridge.LastError;
+
+                    if (weeksInStock != null && weeksInStock.Rows.Count > 0)
+                    {
+                        string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Stock WHERE client_ID in (SELECT " + client_ID + " UNION ALL SELECT clientid FROM Client WHERE parentClientID = " + client_ID + @"))
                                 , ProdDet as (SELECT 
                                 product_id
                                 , short_description            
                                 FROM productdetails PD )
 ";
 
-                    query += @" SELECT  
+                        query += @" SELECT  
                             ProdDet.short_description as ""___________Product___________""                            
-                            , coalesce(Kanban.quantity,0) as ""Kanban""  
+                            , coalesce(SUM(Kanban.quantity),0) as ""Kanban""  
 , ";
 
-                    for (int i = 0; i < weeksInStock.Rows.Count; i++)
-                    {
-                        if (i > 0) query += " + ";
-                        query += "  coalesce(ORD" + i + ".quantity,0) -   coalesce(LVR" + i + ".quantity,0)  \r\n ";
+                        for (int i = 0; i < weeksInStock.Rows.Count; i++)
+                        {
+                            if (i > 0) query += " + ";
+                            query += "  coalesce(SUM(ORD" + i + ".quantity),0) -   coalesce(SUM(LVR" + i + ".quantity),0)  \r\n ";
+                        }
+                        query += " as \"In Way\" \r\n ";
+
+                        for (int i = 0; i < weeksInStock.Rows.Count; i++)
+                        {
+                            query += ", coalesce(SUM(ST" + i + ".quantity),0) as \"" + weeksInStock.Rows[i]["week"].ToString() + "\"   \r\n ";
+                        }
+
+                        query += "  FROM MainTBL  \r\n ";
+                        query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id \r\n ";
+                        query += " LEFT JOIN Kanban ON Kanban.product_id = MainTBL.product_id \r\n ";
+
+                        for (int i = 0; i < weeksInStock.Rows.Count; i++)
+                        {
+                            query += " LEFT JOIN Stock as ST" + i + " ON ST" + i + ".client_ID in (SELECT " + client_ID + " UNION ALL SELECT clientid FROM Client WHERE parentClientID = " + client_ID + ") AND ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
+                        }
+
+                        for (int i = 0; i < weeksInStock.Rows.Count; i++)
+                        {
+                            query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".client_ID in (SELECT " + client_ID + " UNION ALL SELECT clientid FROM Client WHERE parentClientID = " + client_ID + ") AND ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
+                            query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".client_ID in (SELECT " + client_ID + " UNION ALL SELECT clientid FROM Client WHERE parentClientID = " + client_ID + ") AND LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
+                        }
+
+                        query += "  GROUP BY ProdDet.short_description ";
+
+                        result = mDataBridge.ExecuteQuery(query);
+                        mLastError = mDataBridge.LastError;
                     }
-                    query += " as \"In Way\" \r\n ";
-
-                    for (int i = 0; i < weeksInStock.Rows.Count; i++)
-                    {
-                        query += ", coalesce(ST" + i + ".quantity,0) as \"" + weeksInStock.Rows[i]["week"].ToString() + "\"   \r\n ";
-                    }
-
-                    query += "  FROM MainTBL  \r\n ";
-                    query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id \r\n ";
-                    query += " LEFT JOIN Kanban ON Kanban.product_id = MainTBL.product_id \r\n ";
-
-                    for (int i = 0; i < weeksInStock.Rows.Count; i++)
-                    {
-                        query += " LEFT JOIN Stock as ST" + i + " ON ST" + i + ".client_ID = " + client_ID + " AND ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
-                    }
-
-                    for (int i = 0; i < weeksInStock.Rows.Count; i++)
-                    {
-                        query += "  LEFT JOIN Orders as ORD" + i + " ON ORD" + i + ".client_ID = " + client_ID + " AND ORD" + i + ".product_id =  MainTBL.product_id AND ORD" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
-                        query += "  LEFT JOIN Livrari as LVR" + i + " ON LVR" + i + ".client_ID = " + client_ID + " AND LVR" + i + ".product_id =  MainTBL.product_id AND LVR" + i + ".week = '" + weeksInStock.Rows[i]["week"].ToString() + "' \r\n ";
-                    }
-
-                    result = mDataBridge.ExecuteQuery(query);
-                    mLastError = mDataBridge.LastError;
                 }
             }
             catch (Exception exception)
@@ -627,13 +637,15 @@ namespace Store
 
             try
             {
-                string distinctDays = " SELECT DISTINCT week FROM Vinzari WHERE client_id = " + client_id + " ORDER BY week ASC";
-                DataTable weeks = mDataBridge.ExecuteQuery(distinctDays);
-                mLastError = mDataBridge.LastError;
-
-                if (weeks != null && weeks.Rows.Count > 0)
+                if (client_id != 0)
                 {
-                    string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Vinzari WHERE client_id = " + client_id + @")
+                    string distinctDays = " SELECT DISTINCT week FROM Vinzari WHERE client_id in (SELECT " + client_id + " UNION ALL SELECT clientid FROM Client WHERE parentClientID = " + client_id + ") ORDER BY week ASC";
+                    DataTable weeks = mDataBridge.ExecuteQuery(distinctDays);
+                    mLastError = mDataBridge.LastError;
+
+                    if (weeks != null && weeks.Rows.Count > 0)
+                    {
+                        string query = @" WITH MainTBL as (SELECT DISTINCT product_id FROM Vinzari WHERE client_id in (SELECT " + client_id + " UNION ALL SELECT clientid FROM Client WHERE parentClientID = " + client_id + @"))
                                 , ProdDet as (SELECT 
                                 product_id
                                 , ClArt.Name as ""Articol"" 
@@ -650,52 +662,44 @@ namespace Store
 
 ";
 
-                    query += @" SELECT  
+                        query += @" SELECT  
                             ProdDet.""Articol""  
                             ,ProdDet.""Desen""                             
                             ,ProdDet.""Tip""                             
                             ,ProdDet.""Colorit""   
                             ,ProdDet.""Latime""   
                             ,ProdDet.""Lungime""   
-                            , coalesce(Kanban.quantity,0) as ""Kanban""";
+                            , coalesce(SUM(Kanban.quantity),0) as ""Kanban""";
 
-                    //query += " , dbo.MaxVAL(5, ( ";
+                        query += " , cast ( ( ";
 
-                    //for (int i = 0; i < weeks.Rows.Count && i < 5; i++)
-                    //{
-                    //    if (i > 0) query += " + ";
-                    //    query += "coalesce(ST" + (weeks.Rows.Count - i - 1) + ".quantity, 0)";
-                    //}
+                        for (int i = 0; i < weeks.Rows.Count && i < 5; i++)
+                        {
+                            if (i > 0) query += " + ";
+                            query += "coalesce(SUM(ST" + (weeks.Rows.Count - i - 1) + ".quantity), 0)";
+                        }
 
-                    //query += " ) / 5 * 3) as \"Kanban\" \r\n ";
+                        query += " ) / 5 as decimal(18,2))  as \"Vinz Medii\" \r\n ";
 
 
-                    query += " , cast ( ( ";
+                        for (int i = 0; i < weeks.Rows.Count; i++)
+                        {
+                            query += ", coalesce(SUM(ST" + i + ".quantity),0) as \"" + weeks.Rows[i]["week"].ToString() + "\"   \r\n ";
+                        }
 
-                    for (int i = 0; i < weeks.Rows.Count && i < 5; i++)
-                    {
-                        if (i > 0) query += " + ";
-                        query += "coalesce(ST" + (weeks.Rows.Count - i - 1) + ".quantity, 0)";
+                        query += "  FROM MainTBL  \r\n ";
+                        query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id ";
+                        query += " LEFT JOIN Kanban ON Kanban.product_id = MainTBL.product_id ";
+                        for (int i = 0; i < weeks.Rows.Count; i++)
+                        {
+                            query += " LEFT JOIN Vinzari as ST" + i + " ON ST" + i + ".client_id in (SELECT " + client_id + " UNION ALL SELECT clientid FROM Client WHERE parentClientID = " + client_id + ") AND ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeks.Rows[i]["week"].ToString() + "' \r\n ";
+                        }
+
+                        query += @"   GROUP BY  ProdDet.""Articol"",ProdDet.""Desen"" ,ProdDet.""Tip"" ,ProdDet.""Colorit"" ,ProdDet.""Latime"" ,ProdDet.""Lungime"" ";
+
+                        result = mDataBridge.ExecuteQuery(query);
+                        mLastError = mDataBridge.LastError;
                     }
-
-                    query += " ) / 5 as decimal(18,2))  as \"Vinz Medii\" \r\n ";
-
-                   
-                    for (int i = 0; i < weeks.Rows.Count; i++)
-                    {
-                        query += ", coalesce(ST" + i + ".quantity,0) as \"" + weeks.Rows[i]["week"].ToString() + "\"   \r\n ";
-                    }
-
-                    query += "  FROM MainTBL  \r\n ";
-                    query += " LEFT JOIN ProdDet ON ProdDet.product_id = MainTBL.product_id ";
-                    query += " LEFT JOIN Kanban ON Kanban.product_id = MainTBL.product_id ";
-                    for (int i = 0; i < weeks.Rows.Count; i++)
-                    {
-                        query += " LEFT JOIN Vinzari as ST" + i + " ON ST" + i + ".client_id = " + client_id + " AND ST" + i + ".product_id =  MainTBL.product_id AND ST" + i + ".week = '" + weeks.Rows[i]["week"].ToString() + "' \r\n ";
-                    }
-
-                    result = mDataBridge.ExecuteQuery(query);
-                    mLastError = mDataBridge.LastError;
                 }
             }
             catch (Exception exception)
